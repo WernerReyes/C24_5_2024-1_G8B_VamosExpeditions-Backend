@@ -2,9 +2,9 @@ import 'dotenv/config';
 import { get } from 'env-var';
 
 
-export const envs = {
+export class Envs {
 
-  PORT: get('PORT').required().asPortNumber(),
+  public static readonly  PORT = get('PORT').required().asPortNumber()
 
 }
 
