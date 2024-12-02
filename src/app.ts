@@ -1,4 +1,4 @@
-import { Envs } from "./config/envs";
+import { EnvsConst } from "./core/constants";
 import { AppRoutes } from "./presentation/routes";
 import { Server } from "./presentation/server";
 
@@ -8,8 +8,9 @@ import { Server } from "./presentation/server";
 
 function main() {
   const server = new Server({
-    port: Envs.PORT,
+    port: EnvsConst.PORT,
     routes: AppRoutes.routes,
+    client_url: EnvsConst.CLIENT_URL,
   });
 
   server.start();
