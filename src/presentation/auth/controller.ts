@@ -24,6 +24,8 @@ export class AuthController extends AppController {
   };
 
   public login = async (req: Request, res: Response) => {
+
+
     await this.authService
       .login(req.body)
       .then((response) => {
@@ -37,6 +39,7 @@ export class AuthController extends AppController {
         });
       })
       .catch((error) => this.handleError(res, error));
+      
   };
 
   public logout = async (req: Request, res: Response) => {

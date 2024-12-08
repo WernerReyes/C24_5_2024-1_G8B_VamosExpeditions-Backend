@@ -28,11 +28,3 @@ export class UserEntity {
   }
 }
 
-// model user {
-//     id_user  Int    @id @default(autoincrement())
-//     fullname String @db.VarChar(45)
-//     email    String @db.VarChar(45)
-//     password String @db.VarChar(45)
-//     id_rol   Int
-//     role     role   @relation(fields: [id_rol], references: [id_role], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_rol")
-//   }
