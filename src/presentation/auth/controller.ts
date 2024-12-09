@@ -20,8 +20,6 @@ export class AuthController extends AppController {
       // sameSite: "none",
       path: "/",
     });
-
-    console.log(res.getHeaders()["set-cookie"]);
   };
 
   public login = async (req: Request, res: Response) => {
@@ -41,6 +39,7 @@ export class AuthController extends AppController {
         });
       })
       .catch((error) => this.handleError(res, error));
+      
   };
 
   public logout = async (req: Request, res: Response) => {

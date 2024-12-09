@@ -5,3 +5,5 @@ export * from './city.entity';
 export * from './distrit.entity';
 export * from './accommodation.entity';
 export * from './accommodationRoom.entity';
+export * from './client.entity';
+export * from './reservation.entity';

@@ -255,4 +255,4 @@ export const ACCOMMODATION_ROOMS: accommodation_room[] = [
     available: true,
     accommodation_id: 2,
   },
-];
+]

@@ -5,8 +5,10 @@ import { CustomError } from "@/domain/error";
 import { AuthResponse } from "./auth.response";
 
 export class AuthService {
+
   constructor(private readonly authResponse: AuthResponse) {}
 
+  
   public async login(loginDto: LoginDto) {
     const user = await UserModel.findFirst({
       where: {
