@@ -2,7 +2,8 @@ import type { Request, Response } from "express";
 import { AppController } from "../controller";
 import { AuthService } from "../services/auth/auth.service";
 import { EnvsConst } from "@/core/constants";
-import co from "cookie-parser";
+import { LoginDto } from "@/domain/dtos";
+import { CustomError } from "@/domain/error";
 
 export class AuthController extends AppController {
   private TOKEN_COOKIE_NAME = "token";
@@ -15,7 +16,7 @@ export class AuthController extends AppController {
       httpOnly: true,
       secure: false,
       // secure: EnvsConst.NODE_ENV === "production",
-      expires: new Date(Date.now() + 1000 * 60 * EnvsConst.COOKIE_EXPIRATION),
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * EnvsConst.COOKIE_EXPIRATION), // 1 day
       // sameSite: "none",
       path: "/",
     });
@@ -24,8 +25,11 @@ export class AuthController extends AppController {
   };
 
   public login = async (req: Request, res: Response) => {
+    const [error, loginDto] = LoginDto.create(req.body);
+    if (error) return this.handleError(res, CustomError.badRequest(error));
+
     await this.authService
-      .login(req.body)
+      .login(loginDto!)
       .then((response) => {
         this.setCookie(res, response.data.token);
         return res.status(200).json({

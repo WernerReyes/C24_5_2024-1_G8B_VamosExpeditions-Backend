@@ -1,7 +1,6 @@
 import { BcryptAdapter, JwtAdapter } from "@/core/adapters";
 import { UserModel } from "@/data/postgres";
 import { LoginDto } from "@/domain/dtos";
-import { UserEntity } from "@/domain/entities/user.entity";
 import { CustomError } from "@/domain/error";
 import { AuthResponse } from "./auth.response";
 
@@ -23,18 +22,16 @@ export class AuthService {
     const passwordMatch = BcryptAdapter.compare(
       loginDto.password,
       user.password
-    );
+    ); 
     if (!passwordMatch) throw CustomError.unauthorized("Invalid password");
-
-    const userEntity = UserEntity.fromObject(user);
 
     //* Generate token
     const token = (await JwtAdapter.generateToken({
-      id: userEntity.id,
+      id: user.id_user,
     })) as string;
     if (!token) throw CustomError.internalServer("Error generating token");
 
-    return this.authResponse.login(userEntity, token);
+    return this.authResponse.login(user, token);
   }
 
   public async logout() {

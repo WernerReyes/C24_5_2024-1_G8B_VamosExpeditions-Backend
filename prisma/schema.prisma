@@ -22,6 +22,54 @@ model user {
   role     role   @relation(fields: [id_role], references: [id_role], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_rol")
 }
 
+model accommodation {
+  id_accommodation   Int                  @id @default(autoincrement())
+  name               String               @db.VarChar(45)
+  category           String               @db.VarChar(45)
+  address            String               @db.VarChar(45)
+  rating             Int
+  email              String?              @db.VarChar(50)
+  distrit_id_distrit Int
+  distrit            distrit              @relation(fields: [distrit_id_distrit], references: [id_distrit], onDelete: NoAction, onUpdate: NoAction, map: "fk_accommodation_distrit")
+  accommodation_room accommodation_room[]
+}
+
+model accommodation_room {
+  id_accommodation_room Int           @id @default(autoincrement())
+  room_type             String        @db.VarChar(100)
+  price_usd             Decimal?      @db.Decimal(10, 2)
+  service_tax           Decimal?      @db.Decimal(10, 2)
+  rate_usd              Decimal?      @db.Decimal(10, 2)
+  price_pen             Decimal?      @db.Decimal(10, 2)
+  capacity              Int
+  available             Boolean
+  accommodation_id      Int
+  accommodation         accommodation @relation(fields: [accommodation_id], references: [id_accommodation], onDelete: NoAction, onUpdate: NoAction, map: "fk_hotel_room_hotel")
+}
+
+model city {
+  id_city    Int       @id @default(autoincrement())
+  name       String    @db.VarChar(45)
+  country_id Int
+  country    country   @relation(fields: [country_id], references: [id_country], onDelete: NoAction, onUpdate: NoAction, map: "fk_city_country")
+  distrit    distrit[]
+}
+
+model country {
+  id_country Int    @id @default(autoincrement())
+  name       String @db.VarChar(45)
+  code       String @unique @db.VarChar(10)
+  city       city[]
+}
+
+model distrit {
+  id_distrit    Int             @id @default(autoincrement())
+  name          String          @db.VarChar(45)
+  city_id       Int
+  accommodation accommodation[]
+  city          city            @relation(fields: [city_id], references: [id_city], onDelete: NoAction, onUpdate: NoAction, map: "fk_distrit_city")
+}
+
 enum role_type {
   MANAGER_ROLE
   EMPLOYEE_ROLE

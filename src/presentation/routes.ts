@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { AuthRoutes } from "./auth/routes";
+import { AccommodationRoomRoutes } from "./accommodationRoom/routes";
 
 export class AppRoutes {
   private static prefix: string = "/api/v1";
@@ -8,6 +9,10 @@ export class AppRoutes {
     const router = Router();
 
     router.use(`${this.prefix}/auth`, AuthRoutes.routes);
+    router.use(
+      `${this.prefix}/accommodation-room`,
+      AccommodationRoomRoutes.routes
+    );
 
     return router;
   }
