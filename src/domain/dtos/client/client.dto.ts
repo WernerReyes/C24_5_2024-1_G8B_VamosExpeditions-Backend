@@ -19,7 +19,7 @@ export class  ClienDto{
         if (emailError) return [emailError, undefined];
 
 
-        return [undefined, new ClienDto(fullName.trim(), country.trim(), email.trim(), phone.trim())];
+        return [undefined, new ClienDto(fullName.trim().charAt(0).toUpperCase() + fullName.slice(1), country.trim(), email.trim(), phone.trim())];
     }
     
 }

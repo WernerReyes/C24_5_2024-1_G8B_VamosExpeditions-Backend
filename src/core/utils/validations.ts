@@ -31,4 +31,30 @@ export class Validations {
     return null;
   }
 
+
+  static validateDateArray(dates: string[]): string | null {
+    
+    if (!Array.isArray(dates) || dates.length !== 2) {
+      return "El campo de fechas debe ser un array con dos elementos (fecha de inicio y fecha de fin)";
+    }
+
+    
+    const [startDate, endDate] = dates;
+    if (isNaN(new Date(startDate).getTime()) || isNaN(new Date(endDate).getTime())) {
+      return "Una o ambas fechas no son válidas";
+    }
+
+   
+    if (new Date(startDate) >= new Date(endDate)) {
+      return "La fecha de inicio debe ser anterior a la fecha de fin";
+    }
+
+    return null;
+  }
+
+
+
+
+
+
 }

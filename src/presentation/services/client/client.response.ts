@@ -21,7 +21,7 @@ export class ClientResponse {
   ): AppResponse<ClientEntity> {
     return {
       status: 201,
-      message: "Client created",
+      message: "cliente creado",
       data: client,
     };
   }

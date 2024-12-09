@@ -20,7 +20,7 @@ export class ClientService {
 
         });
 
-        if (client) throw CustomError.badRequest("Client already exists");
+        if (client) throw CustomError.badRequest("El cliente ya existe");
 
         try {
             const newClient = await ClienModel.create({
