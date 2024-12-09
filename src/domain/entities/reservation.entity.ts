@@ -1,5 +1,6 @@
 import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
+import { ClientEntity } from "./client.entity";
 
 export class ReservationEntity {
   constructor(
@@ -14,6 +15,7 @@ export class ReservationEntity {
 
   public static fromObject(object: { [key: string]: any }): ReservationEntity {
     const {
+      // client,
       clientId,
       number_of_people,
       start_date,
@@ -36,9 +38,11 @@ export class ReservationEntity {
 
     if (error) throw CustomError.badRequest(error);
 
+    // const clientEntity = ClientEntity.fromObject(object.client);
+
     
     return new ReservationEntity(
-      +clientId,
+      clientId,
       +number_of_people,
       new Date(start_date),
       new Date(end_date),

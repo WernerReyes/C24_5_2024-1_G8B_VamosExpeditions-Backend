@@ -12,6 +12,7 @@ export class ClientService {
     ) { }
 
     public async registerClient(clientDto: ClienDto) {
+        console.log(clientDto);
         const client = await ClienModel.findFirst({
             where: {
                 email: clientDto.email,

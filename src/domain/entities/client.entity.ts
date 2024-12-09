@@ -6,7 +6,7 @@ export class ClientEntity {
 
     constructor(
         public readonly id: number,
-        public readonly full_name: string,
+        public readonly fullName: string,
         public readonly email: string,
         public readonly phone: string,
         public readonly country: string

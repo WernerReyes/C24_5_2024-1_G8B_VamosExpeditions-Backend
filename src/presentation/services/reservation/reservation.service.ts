@@ -47,7 +47,6 @@ export class ReservationService {
                 }
             }
             const reservationEntity = ReservationEntity.fromObject(reservation);
-            console.log(reservationEntity);
             return  this.reservationResponse.reservationCreated(reservationEntity);
         } catch (error) {
             throw CustomError.internalServer(`${error}`);

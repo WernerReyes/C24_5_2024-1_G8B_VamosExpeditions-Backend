@@ -25,7 +25,7 @@ import { Server } from "./presentation/server";
           city: true,
         },
       },
-      Client: true,
+      client: true,
     },
   });
   console.dir(data2,{depth: null});
