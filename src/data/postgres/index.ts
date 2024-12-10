@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient()
 
 //* MODELS
-
 export  const ClienModel= prisma.client
 export const UserModel= prisma.user
 export const RoleModel= prisma.role
