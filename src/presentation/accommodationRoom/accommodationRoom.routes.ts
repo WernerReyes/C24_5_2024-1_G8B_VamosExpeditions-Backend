@@ -1,10 +1,8 @@
 import { Router } from "express";
-import {
-  AccommodationRoomResponse,
-  AccommodationRoomService,
-} from "../services/accommodationRoom";
-import { AccommodationRoomController } from "./controller";
 import { Middleware } from "../middleware";
+import { AccommodationRoomResponse } from "./accommodationRoom.response";
+import { AccommodationRoomService } from "./accommodationRoom.service";
+import { AccommodationRoomController } from "./accommodationRoom.controller";
 
 export class AccommodationRoomRoutes {
   static get routes(): Router {

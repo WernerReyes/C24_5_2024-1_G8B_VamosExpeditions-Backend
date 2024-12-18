@@ -11,7 +11,6 @@ export class UserEntity {
 
   public static fromObject(object: { [key: string]: any }): UserEntity {
     const { id_user, fullname, email, password, role } = object;
-    console.log(object);
 
     const error = Validations.validateEmptyFields({
       id_user,

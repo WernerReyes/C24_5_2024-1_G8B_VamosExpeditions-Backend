@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { AuthService, AuthResponse } from "../services/auth";
-import { AuthController } from "./controller";
 import { Middleware } from "../middleware";
+import { AuthResponse } from "./auth.response";
+import { AuthService } from "./auth.service";
+import { AuthController } from "./auth.controller";
 export class AuthRoutes {
   static get routes(): Router {
     const router = Router();

@@ -7,7 +7,6 @@ import { ErrorCodeConst } from "@/core/constants";
 export class Middleware {
   static async validateToken(req: Request, res: Response, next: NextFunction) {
     const token = req.cookies.token;
-    console.log({ token });
     if (!token) {
       return res.status(401).json({
         ok: false,
@@ -17,7 +16,6 @@ export class Middleware {
     }
     try {
       const payload = await JwtAdapter.verifyToken<{ id: string }>(token);
-      console.log({ payload });
       const user = await UserModel.findFirst({
         where: {
           id_user: parseInt(payload!.id),

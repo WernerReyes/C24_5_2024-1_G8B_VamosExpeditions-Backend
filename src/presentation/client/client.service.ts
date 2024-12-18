@@ -12,7 +12,6 @@ export class ClientService {
     ) { }
 
     public async registerClient(clientDto: ClienDto) {
-        console.log(clientDto);
         const client = await ClienModel.findFirst({
             where: {
                 email: clientDto.email,
@@ -26,7 +25,7 @@ export class ClientService {
         try {
             const newClient = await ClienModel.create({
                 data: {
-                    full_name: clientDto.fullName,
+                    fullName: clientDto.fullName,
                     country: clientDto.country,
                     email: clientDto.email,
                     phone: clientDto.phone
@@ -37,6 +36,7 @@ export class ClientService {
             return this.clientResponse.clientCreated(clientEntity);
 
         } catch (error) {
+            console.error(`Error inserting client:`, error);
             throw CustomError.internalServer(`${error}`);
         }
     }

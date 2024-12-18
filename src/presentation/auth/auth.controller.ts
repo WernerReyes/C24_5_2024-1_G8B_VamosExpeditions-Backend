@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import { AppController } from "../controller";
-import { AuthService } from "../services/auth/auth.service";
 import { EnvsConst } from "@/core/constants";
 import { LoginDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
+import { AuthService } from "./auth.service";
 
 export class AuthController extends AppController {
   private TOKEN_COOKIE_NAME = "token";
@@ -16,7 +16,9 @@ export class AuthController extends AppController {
       httpOnly: true,
       secure: false,
       // secure: EnvsConst.NODE_ENV === "production",
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * EnvsConst.COOKIE_EXPIRATION), // 1 day
+      expires: new Date(
+        Date.now() + 1000 * 60 * 60 * 24 * EnvsConst.COOKIE_EXPIRATION
+      ), // 1 day
       // sameSite: "none",
       path: "/",
     });
@@ -39,7 +41,6 @@ export class AuthController extends AppController {
         });
       })
       .catch((error) => this.handleError(res, error));
-      
   };
 
   public logout = async (req: Request, res: Response) => {

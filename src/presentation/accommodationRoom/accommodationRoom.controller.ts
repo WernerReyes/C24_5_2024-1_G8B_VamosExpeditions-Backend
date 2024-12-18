@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { AccommodationRoomService } from "../services/accommodationRoom";
 import { AppController } from "../controller";
+import { AccommodationRoomService } from "./accommodationRoom.service";
 
 export class AccommodationRoomController extends AppController {
   constructor(

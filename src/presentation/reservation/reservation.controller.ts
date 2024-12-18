@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { ReservationService } from '../services/reservation';
 import { ReservationDto } from '@/domain/dtos';
 import { AppController } from '../controller';
+import { ReservationService } from './reservation.service';
 
 
 

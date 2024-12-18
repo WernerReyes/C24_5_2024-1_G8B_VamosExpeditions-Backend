@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { ReservationController } from "./controller";
-import { ReservationResponse, ReservationService } from "../services/reservation";
-
+import { ReservationResponse } from "./reservation.response";
+import { ReservationService } from "./reservation.service";
+import { ReservationController } from "./reservation.controller";
 
 export class ReservationRoutes{
     

@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { AppController } from "../controller";
 import { ClienDto } from "@/domain/dtos/client/client.dto";
-import { ClientService } from "../services/client";
 import { CustomError } from "@/domain/error";
+import { ClientService } from "./client.service";
 
 export class ClientController extends AppController {
   constructor(private clientService: ClientService) {

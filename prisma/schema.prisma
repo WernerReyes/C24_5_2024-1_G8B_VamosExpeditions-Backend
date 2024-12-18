@@ -43,13 +43,16 @@ model city {
 
 model client {
   id          Int           @id @default(autoincrement())
-  full_name   String        @db.VarChar(255)
+  fullName    String        @db.VarChar(255)
   country     String        @db.VarChar(255)
   email       String        @unique @db.VarChar(255)
   phone       String        @db.Char(9)
   createdAt   DateTime?     @default(now()) @db.Timestamp(6)
   updatedAt   DateTime?     @default(now()) @db.Timestamp(6)
   reservation reservation[]
+
+  @@index([email], map: "idx_email")
+  @@index([fullName], map: "idx_full_name")
 }
 
 model country {
