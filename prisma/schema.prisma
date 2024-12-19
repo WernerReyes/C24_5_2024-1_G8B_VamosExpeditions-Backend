@@ -43,7 +43,7 @@ model city {
 
 model client {
   id          Int           @id @default(autoincrement())
-  fullName    String        @db.VarChar(255)
+  full_name   String        @db.VarChar(255)
   country     String        @db.VarChar(255)
   email       String        @unique @db.VarChar(255)
   phone       String        @db.Char(9)
@@ -52,7 +52,7 @@ model client {
   reservation reservation[]
 
   @@index([email], map: "idx_email")
-  @@index([fullName], map: "idx_full_name")
+  @@index([full_name], map: "idx_full_name")
 }
 
 model country {

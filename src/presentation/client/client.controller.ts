@@ -10,7 +10,12 @@ export class ClientController extends AppController {
   }
 
   public registerClient = async (req: Request, res: Response) => {
-    const [error, createclientDto] = ClienDto.create(req.body);
+
+     console.log(req.body);
+    const {country,fullName,email,phone} = req.body;
+    
+
+    const [error, createclientDto] = ClienDto.create({ country: country.name, fullName, email, phone });
     if (error) return this.handleError(res, CustomError.badRequest(error));
 
     this.clientService

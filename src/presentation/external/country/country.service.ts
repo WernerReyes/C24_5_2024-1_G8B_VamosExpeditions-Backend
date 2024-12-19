@@ -20,7 +20,7 @@ export class ExternalCountryService {
 
   public async getCountryList(): Promise<AppResponse<ExternalCountryEntity[]>> {
     const cacheKey = "country-list";
-
+    
     const cachedCountryList = this.cache.get(cacheKey);
     if (cachedCountryList) {
       console.log("Country list from cache");
@@ -32,8 +32,11 @@ export class ExternalCountryService {
         EXTERNAL_API_COUNTRY_URL + "/all?fields=name,flags,cca2"
       );
       const data = await response.json();
+      
 
       this.cache.set(cacheKey, data);
+      
+      
       return this.externalCountryResponse.getCountryList(data);
     } catch (error) {
       throw CustomError.internalServer("Servicio de países no disponible");

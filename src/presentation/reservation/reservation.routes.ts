@@ -1,7 +1,8 @@
-import { Router } from "express";
+import { Middleware } from "../middleware";
+import { ReservationController } from "./reservation.controller";
 import { ReservationResponse } from "./reservation.response";
 import { ReservationService } from "./reservation.service";
-import { ReservationController } from "./reservation.controller";
+import { Router } from "express";
 
 export class ReservationRoutes{
     
@@ -12,7 +13,8 @@ export class ReservationRoutes{
         const reservationResponse = new ReservationResponse();
         const reservationService = new ReservationService(reservationResponse);
         const reservationController = new ReservationController(reservationService);
-
+         
+        router.use(Middleware.validateToken);
         router.post("/register", reservationController.registerReservation);
         
         return router;
