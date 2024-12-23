@@ -12,7 +12,7 @@ export class ClientRoutes {
     const clientService = new ClientService(clientResponse);
     const clientController = new ClientController(clientService);
 
-    router.use([Middleware.validateToken]);
+    /* router.use([Middleware.validateToken]); */
 
     router.post("/register", clientController.registerClient);
     router.get("", clientController.getClientsAlls);

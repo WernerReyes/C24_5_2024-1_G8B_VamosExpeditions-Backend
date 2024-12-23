@@ -2,6 +2,7 @@ import { RegexConst } from "../constants/regex.const";
 
 export class Validations {
   static validateEmptyFields(fields: any): string | null {
+    
     for (const field in fields) {
       if (!fields[field]) {
         return `El campo ${field} es requerido`;

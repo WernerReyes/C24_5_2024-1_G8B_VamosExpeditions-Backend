@@ -4,6 +4,7 @@ import { AccommodationRoomRoutes } from "./accommodationRoom/accommodationRoom.r
 import { ClientRoutes } from "./client/client.routes";
 import { ReservationRoutes } from "./reservation/reservation.routes";
 import { ExternalCountryRoutes } from "./external/country/country.routes";
+import { NationRoutes } from "./nation/nation.routes";
 
 export class AppRoutes {
   private static prefix: string = "/api/v1";
@@ -19,6 +20,7 @@ export class AppRoutes {
     );
     router.use(`${this.prefix}/client`, ClientRoutes.routes);
     router.use(`${this.prefix}/reservation`, ReservationRoutes.routes);
+    router.use(`${this.prefix}/nation`, NationRoutes.routes);
 
     //* External
     router.use(`${this.prefix}/external/country`, ExternalCountryRoutes.routes);
