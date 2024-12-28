@@ -15,7 +15,7 @@ export class ReservationController extends AppController {
     }
 
     public registerReservation = (req: Request, res: Response) => {
-        console.log(req.body);
+        /* console.log(req.body); */
      const [error, createreservationtDto]   =ReservationDto.create(req.body);
     if (error) return this.handleError(res, CustomError.badRequest(error));
   

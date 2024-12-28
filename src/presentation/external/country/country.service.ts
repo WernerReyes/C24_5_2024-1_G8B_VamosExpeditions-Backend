@@ -29,12 +29,13 @@ export class ExternalCountryService {
 
     try {
       const response = await fetch(
-        EXTERNAL_API_COUNTRY_URL + "/all?fields=name,flags,cca2"
+        EXTERNAL_API_COUNTRY_URL + "/all"
       );
       const data = await response.json();
       
-
+    
       this.cache.set(cacheKey, data);
+
       
       
       return this.externalCountryResponse.getCountryList(data);

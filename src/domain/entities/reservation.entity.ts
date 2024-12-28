@@ -1,6 +1,6 @@
 import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
-import { ClientEntity } from "./client.entity";
+import { LocationEntity } from "./Location.entity";
 
 export class ReservationEntity {
   constructor(
@@ -10,12 +10,13 @@ export class ReservationEntity {
     public readonly endDate: Date,
     public readonly code: string,
     public readonly comfortClass: string,
+    public readonly cities: LocationEntity[],
     public readonly specialSpecifications?: string
   ) {}
 
   public static fromObject(object: { [key: string]: any }): ReservationEntity {
     const {
-      // client,
+      reservation_has_city,
       clientId,
       number_of_people,
       start_date,
@@ -25,7 +26,7 @@ export class ReservationEntity {
       additional_specifications,
     } = object;
 
-    
+    // Validación de campos vacíos
     const error = Validations.validateEmptyFields({
       clientId,
       numberOfPeople: number_of_people,
@@ -38,9 +39,7 @@ export class ReservationEntity {
 
     if (error) throw CustomError.badRequest(error);
 
-    // const clientEntity = ClientEntity.fromObject(object.client);
-
-    
+    // Crear y retornar la entidad de reserva
     return new ReservationEntity(
       clientId,
       +number_of_people,
@@ -48,6 +47,7 @@ export class ReservationEntity {
       new Date(end_date),
       code,
       comfort_level,
+      reservation_has_city.map((city: any) => LocationEntity.fromObject(city.city)),
       additional_specifications || undefined
     );
   }
