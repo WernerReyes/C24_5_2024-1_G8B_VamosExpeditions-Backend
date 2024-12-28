@@ -11,14 +11,19 @@ export class ExternalCountryEntity {
   constructor(
     public readonly name: string,
     public readonly code: string,
-    public readonly image: Image
+    public readonly image: Image,
+    public readonly root: string
   ) {}
 
-  public static fromObject(object: ExternalCountryModel): ExternalCountryEntity {
+  public static fromObject(
+    object: ExternalCountryModel
+  ): ExternalCountryEntity {
+    
     const {
       name: { common: name },
       cca2: code,
       flags: { svg, png },
+      idd: { root: root },
     } = object;
     const error = Validations.validateEmptyFields({
       name,
@@ -29,6 +34,6 @@ export class ExternalCountryEntity {
 
     if (error) throw CustomError.badRequest(error);
 
-    return new ExternalCountryEntity(name, code, { svg, png });
+    return new ExternalCountryEntity(name, code, { svg, png }, root || "");
   }
 }
