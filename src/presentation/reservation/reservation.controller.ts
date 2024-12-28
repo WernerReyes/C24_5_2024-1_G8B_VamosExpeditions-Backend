@@ -25,11 +25,11 @@ export class ReservationController extends AppController {
 
     }
 
-    public getReservationById = (req: Request, res: Response) => {
-        const { id } = req.params;
-        this.reservationService.getReservationById(+id)
-        .then( reservation => res.status( 200 ).json( reservation ) )
-        .catch((error) => this.handleError(res, error));
-    }
+    // public getReservationById = (req: Request, res: Response) => {
+    //     const { id } = req.params;
+    //     this.reservationService.getReservationById(+id)
+    //     .then( reservation => res.status( 200 ).json( reservation ) )
+    //     .catch((error) => this.handleError(res, error));
+    // }
 
 } 

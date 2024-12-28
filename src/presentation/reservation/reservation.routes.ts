@@ -12,14 +12,14 @@ export class ReservationRoutes {
     const reservationMapper = new ReservationMapper();
     const reservationResponse = new ReservationResponse();
     const reservationService = new ReservationService(
-      reservationMapper,
+      // reservationMapper,
       reservationResponse
     );
     const reservationController = new ReservationController(reservationService);
 
     router.use(Middleware.validateToken);
     router.post("/register", reservationController.registerReservation);
-    router.get("/:id", reservationController.getReservationById);
+    // router.get("/:id", reservationController.getReservationById);
 
     return router;
   }
