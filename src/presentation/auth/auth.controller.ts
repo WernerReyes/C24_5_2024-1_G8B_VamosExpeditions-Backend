@@ -22,6 +22,7 @@ export class AuthController extends AppController {
       // sameSite: "none",
       path: "/",
     });
+    console.log("Cookie setted");
   };
 
   public login = async (req: Request, res: Response) => {

@@ -15,4 +15,14 @@ export class ReservationResponse{
         };
       }
 
+      reservationFound(
+        reservation: ReservationEntity,
+      ): AppResponse<ReservationEntity> {
+        return {
+          status: 200,
+          message: "Reserva encontrada",
+          data: reservation,
+        };
+      }
+
 }

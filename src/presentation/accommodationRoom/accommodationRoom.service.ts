@@ -27,4 +27,34 @@ export class AccommodationRoomService {
 
     return this.accommodationRoomResponse.getAll(accommodationRooms);
   };
+
+  public async getAllByCity(cityId: number) {
+    const accommodationRooms = await AccommodationRoomModel.findMany({
+      where: {
+        accommodation: {
+          distrit: {
+            // cityId,
+          },
+        },
+      },
+      include: {
+        accommodation: {
+          include: {
+            distrit: {
+              include: {
+                city: {
+                  include: {
+                    country: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return this.accommodationRoomResponse.getAll(accommodationRooms);
+  }
+
 }

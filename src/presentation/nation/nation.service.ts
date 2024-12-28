@@ -1,5 +1,5 @@
 import { CountryEntity } from "@/domain/entities";
-import { CountryModel, CytyModel, DistritModel } from "@/data/postgres";
+import { CountryModel, CityModel, DistritModel } from "@/data/postgres";
 import { CustomError } from "@/domain/error";
 import { NationResponse } from "./nation.response";
 

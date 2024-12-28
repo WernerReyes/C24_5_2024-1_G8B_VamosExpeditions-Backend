@@ -23,7 +23,7 @@ export class ClientService {
     try {
       const newClient = await ClienModel.create({
         data: {
-          full_name: clientDto.fullName,
+          fullName: clientDto.fullName,
           country: clientDto.country,
           email: clientDto.email,
           phone: clientDto.phone,
@@ -49,7 +49,7 @@ export class ClientService {
       const clients = await ClienModel.findMany({
         select: {
           id: true,
-          full_name: true,
+          fullName: true,
           email: true,
           phone: true,
           country: true,

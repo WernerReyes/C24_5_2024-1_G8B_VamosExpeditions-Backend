@@ -13,11 +13,11 @@ export class ClientEntity {
     ) {}
 
     public static fromObject(object: { [key: string]: any }): ClientEntity {
-        const { id, full_name, email, phone, country } = object;
+        const { id, fullName, email, phone, country } = object;
 
         const error = Validations.validateEmptyFields({
             id,
-            full_name,
+            fullName,
             email,
             phone,
             country
@@ -25,6 +25,6 @@ export class ClientEntity {
 
         if (error) throw CustomError.badRequest(error);
 
-        return new ClientEntity(id, full_name, email, phone, country);
+        return new ClientEntity(id, fullName, email, phone, country);
     }
 }

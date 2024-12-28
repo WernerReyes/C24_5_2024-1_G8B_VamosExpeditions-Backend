@@ -1,8 +1,10 @@
 import { EnvsConst } from "./core/constants";
 import {
+  AccommodationModel,
+  AccommodationRoomModel,
   ClienModel,
   CountryModel,
-  CytyModel,
+  CityModel,
   DistritModel,
   ReservationDetailModel,
   ReservationModel,
@@ -22,6 +24,57 @@ async function main() {
     client_url: EnvsConst.CLIENT_URL,
   });
 
+  const reservation = await ReservationModel.findFirst({
+    where: {
+      id: 1,
+    },
+    include: {
+      reservation_has_city: {
+        include: {
+          city: {
+            include: {
+              country: true,
+            },
+          },
+        },
+      },
+      client: true,
+    },
+  });
+
+  // console.dir({ reservation }, { depth: null });
+
+
+
+
+  const reservationCity = reservation?.reservation_has_city[0];
+
+  const HotelsByCity = await CountryModel.findMany({
+    where: {
+      id_country: reservationCity?.city_id,
+      city: {
+        some: {
+          id_city: reservationCity?.city.country_id
+        },
+      },
+    },
+    include: {
+      city: {
+        include: {
+          distrit: {
+            include: {
+              accommodation: {
+                include: {
+                  accommodation_room: {},
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  console.log(JSON.stringify(HotelsByCity, null, 2));
   /*   const data1 = await CountryModel.findMany({
     select: {
       id_country: true,
@@ -49,34 +102,23 @@ async function main() {
 
   console.dir(data1, { depth: null }); */
 
-
-  
   // Itera sobre el array data1
 
- /*  const data2 = await ReservationModel.findMany({
+  const data2 = await ReservationModel.findMany({
     include: {
       reservation_has_city: {
         include: {
-          city:{
-
-            select:{
-              id_city:true,
-              name:true,
-              country:true
-            }
-          
-              
-          
+          city: {
+            include: {
+              country: true,
+            },
           },
-          
         },
-        
       },
       client: true,
     },
   });
-  console.dir(data2,{depth: null});
-   */
+  // console.dir({ data2 }, { depth: null });
 
   server.start();
 }
