@@ -1,95 +1,76 @@
-import {
-  prisma,
-  ReservationDetailModel,
-  ReservationModel,
-} from "@/data/postgres";
+import { ReservationModel } from "@/data/postgres";
 
 import { ReservationDto } from "@/domain/dtos";
-import { ReservationEntity } from "@/domain/entities/reservation.entity";
 import { CustomError } from "@/domain/error";
 import { ReservationResponse } from "./reservation.response";
+import { ReservationMapper } from "./reservation.mapper";
+import { ReservationStatus } from "@/domain/entities";
+import { Validations } from "@/core/utils";
 
 export class ReservationService {
-  constructor(private reservationResponse: ReservationResponse) {}
+  constructor(
+    private reservationMapper: ReservationMapper,
+    private reservationResponse: ReservationResponse
+  ) {}
 
-  public async registerReservation(reservationDto: ReservationDto) {
-    const { destination } = reservationDto;
+  public async createReservation(reservationDto: ReservationDto) {
+    try {
+      //* Create reservation
+      const reservation = await ReservationModel.create({
+        data: this.reservationMapper.toRegister(reservationDto),
+        include: this.reservationMapper.toSelectInclude(),
+      });
+
+      return this.reservationResponse.reservationCreated(reservation);
+    } catch (error) {
+      console.log("error", error);
+      throw CustomError.internalServer(`${error}`);
+    }
+  }
+
+  public async updateReservation(id: number, reservationDto: ReservationDto) {
+    const reservation = await ReservationModel.findUnique({
+      where: { id },
+      include: this.reservationMapper.toSelectInclude(),
+    });
+    if (!reservation) throw CustomError.notFound("Reservation not found");
 
     try {
-      // Iniciar una transacción
-      const result = await prisma.$transaction(async (tx) => {
-        // Crear la reserva
-        const reservation = await ReservationModel.create({
-          data: {
-            number_of_people: reservationDto.numberOfPeople,
-            start_date: reservationDto.startDate,
-            end_date: reservationDto.endDate,
-            clientId: reservationDto.clientId,
-            comfort_level: reservationDto.comfortClass,
-            additional_specifications: reservationDto.specialSpecifications,
-            code: reservationDto.code,
-          },
-        });
-        /* console.log(reservation); */
-
-        const { id } = reservation;
-
-        // Procesar los destinos
-        const keys = Object.keys(destination).map((key) => +key);
-
-        // Crear los detalles de la reserva
-        for (const cityId of keys) {
-          await ReservationDetailModel.create({
-            data: {
-              city_id: cityId,
-              reservation_id: id,
-            },
-          });
-        }
-
-        // Retornar la reserva creada
-
-        return reservation;
-      });
-
-      const { id } = result;
-      const details = await ReservationModel.findUnique({
+      const updatedReservation = await ReservationModel.update({
         where: { id },
-        select: {
-          id: true,
-          number_of_people: true,
-          start_date: true,
-          end_date: true,
-          comfort_level: true,
-          additional_specifications: true,
-          code: true,
-          clientId: true,
-          reservation_has_city: {
-            select: {
-              city: {
-                select: {
-                  id_city: true,
-                  name: true,
-                  country: {
-                    select: {
-                      id_country: true,
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+        data: this.reservationMapper.toRegister(reservationDto, "update"),
+        include: this.reservationMapper.toSelectInclude(),
       });
+    
+      return this.reservationResponse.reservationUpdated(updatedReservation);
+    } catch (error) {
+      console.log("error", error);
+      throw CustomError.internalServer(`${error}`);
+    }
+  }
 
-      console.dir({ result }, { depth: null });
+  public async getReservationById(id: number) {
+    const reservation = await ReservationModel.findUnique({
+      where: { id },
+      include: this.reservationMapper.toSelectInclude(),
+    });
+    if (!reservation) throw CustomError.notFound("Reservation not found");
+    return this.reservationResponse.reservationFound(reservation);
+  }
 
-      console.dir({ details }, { depth: null });
-
-      const reservationEntity = ReservationEntity.fromObject(result!);
-      console.dir(reservationEntity, { depth: null });
-      return this.reservationResponse.reservationCreated(reservationEntity);
+  public async getReservationsByStatus(status: string) {
+    const error = Validations.validateEnumValue(
+      status,
+      Object.values(ReservationStatus)
+    );
+    if (error) throw CustomError.badRequest(error);
+    try {
+      const reservations = await ReservationModel.findMany({
+        where: { status: status as any },
+        include: this.reservationMapper.toSelectInclude(),
+      });
+      if (!reservations) throw CustomError.notFound("Reservations not found");
+      return this.reservationResponse.reservationsFound(reservations);
     } catch (error) {
       throw CustomError.internalServer(`${error}`);
     }

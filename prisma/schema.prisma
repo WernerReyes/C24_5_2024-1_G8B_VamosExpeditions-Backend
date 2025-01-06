@@ -46,9 +46,10 @@ model client {
   fullName    String        @db.VarChar(255)
   country     String        @db.VarChar(255)
   email       String        @unique @db.VarChar(255)
-  phone       String        @db.Char(9)
+  phone       String        @db.VarChar(30)
   createdAt   DateTime?     @default(now()) @db.Timestamp(6)
   updatedAt   DateTime?     @default(now()) @db.Timestamp(6)
+  continent   String        @db.VarChar(150)
   reservation reservation[]
 
   @@index([email], map: "idx_email")
@@ -71,17 +72,19 @@ model distrit {
 }
 
 model reservation {
-  id                        Int                    @id @default(autoincrement())
+  id                        Int                        @id @default(autoincrement())
   number_of_people          Int
-  start_date                DateTime               @db.Date
-  end_date                  DateTime               @db.Date
-  comfort_level             String?                @db.VarChar(50)
+  start_date                DateTime                   @db.Date
+  end_date                  DateTime                   @db.Date
+  traveler_style            reservation_traveler_style
   additional_specifications String?
-  code                      String                 @db.VarChar(50)
+  code                      String                     @db.VarChar(50)
   clientId                  Int
-  createdAt                 DateTime?              @default(now()) @db.Timestamp(6)
-  updatedAt                 DateTime?              @default(now()) @db.Timestamp(6)
-  client                    client                 @relation(fields: [clientId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_client")
+  createdAt                 DateTime?                  @default(now()) @db.Timestamp(6)
+  updatedAt                 DateTime?                  @default(now()) @db.Timestamp(6)
+  status                    reservation_status         @default(PENDING)
+  order_type                reservation_order_type
+  client                    client                     @relation(fields: [clientId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_client")
   reservation_has_city      reservation_has_city[]
 }
 
@@ -112,4 +115,22 @@ model user {
 enum role_type {
   MANAGER_ROLE
   EMPLOYEE_ROLE
+}
+
+enum reservation_status {
+  ACTIVE
+  PENDING
+  COMPLETED
+  CANCELATED
+}
+
+enum reservation_order_type {
+  DIRECT
+  INDIRECT
+}
+
+enum reservation_traveler_style {
+  STANDARD
+  COMFORT
+  LUXUS
 }

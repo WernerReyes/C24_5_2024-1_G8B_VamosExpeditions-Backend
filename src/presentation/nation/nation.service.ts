@@ -1,5 +1,4 @@
-import { CountryEntity } from "@/domain/entities";
-import { CountryModel, CityModel, DistritModel } from "@/data/postgres";
+import { CountryModel } from "@/data/postgres";
 import { CustomError } from "@/domain/error";
 import { NationResponse } from "./nation.response";
 
@@ -9,22 +8,11 @@ export class NationService {
   public async getAllNations() {
     try {
       const countries = await CountryModel.findMany({
-        select: {
-          id_country: true,
-          name: true,
-          code: true,
-          city: {
-            select: {
-              id_city: true,
-              name: true,
-            },
-          },
+        include: {
+          city: true,
         },
       });
-      const data = countries.map((country) =>
-        CountryEntity.fromObject(country)
-      );
-      return this.nationResponse.nationAlls(data);
+      return this.nationResponse.nationAlls(countries);
     } catch (error) {
       throw CustomError.internalServer(`${error}`);
     }

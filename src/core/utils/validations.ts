@@ -1,19 +1,31 @@
 import { RegexConst } from "../constants/regex.const";
 
 export class Validations {
-  static validateEmptyFields(fields: any): string | null {
-    
+  static validateEmptyFields(fields: any, from?: string): string | null {
     for (const field in fields) {
       if (!fields[field]) {
+        if (from) {
+          return `El campo ${field} es requerido en '${from}'`;
+        }
         return `El campo ${field} es requerido`;
       }
     }
     return null;
   }
 
+  static validateNumberFields(fields: any): string | null {
+    for (const field in fields) {
+      if (isNaN(fields[field])) {
+        return `El campo ${field} debe ser un número`;
+      }
+    }
+    return null;
+  }
   static validateEnumValue(value: string, enumValues: string[]): string | null {
     if (!enumValues.includes(value)) {
-      return `El valor ${value} no es permitido`;
+      return `El valor ${value} no es permitido. Los valores permitidos son: ${enumValues.join(
+        ", "
+      )}`;
     }
     return null;
   }
@@ -32,30 +44,23 @@ export class Validations {
     return null;
   }
 
-
   static validateDateArray(dates: string[]): string | null {
-    
     if (!Array.isArray(dates) || dates.length !== 2) {
       return "El campo de fechas debe ser un array con dos elementos (fecha de inicio y fecha de fin)";
     }
 
-    
     const [startDate, endDate] = dates;
-    if (isNaN(new Date(startDate).getTime()) || isNaN(new Date(endDate).getTime())) {
+    if (
+      isNaN(new Date(startDate).getTime()) ||
+      isNaN(new Date(endDate).getTime())
+    ) {
       return "Una o ambas fechas no son válidas";
     }
 
-   
     if (new Date(startDate) >= new Date(endDate)) {
       return "La fecha de inicio debe ser anterior a la fecha de fin";
     }
 
     return null;
   }
-
-
-
-
-
-
 }

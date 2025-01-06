@@ -19,6 +19,7 @@ export class ExternalCountryRoutes {
     router.use(Middleware.validateToken);
 
     router.get("/", externalCountryController.getAll);
+    router.get("/:code", externalCountryController.getByCode);
 
     return router;
   }

@@ -15,11 +15,20 @@ export class ExternalCountryResponse {
         ),
       };
     }
-
     return {
       status: 200,
       message: "Lista de países obtenida correctamente",
       data: [],
+    };
+  }
+
+  public getCountry(
+    country: ExternalCountryModel
+  ): AppResponse<ExternalCountryEntity> {
+    return {
+      status: 200,
+      message: "País obtenido correctamente",
+      data: ExternalCountryEntity.fromObject(country),
     };
   }
 }

@@ -13,4 +13,13 @@ export class ExternalCountryController extends AppController {
       .then((response) => res.status(200).json(response))
       .catch((error) => this.handleError(res, error));
   };
+
+  public getByCode = async (req: Request, res: Response) => {
+    const { code } = req.params;
+    console.log("code", code);
+    this.externalCountryService
+      .getCountryByCode(code)
+      .then((response) => res.status(200).json(response))
+      .catch((error) => this.handleError(res, error));
+  };
 }

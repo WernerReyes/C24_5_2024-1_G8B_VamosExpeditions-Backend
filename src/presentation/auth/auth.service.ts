@@ -18,14 +18,14 @@ export class AuthService {
         role: true,
       },
     });
-    if (!user) throw CustomError.notFound("User not found");
+    if (!user) throw CustomError.notFound("Correo o contraseña incorrectos");
 
     //* Compare password
     const passwordMatch = BcryptAdapter.compare(
       loginDto.password,
       user.password
     ); 
-    if (!passwordMatch) throw CustomError.unauthorized("Invalid password");
+    if (!passwordMatch) throw CustomError.unauthorized("Correo o contraseña incorrectos");
 
     //* Generate token
     const token = (await JwtAdapter.generateToken({
@@ -35,6 +35,7 @@ export class AuthService {
 
     return this.authResponse.login(user, token);
   }
+
 
   public async logout() {
     return this.authResponse.logout();

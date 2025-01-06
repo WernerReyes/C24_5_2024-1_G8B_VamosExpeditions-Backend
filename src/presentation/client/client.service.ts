@@ -1,20 +1,19 @@
-import { ClienDto } from "@/domain/dtos";
+import { ClientDto } from "@/domain/dtos";
 import { ClienModel } from "@/data/postgres";
-import { ClientEntity } from "@/domain/entities";
 import { ClientResponse } from "./client.response";
 import { CustomError } from "@/domain/error";
-
+import { ClientMapper } from "./client.mapper";
 
 export class ClientService {
+  constructor(
+    private readonly clientMapper: ClientMapper,
+    private readonly clientResponse: ClientResponse
+  ) {}
 
-  constructor(private clientResponse: ClientResponse) {
-
-  }
-
-  public async registerClient(clientDto: ClienDto) {
+  public async registerClient(ClientDto: ClientDto) {
     const client = await ClienModel.findFirst({
       where: {
-        email: clientDto.email,
+        email: ClientDto.email,
       },
     });
 
@@ -22,16 +21,9 @@ export class ClientService {
 
     try {
       const newClient = await ClienModel.create({
-        data: {
-          fullName: clientDto.fullName,
-          country: clientDto.country,
-          email: clientDto.email,
-          phone: clientDto.phone,
-        },
+        data: this.clientMapper.toRegister(ClientDto),
       });
-
-      const clientEntity = ClientEntity.fromObject(newClient);
-      return this.clientResponse.clientCreated(clientEntity);
+      return this.clientResponse.clientCreated(newClient);
     } catch (error) {
       console.error(`Error inserting client:`, error);
       throw CustomError.internalServer(`${error}`);
@@ -39,28 +31,9 @@ export class ClientService {
   }
 
   public async getClientsAlls() {
-
-
- 
-
-
-
     try {
-      const clients = await ClienModel.findMany({
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          phone: true,
-          country: true,
-        },
-      });
-
-      
-      const clientsEntity = clients.map((client) =>
-        ClientEntity.fromObject(client)
-      );
-      return this.clientResponse.clientAlls(clientsEntity);
+      const clients = await ClienModel.findMany();
+      return this.clientResponse.clientAlls(clients);
     } catch (error) {
       throw CustomError.internalServer(`${error}`);
     }

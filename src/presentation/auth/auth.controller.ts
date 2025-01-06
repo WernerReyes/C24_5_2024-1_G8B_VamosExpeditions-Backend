@@ -12,17 +12,30 @@ export class AuthController extends AppController {
     super();
   }
   private setCookie = (res: Response, token: string) => {
+    const expiresAt = new Date(
+      Date.now() + 1000 * 60 * 60 * 24 * EnvsConst.COOKIE_EXPIRATION
+    ); //* 24 hours
+
     res.cookie(this.TOKEN_COOKIE_NAME, token, {
       httpOnly: true,
       secure: false,
       // secure: EnvsConst.NODE_ENV === "production",
-      expires: new Date(
-        Date.now() + 1000 * 60 * 60 * 24 * EnvsConst.COOKIE_EXPIRATION
-      ), // 1 day
+      expires: expiresAt,
       // sameSite: "none",
       path: "/",
     });
-    console.log("Cookie setted");
+
+    //* Set an additional non-HTTP-only cookie for expiration time
+    res.cookie("expiresAt", expiresAt.toISOString(), {
+      httpOnly: false, // Allow client-side access
+      secure: false,
+      expires: expiresAt,
+      path: "/",
+    });
+
+    return {
+      expiresAt: expiresAt.toISOString(),
+    };
   };
 
   public login = async (req: Request, res: Response) => {
@@ -32,12 +45,13 @@ export class AuthController extends AppController {
     await this.authService
       .login(loginDto!)
       .then((response) => {
-        this.setCookie(res, response.data.token);
+        const { expiresAt } = this.setCookie(res, response.data.token);
         return res.status(200).json({
           message: response.message,
           status: response.status,
           data: {
             user: response.data.user,
+            expiresAt,
           },
         });
       })
@@ -53,11 +67,13 @@ export class AuthController extends AppController {
   };
 
   public userAuthenticated = async (req: Request, res: Response) => {
+    const expiresAt = req.cookies.expiresAt;
     return res.status(200).json({
       message: "Usuario autenticado correctamente",
       status: 200,
       data: {
         user: req.body.user,
+        expiresAt,
       },
     });
   };

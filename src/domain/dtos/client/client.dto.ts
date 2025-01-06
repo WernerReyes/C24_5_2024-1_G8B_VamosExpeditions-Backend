@@ -1,25 +1,39 @@
 import { Validations } from "@/core/utils";
+import { ExternalCountryEntity } from "@/presentation/external/country/country.entity";
 
+export class ClientDto {
+  private constructor(
+    public fullName: string,
+    public email: string,
+    public phone: string,
+    public country: ExternalCountryEntity
+  ) {}
 
-export class  ClienDto{
-    constructor(
-        public fullName: string,
-        public country: string,
-        public email: string,
-        public phone: string
-    ){ }
+  static create(props: { [key: string]: any }): [string?, ClientDto?] {
+    const { fullName, country, email, phone } = props;
 
-    static create(props: { [key: string]: any }): [string?, ClienDto?] {
-        const { fullName, country, email, phone } = props;
+    const error = Validations.validateEmptyFields({
+      fullName,
+      country,
+      email,
+      phone,
+    });
+    if (error) return [error, undefined];
 
-        const error = Validations.validateEmptyFields({ fullName, country, email, phone });
-        if (error) return [error, undefined];
+    const emailError = Validations.validateEmail(email);
+    if (emailError) return [emailError, undefined];
 
-        const emailError = Validations.validateEmail(email);
-        if (emailError) return [emailError, undefined];
+    const countryEntityError = ExternalCountryEntity.validateEntity(country);
+    if (countryEntityError) return [countryEntityError, undefined];
 
-
-        return [undefined, new ClienDto(fullName.trim().charAt(0).toUpperCase() + fullName.slice(1), country.trim(), email.trim(), phone.trim())];
-    }
-    
+    return [
+      undefined,
+      new ClientDto(
+        fullName.trim().charAt(0).toUpperCase() + fullName.slice(1),
+        email.trim(),
+        phone.trim(),
+        country
+      ),
+    ];
+  }
 }
