@@ -47,9 +47,9 @@ model client {
   country     String        @db.VarChar(255)
   email       String        @unique @db.VarChar(255)
   phone       String        @db.VarChar(30)
+  continent   String        @db.VarChar(150)
   createdAt   DateTime?     @default(now()) @db.Timestamp(6)
   updatedAt   DateTime?     @default(now()) @db.Timestamp(6)
-  continent   String        @db.VarChar(150)
   reservation reservation[]
 
   @@index([email], map: "idx_email")
@@ -77,13 +77,13 @@ model reservation {
   start_date                DateTime                   @db.Date
   end_date                  DateTime                   @db.Date
   traveler_style            reservation_traveler_style
+  status                    reservation_status         @default(PENDING)
+  order_type                reservation_order_type     @default(DIRECT)
   additional_specifications String?
   code                      String                     @db.VarChar(50)
   clientId                  Int
   createdAt                 DateTime?                  @default(now()) @db.Timestamp(6)
   updatedAt                 DateTime?                  @default(now()) @db.Timestamp(6)
-  status                    reservation_status         @default(PENDING)
-  order_type                reservation_order_type
   client                    client                     @relation(fields: [clientId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_client")
   reservation_has_city      reservation_has_city[]
 }
@@ -91,8 +91,8 @@ model reservation {
 model reservation_has_city {
   city_id        Int
   reservation_id Int
-  city           city        @relation(fields: [city_id], references: [id_city], onDelete: Cascade, onUpdate: NoAction)
-  reservation    reservation @relation(fields: [reservation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  city           city        @relation(fields: [city_id], references: [id_city], onDelete: Cascade, onUpdate: NoAction, map: "fk_reservation_city")
+  reservation    reservation @relation(fields: [reservation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reservation")
 
   @@id([city_id, reservation_id])
 }
