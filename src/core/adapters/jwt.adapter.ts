@@ -1,9 +1,6 @@
 import jsw from "jsonwebtoken";
 import { EnvsConst } from "../constants";
 
-//* JWT_SEED is a string that is used to generate the token
-const JWT_SEED = EnvsConst.JWT_SEED;
-
 export class JwtAdapter {
   static async generateToken(
     payload: any,
