@@ -10,10 +10,10 @@ export class ClientService {
     private readonly clientResponse: ClientResponse
   ) {}
 
-  public async registerClient(ClientDto: ClientDto) {
-    const client = await ClienModel.findFirst({
+  public async createClient(clientDto: ClientDto) {
+    const client = await ClienModel.findUnique({
       where: {
-        email: ClientDto.email,
+        email: clientDto.email,
       },
     });
 
@@ -21,11 +21,43 @@ export class ClientService {
 
     try {
       const newClient = await ClienModel.create({
-        data: this.clientMapper.toRegister(ClientDto),
+        data: this.clientMapper.toRegister(clientDto),
       });
       return this.clientResponse.clientCreated(newClient);
     } catch (error) {
       console.error(`Error inserting client:`, error);
+      throw CustomError.internalServer(`${error}`);
+    }
+  }
+
+  public async updateClient(id: number, clientDto: ClientDto) {
+    const client = await ClienModel.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!client) throw CustomError.badRequest("El cliente no existe");
+
+    if (client.email !== clientDto.email) {
+      const clientEmail = await ClienModel.findUnique({
+        where: {
+          email: clientDto.email,
+        },
+      });
+      if (clientEmail) throw CustomError.badRequest("El email ya existe");
+    }
+
+    try {
+      const newClient = await ClienModel.update({
+        where: {
+          id,
+        },
+        data: this.clientMapper.toRegister(clientDto),
+      });
+      return this.clientResponse.clientUpdated(newClient);
+    } catch (error) {
+      console.error(`Error updating client:`, error);
       throw CustomError.internalServer(`${error}`);
     }
   }

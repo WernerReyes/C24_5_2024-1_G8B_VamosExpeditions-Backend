@@ -29,7 +29,7 @@ export class ClientEntity {
     return new ClientEntity(id, fullName, email, phone, country, continent);
   }
 
-  public static validateEntity(entity: ClientEntity): string | null {
+  public static validateEntity(entity: ClientEntity, from: string): string | null {
     const { id, fullName, email, phone, continent, country } = entity;
     return Validations.validateEmptyFields(
       {
@@ -40,7 +40,7 @@ export class ClientEntity {
         continent,
         country,
       },
-      "Client"
+      `${from}, ClientEntity`
     );
   }
 }

@@ -16,7 +16,8 @@ export class ClientRoutes {
 
     router.use([Middleware.validateToken]);
 
-    router.post("/register", clientController.registerClient);
+    router.post("/", clientController.createClient);
+    router.put("/:id", clientController.updateClient);
     router.get("", clientController.getClientsAlls);
 
     return router;

@@ -18,4 +18,12 @@ export class ClientResponse {
       data: ClientEntity.fromObject(client),
     };
   }
+
+  clientUpdated(client: client): AppResponse<ClientEntity> {
+    return {
+      status: 200,
+      message: "cliente actualizado",
+      data: ClientEntity.fromObject(client),
+    };
+  }
 }

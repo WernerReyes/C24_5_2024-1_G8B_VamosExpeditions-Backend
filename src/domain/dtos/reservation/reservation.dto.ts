@@ -1,6 +1,7 @@
 import { Validations } from "@/core/utils";
 import { ClientEntity, OrderType, TravelerStyle } from "@/domain/entities";
 
+const FROM = "ReservationDto";
 export class ReservationDto {
   constructor(
     public readonly client: ClientEntity,
@@ -27,16 +28,19 @@ export class ReservationDto {
     } = props;
 
     // Validar campos vacíos
-    const error = Validations.validateEmptyFields({
-      client,
-      numberOfPeople,
-      travelDates,
-      code,
-      travelerStyle,
-      orderType,
-      destination,
-      specialSpecifications,
-    });
+    const error = Validations.validateEmptyFields(
+      {
+        client,
+        numberOfPeople,
+        travelDates,
+        code,
+        travelerStyle,
+        orderType,
+        destination,
+        specialSpecifications,
+      },
+      FROM
+    );
     if (error) return [error, undefined];
 
     const errorNumber = Validations.validateNumberFields({
@@ -59,7 +63,7 @@ export class ReservationDto {
     );
     if (errorOrderType) return [errorOrderType, undefined];
 
-    const clientEntityError = ClientEntity.validateEntity(client);
+    const clientEntityError = ClientEntity.validateEntity(client, FROM);
     if (clientEntityError) return [clientEntityError, undefined];
 
     return [

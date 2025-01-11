@@ -1,6 +1,6 @@
 import { ReservationModel } from "@/data/postgres";
 
-import { ReservationDto } from "@/domain/dtos";
+import { GetReservationsDto, ReservationDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 import { ReservationResponse } from "./reservation.response";
 import { ReservationMapper } from "./reservation.mapper";
@@ -41,7 +41,7 @@ export class ReservationService {
         data: this.reservationMapper.toRegister(reservationDto, "update"),
         include: this.reservationMapper.toSelectInclude(),
       });
-    
+
       return this.reservationResponse.reservationUpdated(updatedReservation);
     } catch (error) {
       console.log("error", error);
@@ -58,15 +58,12 @@ export class ReservationService {
     return this.reservationResponse.reservationFound(reservation);
   }
 
-  public async getReservationsByStatus(status: string) {
-    const error = Validations.validateEnumValue(
-      status,
-      Object.values(ReservationStatus)
-    );
-    if (error) throw CustomError.badRequest(error);
+  public async getReservations({ status }: GetReservationsDto) {
     try {
       const reservations = await ReservationModel.findMany({
-        where: { status: status as any },
+        where: {
+          status: status as any,
+        },
         include: this.reservationMapper.toSelectInclude(),
       });
       if (!reservations) throw CustomError.notFound("Reservations not found");

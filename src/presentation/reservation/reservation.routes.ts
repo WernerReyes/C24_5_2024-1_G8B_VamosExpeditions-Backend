@@ -21,7 +21,7 @@ export class ReservationRoutes {
     router.post("", reservationController.createReservation);
     router.put("/:id", reservationController.updateReservation);
     router.get("/:id", reservationController.getReservationById);
-    router.get("/status/:status", reservationController.getReservationsByStatus);
+    router.get("", reservationController.getReservations);
     return router;
   }
 }

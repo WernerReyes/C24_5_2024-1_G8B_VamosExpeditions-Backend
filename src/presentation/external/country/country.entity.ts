@@ -36,13 +36,14 @@ export class ExternalCountryEntity {
     return new ExternalCountryEntity(name, code, { svg, png }, continents[0]);
   }
 
-  public static validateEntity(entity: ExternalCountryEntity): string | null {
+  public static validateEntity(entity: ExternalCountryEntity, from: string): string | null {
     const { name, code, image, continent } = entity;
     return Validations.validateEmptyFields({
       name,
       code,
       image,
       continent,
-    });
+    },
+    `${from}, ExternalCountryEntity`);
   }
 }

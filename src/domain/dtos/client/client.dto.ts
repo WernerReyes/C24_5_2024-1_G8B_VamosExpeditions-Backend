@@ -1,6 +1,7 @@
 import { Validations } from "@/core/utils";
 import { ExternalCountryEntity } from "@/presentation/external/country/country.entity";
 
+const FROM = "ClientDto";
 export class ClientDto {
   private constructor(
     public fullName: string,
@@ -12,18 +13,24 @@ export class ClientDto {
   static create(props: { [key: string]: any }): [string?, ClientDto?] {
     const { fullName, country, email, phone } = props;
 
-    const error = Validations.validateEmptyFields({
-      fullName,
-      country,
-      email,
-      phone,
-    });
+    const error = Validations.validateEmptyFields(
+      {
+        fullName,
+        country,
+        email,
+        phone,
+      },
+      FROM
+    );
     if (error) return [error, undefined];
 
     const emailError = Validations.validateEmail(email);
     if (emailError) return [emailError, undefined];
 
-    const countryEntityError = ExternalCountryEntity.validateEntity(country);
+    const countryEntityError = ExternalCountryEntity.validateEntity(
+      country,
+      FROM
+    );
     if (countryEntityError) return [countryEntityError, undefined];
 
     return [
