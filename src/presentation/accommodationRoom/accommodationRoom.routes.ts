@@ -19,6 +19,7 @@ export class AccommodationRoomRoutes {
     router.use(Middleware.validateToken);
 
     router.get("/", accommodationRoomController.getAll);
+    router.get("/search/:country/:city", accommodationRoomController.countryAndCity);
     // router.get("/:id", accommodationRoomController.getById);
     // router.post("/", accommodationRoomController.create);
     // router.put("/:id", accommodationRoomController.update);

@@ -91,8 +91,8 @@ model reservation {
 model reservation_has_city {
   city_id        Int
   reservation_id Int
-  city           city        @relation(fields: [city_id], references: [id_city], onDelete: Cascade, onUpdate: NoAction, map: "fk_reservation_city")
-  reservation    reservation @relation(fields: [reservation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reservation")
+  city           city        @relation(fields: [city_id], references: [id_city], onDelete: Cascade, onUpdate: NoAction)
+  reservation    reservation @relation(fields: [reservation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([city_id, reservation_id])
 }
@@ -112,9 +112,9 @@ model user {
   role     role   @relation(fields: [id_role], references: [id_role], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_role")
 }
 
-enum role_type {
-  MANAGER_ROLE
-  EMPLOYEE_ROLE
+enum reservation_order_type {
+  DIRECT
+  INDIRECT
 }
 
 enum reservation_status {
@@ -124,13 +124,13 @@ enum reservation_status {
   CANCELATED
 }
 
-enum reservation_order_type {
-  DIRECT
-  INDIRECT
-}
-
 enum reservation_traveler_style {
   STANDARD
   COMFORT
   LUXUS
+}
+
+enum role_type {
+  MANAGER_ROLE
+  EMPLOYEE_ROLE
 }

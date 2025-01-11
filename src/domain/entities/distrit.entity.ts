@@ -1,22 +1,32 @@
 import { Validations } from "@/core/utils";
-import { CityEntity } from "./city.entity";
 import { CustomError } from "../error";
+import { HotelEntity } from "./hotel.entity";
 
 export class DistritEntity {
   private constructor(
     private readonly id: number,
-    private readonly name: string
+    private readonly name: string,
+    private readonly hotel?: HotelEntity[]
   ) {}
 
   public static fromObject(object: { [key: string]: any }): DistritEntity {
-    const { id_distrit, name, city_id } = object;
+    const { id_distrit, name, accommodation } = object;
+    /* console.log(object) */
     const error = Validations.validateEmptyFields({
       id_distrit,
       name,
-      city_id,
     });
     if (error) throw CustomError.badRequest(error);
 
-    return new DistritEntity(id_distrit, name);
+   
+    return new DistritEntity(
+      id_distrit,
+      name,
+      accommodation
+        ? accommodation.map((hotel: HotelEntity) =>
+            HotelEntity.fromObject(hotel)
+          )
+        : undefined
+    );
   }
 }
