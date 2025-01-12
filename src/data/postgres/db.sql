@@ -121,6 +121,7 @@ CREATE TABLE  IF NOT EXISTS  "client" (
     "country" VARCHAR(255) NOT NULL,
     "email" VARCHAR(255) UNIQUE NOT NULL,
     "phone" VARCHAR(30) NOT NULL,
+	"continent" VARCHAR(150) NOT NULL,
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Fecha de última actualización
 );
@@ -130,8 +131,7 @@ CREATE TABLE  IF NOT EXISTS  "client" (
 CREATE INDEX idx_full_name ON "client" ("fullName");
 CREATE INDEX idx_email ON "client" ("email");
 
-ALTER TABLE "client"
- RENAME COLUMN "region" to "continent"
+
 
 
 -- -----------------------------------------------------
@@ -156,8 +156,7 @@ CREATE TYPE reservation_order_type AS ENUM (
     'INDIRECT'
 );
 
-ALTER TYPE reservation_traveler_style
-RENAME VALUE 'STANDART' TO 'STANDARD';
+
 
 
 
@@ -168,7 +167,7 @@ CREATE TABLE IF NOT EXISTS  "reservation" (
     "start_date" DATE NOT NULL,
     "end_date" DATE NOT NULL,
     "traveler_style" reservation_traveler_style NOT NULL, -- Nivel de confort
-    "status" reservation_status DEFAULT "PENDING" NOT NULL,
+    "status" reservation_status DEFAULT 'PENDING' NOT NULL,
     "order_type" reservation_order_type DEFAULT 'DIRECT' NOT NULL,
     "additional_specifications" TEXT, -- Especificaciones adicionales
     "code" VARCHAR(50) NOT NULL, -- Código de la reserva
@@ -178,22 +177,10 @@ CREATE TABLE IF NOT EXISTS  "reservation" (
     CONSTRAINT fk_client FOREIGN KEY ("clientId") REFERENCES "client" (id) ON DELETE CASCADE
 );
 
-ALTER TABLE "reservation"
-ADD COLUMN "order_type" reservation_order_type DEFAULT 'DIRECT' NOT NULL;
 
 
-ALTER TABLE "reservation"
-ALTER COLUMN "traveler_style" reservation_traveler_style DEFAULT 'STANDART' NOT NULL;
 
-ALTER TABLE "reservation"
-ALTER COLUMN "traveler_style" TYPE reservation_traveler_style
-USING "traveler_style"::reservation_traveler_style;
 
-ALTER TABLE "reservation"
-ALTER COLUMN "traveler_style" SET NOT NULL;
-
-ALTER TABLE "reservation"
-ALTER COLUMN "order_type" DROP DEFAULT;
 
 
 

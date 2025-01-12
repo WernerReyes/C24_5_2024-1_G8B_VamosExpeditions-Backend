@@ -1,5 +1,12 @@
 import { ReservationDto } from "@/domain/dtos";
-import type { reservation_order_type, reservation_traveler_style } from "@prisma/client";
+import type {
+  reservation_order_type,
+  reservation_traveler_style,
+} from "@prisma/client";
+
+
+
+
 
 export class ReservationMapper {
   public toRegister = (
@@ -11,7 +18,8 @@ export class ReservationMapper {
       start_date: reservationDto.startDate,
       end_date: reservationDto.endDate,
       clientId: reservationDto.client.id,
-      traveler_style: reservationDto.travelerStyle as any as reservation_traveler_style,
+      traveler_style:
+        reservationDto.travelerStyle as any as reservation_traveler_style,
       order_type: reservationDto.orderType as any as reservation_order_type,
       additional_specifications: reservationDto.specialSpecifications,
       code: reservationDto.code,
