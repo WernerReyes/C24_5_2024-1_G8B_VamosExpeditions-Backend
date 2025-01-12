@@ -1,3 +1,4 @@
+import { CustomError } from "@/domain/error";
 import { RegexConst } from "../constants/regex.const";
 
 export class Validations {

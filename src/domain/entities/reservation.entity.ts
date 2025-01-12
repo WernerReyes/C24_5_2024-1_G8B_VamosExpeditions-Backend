@@ -1,9 +1,8 @@
 import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
-import { CityEntity } from "./city.entity";
+import { City, CityEntity } from "./city.entity";
 import { ClientEntity } from "./client.entity";
 import type {
-  city,
   client,
   reservation,
   reservation_has_city,
@@ -11,7 +10,7 @@ import type {
 
 export type Reservation = reservation & {
   reservation_has_city: (reservation_has_city & {
-    city: city;
+    city: City;
   })[];
   client: client;
 };

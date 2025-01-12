@@ -3,8 +3,8 @@ DROP TYPE IF EXISTS role_type;
 DROP TABLE IF EXISTS "user";
 DROP TABLE IF EXISTS role;
 
-DROP table if EXISTS accommodation_room;
-DROP table if EXISTS accommodation;
+DROP table if EXISTS hotel_room;
+DROP table if EXISTS hotel;
 
 DROP table if EXISTS reservation_has_city;
 DROP table if EXISTS reservation;
@@ -77,27 +77,27 @@ CREATE TABLE IF NOT EXISTS distrit (
 );
 
 -- -----------------------------------------------------
--- Table `accommodation`
+-- Table `hotel`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS accommodation (
-  id_accommodation SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS hotel (
+  id_hotel SERIAL PRIMARY KEY,
   name VARCHAR(45) NOT NULL,
   category VARCHAR(45) NOT NULL,
   address VARCHAR(45) NOT NULL,
   rating INT NOT NULL,
   email VARCHAR(50) NULL,
-  distrit_id_distrit INT NOT NULL,
-  CONSTRAINT fk_accommodation_distrit FOREIGN KEY (distrit_id_distrit)
+  distrit_id INT NOT NULL,
+  CONSTRAINT fk_hotel_distrit FOREIGN KEY (distrit_id)
     REFERENCES distrit (id_distrit)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );
 
 -- -----------------------------------------------------
--- Table `accommodation_room`
+-- Table `hotel_room`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS accommodation_room (
-  id_accommodation_room SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS hotel_room (
+  id_hotel_room SERIAL PRIMARY KEY,
   room_type VARCHAR(100) NOT NULL,
   price_usd NUMERIC(10,2),
   service_tax NUMERIC(10,2),
@@ -105,9 +105,9 @@ CREATE TABLE IF NOT EXISTS accommodation_room (
   price_pen NUMERIC(10,2),
   capacity INT NOT NULL,
   available BOOLEAN NOT NULL,
-  accommodation_id INT NOT NULL,
-  CONSTRAINT fk_hotel_room_hotel FOREIGN KEY (accommodation_id)
-    REFERENCES accommodation (id_accommodation)
+  hotel_id INT NOT NULL,
+  CONSTRAINT fk_hotel_room_hotel FOREIGN KEY (hotel_id)
+    REFERENCES hotel (id_hotel)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );

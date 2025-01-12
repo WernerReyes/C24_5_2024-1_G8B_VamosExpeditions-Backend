@@ -6,9 +6,9 @@ import {
   country,
   city,
   distrit,
-  accommodation_room,
+  hotel_room,
   Prisma,
-  accommodation,
+  hotel,
 } from "@prisma/client";
 
 export const ROLES: role[] = [
@@ -151,57 +151,57 @@ export const DISTRICTS: distrit[] = [
   },
 ];
 
-export const ACCOMMODATIONS: accommodation[] = [
+export const HOTELS: hotel[] = [
   {
-    id_accommodation: 1,
+    id_hotel: 1,
     name: "Hotel 1",
     rating: 5,
     category: "5 Estrellas",
     address: "Calle 1",
-    distrit_id_distrit: 1,
+    distrit_id: 1,
     email: "hotel1@gmail.com",
   },
   {
-    id_accommodation: 2,
+    id_hotel: 2,
     name: "Hotel 2",
     rating: 4,
     category: "4 Estrellas",
     address: "Calle 2",
-    distrit_id_distrit: 2,
+    distrit_id: 2,
     email: "hotel2@gmail.com",
   },
   {
-    id_accommodation: 3,
+    id_hotel: 3,
     name: "Hotel 3",
     rating: 3,
     category: "3 Estrellas",
     address: "Calle 3",
-    distrit_id_distrit: 3,
+    distrit_id: 3,
     email: "hotel3@gmail.com",
   },
   {
-    id_accommodation: 4,
+    id_hotel: 4,
     name: "Hotel 4",
     rating: 2,
     category: "2 Estrellas",
     address: "Calle 4",
-    distrit_id_distrit: 9,
+    distrit_id: 9,
     email: "hotel4@gmail.com",
   },
   {
-    id_accommodation: 5,
+    id_hotel: 5,
     name: "Hotel 5",
     rating: 1,
     category: "1 Estrellas",
     address: "Calle 5",
-    distrit_id_distrit: 10,
+    distrit_id: 10,
     email: "hotel5@gmail.com",
   },
 ];
 
-export const ACCOMMODATION_ROOMS: accommodation_room[] = [
+export const HOTEL_ROOMS: hotel_room[] = [
   {
-    id_accommodation_room: 1,
+    id_hotel_room: 1,
     room_type: "SINGLE",
     price_usd: new Prisma.Decimal(100),
     service_tax: new Prisma.Decimal(0.18),
@@ -209,10 +209,10 @@ export const ACCOMMODATION_ROOMS: accommodation_room[] = [
     price_pen: new Prisma.Decimal(390),
     capacity: 1,
     available: true,
-    accommodation_id: 1,
+    hotel_id: 1,
   },
   {
-    id_accommodation_room: 2,
+    id_hotel_room: 2,
     room_type: "DOUBLE",
     price_usd: new Prisma.Decimal(200),
     service_tax: new Prisma.Decimal(0.18),
@@ -220,10 +220,10 @@ export const ACCOMMODATION_ROOMS: accommodation_room[] = [
     price_pen: new Prisma.Decimal(780),
     capacity: 2,
     available: true,
-    accommodation_id: 1,
+    hotel_id: 1,
   },
   {
-    id_accommodation_room: 3,
+    id_hotel_room: 3,
     room_type: "TRIPLE",
     price_usd: new Prisma.Decimal(300),
     service_tax: new Prisma.Decimal(0.18),
@@ -231,10 +231,10 @@ export const ACCOMMODATION_ROOMS: accommodation_room[] = [
     price_pen: new Prisma.Decimal(1170),
     capacity: 3,
     available: true,
-    accommodation_id: 1,
+    hotel_id: 1,
   },
   {
-    id_accommodation_room: 4,
+    id_hotel_room: 4,
     room_type: "SINGLE",
     price_usd: new Prisma.Decimal(100),
     service_tax: new Prisma.Decimal(0.18),
@@ -242,10 +242,10 @@ export const ACCOMMODATION_ROOMS: accommodation_room[] = [
     price_pen: new Prisma.Decimal(390),
     capacity: 1,
     available: true,
-    accommodation_id: 2,
+    hotel_id: 2,
   },
   {
-    id_accommodation_room: 5,
+    id_hotel_room: 5,
     room_type: "DOUBLE",
     price_usd: new Prisma.Decimal(200),
     service_tax: new Prisma.Decimal(0.18),
@@ -253,6 +253,6 @@ export const ACCOMMODATION_ROOMS: accommodation_room[] = [
     price_pen: new Prisma.Decimal(780),
     capacity: 2,
     available: true,
-    accommodation_id: 2,
+    hotel_id: 2,
   },
 ]

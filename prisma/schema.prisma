@@ -7,31 +7,6 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
-model accommodation {
-  id_accommodation   Int                  @id @default(autoincrement())
-  name               String               @db.VarChar(45)
-  category           String               @db.VarChar(45)
-  address            String               @db.VarChar(45)
-  rating             Int
-  email              String?              @db.VarChar(50)
-  distrit_id_distrit Int
-  distrit            distrit              @relation(fields: [distrit_id_distrit], references: [id_distrit], onDelete: NoAction, onUpdate: NoAction, map: "fk_accommodation_distrit")
-  accommodation_room accommodation_room[]
-}
-
-model accommodation_room {
-  id_accommodation_room Int           @id @default(autoincrement())
-  room_type             String        @db.VarChar(100)
-  price_usd             Decimal?      @db.Decimal(10, 2)
-  service_tax           Decimal?      @db.Decimal(10, 2)
-  rate_usd              Decimal?      @db.Decimal(10, 2)
-  price_pen             Decimal?      @db.Decimal(10, 2)
-  capacity              Int
-  available             Boolean
-  accommodation_id      Int
-  accommodation         accommodation @relation(fields: [accommodation_id], references: [id_accommodation], onDelete: NoAction, onUpdate: NoAction, map: "fk_hotel_room_hotel")
-}
-
 model city {
   id_city              Int                    @id @default(autoincrement())
   name                 String                 @db.VarChar(45)
@@ -64,11 +39,11 @@ model country {
 }
 
 model distrit {
-  id_distrit    Int             @id @default(autoincrement())
-  name          String          @db.VarChar(45)
-  city_id       Int
-  accommodation accommodation[]
-  city          city            @relation(fields: [city_id], references: [id_city], onDelete: NoAction, onUpdate: NoAction, map: "fk_distrit_city")
+  id_distrit Int     @id @default(autoincrement())
+  name       String  @db.VarChar(45)
+  city_id    Int
+  city       city    @relation(fields: [city_id], references: [id_city], onDelete: NoAction, onUpdate: NoAction, map: "fk_distrit_city")
+  hotel      hotel[]
 }
 
 model reservation {
@@ -110,6 +85,31 @@ model user {
   password String @db.VarChar(200)
   id_role  Int
   role     role   @relation(fields: [id_role], references: [id_role], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_role")
+}
+
+model hotel {
+  id_hotel   Int          @id @default(autoincrement())
+  name       String       @db.VarChar(45)
+  category   String       @db.VarChar(45)
+  address    String       @db.VarChar(45)
+  rating     Int
+  email      String?      @db.VarChar(50)
+  distrit_id Int
+  distrit    distrit      @relation(fields: [distrit_id], references: [id_distrit], onDelete: NoAction, onUpdate: NoAction, map: "fk_hotel_distrit")
+  hotel_room hotel_room[]
+}
+
+model hotel_room {
+  id_hotel_room Int      @id @default(autoincrement())
+  room_type     String   @db.VarChar(100)
+  price_usd     Decimal? @db.Decimal(10, 2)
+  service_tax   Decimal? @db.Decimal(10, 2)
+  rate_usd      Decimal? @db.Decimal(10, 2)
+  price_pen     Decimal? @db.Decimal(10, 2)
+  capacity      Int
+  available     Boolean
+  hotel_id      Int
+  hotel         hotel    @relation(fields: [hotel_id], references: [id_hotel], onDelete: NoAction, onUpdate: NoAction, map: "fk_hotel_room_hotel")
 }
 
 enum reservation_order_type {

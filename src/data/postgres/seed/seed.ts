@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { ROLES, USERS, 
-  COUNTRIES, CITIES, DISTRICTS, ACCOMMODATIONS, ACCOMMODATION_ROOMS
+  COUNTRIES, CITIES, DISTRICTS, HOTELS, HOTEL_ROOMS
  } from "./data";
 const prisma = new PrismaClient();
 
@@ -18,8 +18,8 @@ async function seed() {
     prisma.country.deleteMany(),
     prisma.city.deleteMany(),
     prisma.distrit.deleteMany(),
-    prisma.accommodation.deleteMany(),
-    prisma.accommodation_room.deleteMany(),
+    prisma.hotel.deleteMany(),
+    prisma.hotel_room.deleteMany(),
   ]);
 
   //* Insert Roles
@@ -47,14 +47,14 @@ async function seed() {
     data: DISTRICTS,
   });
 
-  //* Insert Accommodations
-  await prisma.accommodation.createMany({
-    data: ACCOMMODATIONS,
+  //* Insert HOTELS
+  await prisma.hotel.createMany({
+    data: HOTELS,
   });
 
-  //* Insert Accommodation Rooms
-  await prisma.accommodation_room.createMany({
-    data: ACCOMMODATION_ROOMS,
+  //* Insert HOTELS Rooms
+  await prisma.hotel_room.createMany({
+    data: HOTEL_ROOMS,
   });
   
 

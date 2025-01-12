@@ -1,32 +1,29 @@
 import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
-import { HotelEntity } from "./hotel.entity";
+import type { distrit } from "@prisma/client";
+import { City, CityEntity } from "./city.entity";
+
+export type Distrit = distrit & {
+  city: City;
+};
 
 export class DistritEntity {
   private constructor(
     private readonly id: number,
     private readonly name: string,
-    private readonly hotel?: HotelEntity[]
+    private readonly city: CityEntity
   ) {}
 
-  public static fromObject(object: { [key: string]: any }): DistritEntity {
-    const { id_distrit, name, accommodation } = object;
+  public static fromObject(distrit: Distrit): DistritEntity {
+    const { id_distrit, name, city } = distrit;
     /* console.log(object) */
     const error = Validations.validateEmptyFields({
       id_distrit,
       name,
+      city,
     });
     if (error) throw CustomError.badRequest(error);
 
-   
-    return new DistritEntity(
-      id_distrit,
-      name,
-      accommodation
-        ? accommodation.map((hotel: HotelEntity) =>
-            HotelEntity.fromObject(hotel)
-          )
-        : undefined
-    );
+    return new DistritEntity(id_distrit, name, CityEntity.fromObject(city));
   }
 }

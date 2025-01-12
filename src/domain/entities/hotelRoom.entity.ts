@@ -15,7 +15,7 @@ export class HotelRoomEntity {
 
   public static fromJson(object: { [key: string]: any }): HotelRoomEntity {
     const {
-      id_accommodation_room,
+      id_hotel_room,
       room_type,
       price_usd,
       service_tax,
@@ -26,7 +26,7 @@ export class HotelRoomEntity {
     } = object;
 
     const error = Validations.validateEmptyFields({
-      id_accommodation_room,
+      id_hotel_room,
       room_type,
       price_usd,
       service_tax,
@@ -38,7 +38,7 @@ export class HotelRoomEntity {
     if (error) throw CustomError.badRequest(error);
 
     return new HotelRoomEntity(
-      id_accommodation_room,
+      id_hotel_room,
       room_type,
       price_usd,
       service_tax,

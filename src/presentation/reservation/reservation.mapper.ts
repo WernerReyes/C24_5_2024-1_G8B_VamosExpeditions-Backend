@@ -4,15 +4,11 @@ import type {
   reservation_traveler_style,
 } from "@prisma/client";
 
-
-
-
-
 export class ReservationMapper {
-  public toRegister = (
+  public toRegister(
     reservationDto: ReservationDto,
     op: "create" | "update" = "create"
-  ) => {
+  ) {
     let baseData = {
       number_of_people: reservationDto.numberOfPeople,
       start_date: reservationDto.startDate,
@@ -41,9 +37,9 @@ export class ReservationMapper {
     };
 
     return updateData;
-  };
+  }
 
-  public toSelectInclude = () => {
+  public get toSelectInclude() {
     return {
       reservation_has_city: {
         include: {
@@ -56,5 +52,5 @@ export class ReservationMapper {
       },
       client: true,
     };
-  };
+  }
 }

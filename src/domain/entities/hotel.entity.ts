@@ -1,6 +1,13 @@
 import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
 import { HotelRoomEntity } from "./hotelRoom.entity";
+import { distrit, hotel, hotel_room } from "@prisma/client";
+import { Distrit, DistritEntity } from "./distrit.entity";
+
+export type Hotel = hotel & {
+  hotel_room: hotel_room[];
+  distrit: Distrit;
+};
 
 export class HotelEntity {
   private constructor(
@@ -9,44 +16,45 @@ export class HotelEntity {
     private readonly category: string,
     private readonly address: string,
     private readonly rating: number,
-    private readonly email: string,
-    private readonly hotelRoom: HotelRoomEntity[]
+    private readonly hotelRooms: HotelRoomEntity[],
+    private readonly distrit: DistritEntity,
+    private readonly email: string | null
   ) {}
 
-  public static fromObject(object: { [key: string]: any }): HotelEntity {
+  public static fromObject(hotel: Hotel): HotelEntity {
     const {
-      id_accommodation,
+      id_hotel,
       name,
       category,
+      distrit,
       address,
       rating,
       email,
-      accommodation_room,
-    } = object;
+      hotel_room,
+    } = hotel;
 
-    const error = Validations.validateEmptyFields({
-      id_accommodation,
-      name,
-      category,
-      address,
-      rating,
-      email,
-    });
+    const error = Validations.validateEmptyFields(
+      {
+        id_hotel,
+        name,
+        category,
+        address,
+        rating,
+        email,
+      },
+      "HotelEntity"
+    );
     if (error) throw CustomError.badRequest(error);
 
     return new HotelEntity(
-      object.id,
-      object.name,
-      object.category,
-      object.address,
-      object.rating,
-      object.email,
-
-      accommodation_room
-        ? accommodation_room.map((hotel: HotelRoomEntity) =>
-            HotelRoomEntity.fromJson(hotel)
-          )
-        : undefined
+      id_hotel,
+      name,
+      category,
+      address,
+      rating,
+      hotel_room.map(HotelRoomEntity.fromJson),
+      DistritEntity.fromObject(distrit),
+      email
     );
   }
 }

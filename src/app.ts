@@ -1,7 +1,5 @@
 import { EnvsConst } from "./core/constants";
 import {
-  AccommodationModel,
-  AccommodationRoomModel,
   ClienModel,
   CountryModel,
   CityModel,

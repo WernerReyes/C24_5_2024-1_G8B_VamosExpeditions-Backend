@@ -1,12 +1,8 @@
 import { ReservationModel } from "@/data/postgres";
-
 import { GetReservationsDto, ReservationDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 import { ReservationResponse } from "./reservation.response";
 import { ReservationMapper } from "./reservation.mapper";
-import { ReservationStatus } from "@/domain/entities";
-import { Validations } from "@/core/utils";
-
 export class ReservationService {
   constructor(
     private reservationMapper: ReservationMapper,
@@ -18,7 +14,7 @@ export class ReservationService {
       //* Create reservation
       const reservation = await ReservationModel.create({
         data: this.reservationMapper.toRegister(reservationDto),
-        include: this.reservationMapper.toSelectInclude(),
+        include: this.reservationMapper.toSelectInclude,
       });
       
       return this.reservationResponse.reservationCreated(reservation);
@@ -31,7 +27,7 @@ export class ReservationService {
   public async updateReservation(id: number, reservationDto: ReservationDto) {
     const reservation = await ReservationModel.findUnique({
       where: { id },
-      include: this.reservationMapper.toSelectInclude(),
+      include: this.reservationMapper.toSelectInclude,
     });
     if (!reservation) throw CustomError.notFound("Reservation not found");
 
@@ -39,7 +35,7 @@ export class ReservationService {
       const updatedReservation = await ReservationModel.update({
         where: { id },
         data: this.reservationMapper.toRegister(reservationDto, "update"),
-        include: this.reservationMapper.toSelectInclude(),
+        include: this.reservationMapper.toSelectInclude,
       });
 
       return this.reservationResponse.reservationUpdated(updatedReservation);
@@ -52,7 +48,7 @@ export class ReservationService {
   public async getReservationById(id: number) {
     const reservation = await ReservationModel.findUnique({
       where: { id },
-      include: this.reservationMapper.toSelectInclude(),
+      include: this.reservationMapper.toSelectInclude,
     });
     if (!reservation) throw CustomError.notFound("Reservation not found");
     return this.reservationResponse.reservationFound(reservation);
@@ -64,7 +60,7 @@ export class ReservationService {
         where: {
           status: status as any,
         },
-        include: this.reservationMapper.toSelectInclude(),
+        include: this.reservationMapper.toSelectInclude,
       });
       if (!reservations) throw CustomError.notFound("Reservations not found");
       return this.reservationResponse.reservationsFound(reservations);

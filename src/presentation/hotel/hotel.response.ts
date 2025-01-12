@@ -1,17 +1,13 @@
-import { type accommodation_room, accommodation, city } from "@prisma/client";
-import { AccommodationRoomEntity, City, CityEntity } from "@/domain/entities";
+import { type hotel_room, hotel, city } from "@prisma/client";
+import { HotelEntity, City, CityEntity, Hotel } from "@/domain/entities";
 import { AppResponse } from "@/presentation/response";
 
-export class AccommodationRoomResponse {
-  getAll(
-    accommodationRooms: accommodation_room[]
-  ): AppResponse<AccommodationRoomEntity[]> {
+export class HotelResponse {
+  getAll(hotels: Hotel[]): AppResponse<HotelEntity[]> {
     return {
       status: 200,
       message: "Habitaciones de alojamiento obtenidas correctamente",
-      data: accommodationRooms.map((accommodationRoom) =>
-        AccommodationRoomEntity.fromJson(accommodationRoom)
-      ),
+      data: hotels.map(HotelEntity.fromObject),
     };
   }
 

@@ -27,7 +27,8 @@ export class Middleware {
       if (!user) {
         return res.status(401).json({
           ok: false,
-          message: "User not found",
+          message: "Invalid token",
+          code: ErrorCodeConst.ERR_USER_INVALID_TOKEN,
         });
       }
       const userEntity = UserEntity.fromObject(user);
