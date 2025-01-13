@@ -43,6 +43,9 @@ export class ReservationController extends AppController {
   public getReservations = (req: Request, res: Response) => {
     const [error, getReservationsDto] = GetReservationsDto.create(req.query);
     if (error) return this.handleError(res, CustomError.badRequest(error));
-    this.reservationService.getReservations(getReservationsDto!);
+    this.reservationService
+      .getReservations(getReservationsDto!)
+      .then((reservations) => res.status(200).json(reservations))
+      .catch((error) => this.handleError(res, error));
   };
 }

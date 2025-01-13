@@ -1,18 +1,19 @@
 import { CountryModel } from "@/data/postgres";
 import { CustomError } from "@/domain/error";
-import { NationResponse } from "./nation.response";
+import { CountryResponse } from "./country.response";
 
-export class NationService {
-  constructor(private readonly nationResponse: NationResponse) {}
+export class CountryService {
+  constructor(private readonly countryResponse: CountryResponse) {}
 
-  public async getAllNations() {
+  public async getAllCountries() {
     try {
       const countries = await CountryModel.findMany({
         include: {
           city: true,
         },
       });
-      return this.nationResponse.nationAlls(countries);
+      console.log(countries);
+      return this.countryResponse.countriesFound(countries);
     } catch (error) {
       throw CustomError.internalServer(`${error}`);
     }

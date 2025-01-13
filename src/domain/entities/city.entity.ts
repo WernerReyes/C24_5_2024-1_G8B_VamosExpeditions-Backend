@@ -4,13 +4,13 @@ import type { city, country } from "@prisma/client";
 import { CountryEntity } from "./country.entity";
 
 export type City = city & {
-  country: country;
+  country?: country;
 };
 export class CityEntity {
   constructor(
     public readonly id: number,
     public readonly name: string,
-    public readonly country: CountryEntity
+    public readonly country?: CountryEntity
   ) {}
 
   public static fromObject(city: City): CityEntity {
@@ -19,11 +19,14 @@ export class CityEntity {
     const error = Validations.validateEmptyFields({
       id_city,
       name,
-      country,
     });
     if (error) throw CustomError.badRequest(error);
 
-    return new CityEntity(id_city, name, CountryEntity.fromObject(country));
+    return new CityEntity(
+      id_city,
+      name,
+      country ? CountryEntity.fromObject(country) : undefined
+    );
   }
 
   public static validateEntity(
@@ -32,11 +35,13 @@ export class CityEntity {
   ): string | null {
     const { id, name, country } = entity;
 
-    const countryError = CountryEntity.validateEntity(
-      country,
-      `${from}, CityEntity`
-    );
-    if (countryError) return countryError;
+    if (country) {
+      const countryError = CountryEntity.validateEntity(
+        country,
+        `${from}, CityEntity`
+      );
+      if (countryError) return countryError;
+    }
 
     return Validations.validateEmptyFields(
       {

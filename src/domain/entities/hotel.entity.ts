@@ -5,8 +5,8 @@ import { distrit, hotel, hotel_room } from "@prisma/client";
 import { Distrit, DistritEntity } from "./distrit.entity";
 
 export type Hotel = hotel & {
-  hotel_room: hotel_room[];
-  distrit: Distrit;
+  hotel_room?: hotel_room[];
+  distrit?: Distrit;
 };
 
 export class HotelEntity {
@@ -16,9 +16,9 @@ export class HotelEntity {
     private readonly category: string,
     private readonly address: string,
     private readonly rating: number,
-    private readonly hotelRooms: HotelRoomEntity[],
-    private readonly distrit: DistritEntity,
-    private readonly email: string | null
+    private readonly email: string | null,
+    private readonly hotelRooms?: HotelRoomEntity[],
+    private readonly distrit?: DistritEntity
   ) {}
 
   public static fromObject(hotel: Hotel): HotelEntity {
@@ -40,7 +40,6 @@ export class HotelEntity {
         category,
         address,
         rating,
-        email,
       },
       "HotelEntity"
     );
@@ -52,9 +51,9 @@ export class HotelEntity {
       category,
       address,
       rating,
-      hotel_room.map(HotelRoomEntity.fromJson),
-      DistritEntity.fromObject(distrit),
-      email
+      email,
+      hotel_room ? hotel_room.map(HotelRoomEntity.fromJson) : undefined,
+      distrit ? DistritEntity.fromObject(distrit) : undefined
     );
   }
 }

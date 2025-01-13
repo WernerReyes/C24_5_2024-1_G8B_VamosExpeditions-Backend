@@ -32,9 +32,7 @@ export class ReservationResponse {
     return {
       status: 200,
       message: "Reservas encontradas",
-      data: reservations.map((reservation) =>
-        ReservationEntity.fromObject(reservation)
-      ),
+      data: reservations.map(ReservationEntity.fromObject),
     };
   }
 }

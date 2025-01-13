@@ -2,17 +2,13 @@ import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
 import { City, CityEntity } from "./city.entity";
 import { ClientEntity } from "./client.entity";
-import type {
-  client,
-  reservation,
-  reservation_has_city,
-} from "@prisma/client";
+import type { client, reservation, reservation_has_city } from "@prisma/client";
 
 export type Reservation = reservation & {
-  reservation_has_city: (reservation_has_city & {
+  reservation_has_city?: (reservation_has_city & {
     city: City;
   })[];
-  client: client;
+  client?: client;
 };
 
 export enum ReservationStatus {
@@ -43,8 +39,8 @@ export class ReservationEntity {
     public readonly travelerStyle: TravelerStyle,
     public readonly orderType: OrderType,
     public readonly status: ReservationStatus = ReservationStatus.PENDING,
-    public readonly client: ClientEntity,
-    public readonly cities: CityEntity[],
+    public readonly client?: ClientEntity,
+    public readonly cities?: CityEntity[],
     public readonly specialSpecifications?: string
   ) {}
 
@@ -109,9 +105,10 @@ export class ReservationEntity {
       traveler_style as TravelerStyle,
       order_type as OrderType,
       status as ReservationStatus,
-      ClientEntity.fromObject(client),
-      reservation_has_city.map(({ city }) => CityEntity.fromObject(city)),
-
+      client ? ClientEntity.fromObject(client) : undefined,
+      reservation_has_city
+        ? reservation_has_city.map((city) => CityEntity.fromObject(city.city))
+        : undefined,
       additional_specifications || undefined
     );
   }
