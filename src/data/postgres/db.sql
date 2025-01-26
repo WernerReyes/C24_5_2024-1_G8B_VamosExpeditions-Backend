@@ -235,7 +235,8 @@ CREATE TABLE IF NOT EXISTS hotel_room_quotation (
   version_number INT NOT NULL,
   quotation_id INT NOT NULL,
   CONSTRAINT fk_hotel_room_quotation_hotel_room FOREIGN KEY (hotel_room_id) REFERENCES "hotel_room" (id_hotel_room) ON DELETE CASCADE,
-  CONSTRAINT fk_hotel_room_quotation_version_quotation FOREIGN KEY (version_number, quotation_id) REFERENCES "version_quotation" (version_number, quotation_id) ON DELETE CASCADE
+  CONSTRAINT fk_hotel_room_quotation_version_quotation FOREIGN KEY (version_number, quotation_id) REFERENCES "version_quotation" (version_number, quotation_id) ON DELETE CASCADE,
+  CONSTRAINT unique_hotel_per_day UNIQUE (hotel_room_id, day)
 );
 
-
+   

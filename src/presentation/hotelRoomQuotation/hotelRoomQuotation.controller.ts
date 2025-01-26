@@ -1,7 +1,10 @@
 import type { Request, Response } from "express";
 import { AppController } from "../controller";
 import type { HotelRoomQuotationService } from "./hotelRoomQuotation.service";
-import { HotelRoomQuotationDto } from "@/domain/dtos";
+import {
+  HotelRoomQuotationDto,
+  InsertManyHotelRoomQuotationsDto,
+} from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 import { GetHotelRoomQuotationsDto } from "../../domain/dtos/hotelRoomQuotation/getHotelRoomQuotations.dto";
 
@@ -21,6 +24,20 @@ export class HotelRoomQuotationController extends AppController {
     this.hotelRoomQuotationService
       .createHotelRoomQuotation(hotelRoomQuotationDto!)
       .then((hotelRoomQuotation) => res.status(201).json(hotelRoomQuotation))
+      .catch((error) => this.handleError(res, error));
+  };
+
+  public insertManyHotelRoomQuotations = async (
+    req: Request,
+    res: Response
+  ) => {
+    const [error, insertManyHotelRoomQuotationsDto] =
+      InsertManyHotelRoomQuotationsDto.create(req.body);
+    if (error) return this.handleError(res, CustomError.badRequest(error));
+
+    this.hotelRoomQuotationService
+      .insertManyHotelRoomQuotations(insertManyHotelRoomQuotationsDto!)
+      .then((hotelRoomQuotations) => res.status(201).json(hotelRoomQuotations))
       .catch((error) => this.handleError(res, error));
   };
 

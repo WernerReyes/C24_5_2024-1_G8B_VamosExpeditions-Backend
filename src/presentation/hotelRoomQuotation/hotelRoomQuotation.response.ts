@@ -13,6 +13,16 @@ export class HotelRoomQuotationResponse {
     );
   }
 
+  public createdManyHotelRoomQuotations(
+    hotelRoomsQuotation: HotelRoomQuotationEntity[]
+  ) {
+    return new ApiResponse<HotelRoomQuotationEntity[]>(
+      201,
+      `${hotelRoomsQuotation.length} cotizaciones de habitación creadas correctamente`,
+      hotelRoomsQuotation
+    );
+  }
+
   public deletedHotelRoomQuotation(hotelRoomQuotation: HotelRoomQuotation) {
     return new ApiResponse<HotelRoomQuotationEntity>(
       204,

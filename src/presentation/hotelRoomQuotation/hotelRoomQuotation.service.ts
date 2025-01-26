@@ -10,6 +10,11 @@ import {
   VersionQuotationModel,
 } from "@/data/postgres";
 import { CustomError } from "@/domain/error";
+import { InsertManyHotelRoomQuotationsDto } from "../../domain/dtos/hotelRoomQuotation/insertManyRoomQuotation.dto";
+import {
+  HotelRoomQuotation,
+  HotelRoomQuotationEntity,
+} from "@/domain/entities";
 
 export class HotelRoomQuotationService {
   constructor(
@@ -64,6 +69,61 @@ export class HotelRoomQuotationService {
     }
   }
 
+  public async insertManyHotelRoomQuotations(
+    insertManyHotelRoomQuotationsDto: InsertManyHotelRoomQuotationsDto
+  ) {
+    const hotelRoomQuotations: HotelRoomQuotationEntity[] = [];
+    const skippedDays: number[] = [];
+
+    for (
+      let i = insertManyHotelRoomQuotationsDto.dayRange[0];
+      i <= insertManyHotelRoomQuotationsDto.dayRange[1];
+      i++
+    ) {
+      try {
+        const { data } = await this.createHotelRoomQuotation({
+          hotelRoomId: insertManyHotelRoomQuotationsDto.hotelRoomId,
+          versionQuotationId:
+            insertManyHotelRoomQuotationsDto.versionQuotationId,
+          day: i,
+          numberOfPeople: insertManyHotelRoomQuotationsDto.numberOfPeople,
+        });
+        hotelRoomQuotations.push(data); // Add successful response to the array
+      } catch (error) {
+        // Handle specific error for "Already exists"
+        if (
+          error instanceof CustomError &&
+          error.message.includes(
+            "Ya existe una habitación cotizada para este día"
+          )
+        ) {
+          skippedDays.push(i); // Add the skipped day to the
+          continue; // Skip to the next iteration
+        }
+        // Re-throw any other error
+        throw CustomError.internalServer(`${error}`);
+      }
+    }
+
+    // Check if all days were skipped
+    if (
+      skippedDays.length ===
+      insertManyHotelRoomQuotationsDto.dayRange[1] -
+        insertManyHotelRoomQuotationsDto.dayRange[0] +
+        1
+    ) {
+      throw CustomError.badRequest(
+        `No se pudo insertar ninguna habitación cotizada: ya existen cotizaciones para todos los días (${skippedDays.join(
+          ", "
+        )})`
+      );
+    }
+
+    return this.hotelRoomQuotationResponse.createdManyHotelRoomQuotations(
+      hotelRoomQuotations
+    );
+  }
+
   public async deleteHotelRoomQuotation(id: number) {
     const hotelRoomQuotation = await HotelRoomQuotationModel.findUnique({
       where: { id_hotel_room_quotation: id },
@@ -77,7 +137,9 @@ export class HotelRoomQuotationService {
       include: this.hotelRoomQuotationMapper.toSelectInclude,
     });
 
-    return this.hotelRoomQuotationResponse.deletedHotelRoomQuotation(hotelRoomQuotationDeleted);
+    return this.hotelRoomQuotationResponse.deletedHotelRoomQuotation(
+      hotelRoomQuotationDeleted
+    );
   }
 
   public async getHotelRoomQuotations({

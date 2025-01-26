@@ -18,3 +18,4 @@ export * from './versionQuotation/duplicateVersionQuotation.dto';
 //* HOTEL ROOM QUOTATION
 export * from './hotelRoomQuotation/hotelRoomQuotation.dto';
 export * from './hotelRoomQuotation/getHotelRoomQuotations.dto';
+export * from './hotelRoomQuotation/insertManyRoomQuotation.dto';

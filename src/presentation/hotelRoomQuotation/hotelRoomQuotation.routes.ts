@@ -23,7 +23,14 @@ export class HotelRoomQuotationRoutes {
 
     router.get("/", hotelRoomQuotationController.getHotelRoomQuotations);
     router.post("/", hotelRoomQuotationController.createHotelRoomQuotation);
-    router.delete("/:id", hotelRoomQuotationController.deleteHotelRoomQuotation);
+    router.post(
+      "/many",
+      hotelRoomQuotationController.insertManyHotelRoomQuotations
+    );
+    router.delete(
+      "/:id",
+      hotelRoomQuotationController.deleteHotelRoomQuotation
+    );
 
     return router;
   }
