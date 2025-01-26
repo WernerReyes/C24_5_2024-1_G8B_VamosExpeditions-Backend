@@ -9,23 +9,38 @@ export class ClientController extends AppController {
     super();
   }
 
-  public createClient = async (req: Request, res: Response) => {
-    const [error, clientDto] = ClientDto.create(req.body);
+  // public createClient = async (req: Request, res: Response) => {
+  //   const [error, clientDto] = ClientDto.create(req.body);
+  //   if (error) return this.handleError(res, CustomError.badRequest(error));
+
+  //   this.clientService
+  //     .createClient(clientDto!)
+  //     .then((client) => res.status(201).json(client))
+  //     .catch((error) => this.handleError(res, error));
+  // };
+
+  // public updateClient = async (req: Request, res: Response) => {
+  //   const [error, clientDto] = ClientDto.create({
+  //     ...req.body,
+  //     id: req.params.id,
+  //   });
+  //   if (error) return this.handleError(res, CustomError.badRequest(error));
+
+  //   this.clientService
+  //     .updateClient(clientDto!)
+  //     .then((client) => res.status(200).json(client))
+  //     .catch((error) => this.handleError(res, error));
+  // };
+
+  public upsertClient = async (req: Request, res: Response) => {
+    const [error, clientDto] = ClientDto.create({
+      ...req.body,
+      id: req.params.id,
+    });
     if (error) return this.handleError(res, CustomError.badRequest(error));
 
     this.clientService
-      .createClient(clientDto!)
-      .then((client) => res.status(201).json(client))
-      .catch((error) => this.handleError(res, error));
-  };
-
-  public updateClient = async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-    const [error, clientDto] = ClientDto.create(req.body);
-    if (error) return this.handleError(res, CustomError.badRequest(error));
-
-    this.clientService
-      .updateClient(id, clientDto!)
+      .upsertClient(clientDto!)
       .then((client) => res.status(200).json(client))
       .catch((error) => this.handleError(res, error));
   };

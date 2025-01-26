@@ -12,7 +12,6 @@ export class CountryService {
           city: true,
         },
       });
-      console.log(countries);
       return this.countryResponse.countriesFound(countries);
     } catch (error) {
       throw CustomError.internalServer(`${error}`);

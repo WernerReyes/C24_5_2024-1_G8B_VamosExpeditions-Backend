@@ -1,4 +1,5 @@
 import { BcryptAdapter } from "@/core/adapters";
+import { Hotel, HotelCategory } from "@/domain/entities";
 import {
   role,
   user,
@@ -8,7 +9,6 @@ import {
   distrit,
   hotel_room,
   Prisma,
-  hotel,
 } from "@prisma/client";
 
 export const ROLES: role[] = [
@@ -151,51 +151,41 @@ export const DISTRICTS: distrit[] = [
   },
 ];
 
-export const HOTELS: hotel[] = [
+export const HOTELS: Hotel[] = [
   {
     id_hotel: 1,
     name: "Hotel 1",
-    rating: 5,
-    category: "5 Estrellas",
+    category: HotelCategory.THREE,
     address: "Calle 1",
     distrit_id: 1,
-    email: "hotel1@gmail.com",
   },
   {
     id_hotel: 2,
     name: "Hotel 2",
-    rating: 4,
-    category: "4 Estrellas",
+    category: HotelCategory.FOUR,
     address: "Calle 2",
     distrit_id: 2,
-    email: "hotel2@gmail.com",
   },
   {
     id_hotel: 3,
     name: "Hotel 3",
-    rating: 3,
-    category: "3 Estrellas",
+    category: HotelCategory.FIVE,
     address: "Calle 3",
     distrit_id: 3,
-    email: "hotel3@gmail.com",
   },
   {
     id_hotel: 4,
     name: "Hotel 4",
-    rating: 2,
-    category: "2 Estrellas",
+    category: HotelCategory.BOUTIQUE,
     address: "Calle 4",
-    distrit_id: 9,
-    email: "hotel4@gmail.com",
+    distrit_id: 1,
   },
   {
     id_hotel: 5,
     name: "Hotel 5",
-    rating: 1,
-    category: "1 Estrellas",
+    category: HotelCategory.VILLA,
     address: "Calle 5",
     distrit_id: 10,
-    email: "hotel5@gmail.com",
   },
 ];
 
@@ -204,55 +194,43 @@ export const HOTEL_ROOMS: hotel_room[] = [
     id_hotel_room: 1,
     room_type: "SINGLE",
     price_usd: new Prisma.Decimal(100),
-    service_tax: new Prisma.Decimal(0.18),
-    rate_usd: new Prisma.Decimal(3.9),
     price_pen: new Prisma.Decimal(390),
     capacity: 1,
-    available: true,
     hotel_id: 1,
   },
   {
     id_hotel_room: 2,
     room_type: "DOUBLE",
     price_usd: new Prisma.Decimal(200),
-    service_tax: new Prisma.Decimal(0.18),
-    rate_usd: new Prisma.Decimal(3.9),
     price_pen: new Prisma.Decimal(780),
     capacity: 2,
-    available: true,
     hotel_id: 1,
   },
   {
     id_hotel_room: 3,
     room_type: "TRIPLE",
     price_usd: new Prisma.Decimal(300),
-    service_tax: new Prisma.Decimal(0.18),
-    rate_usd: new Prisma.Decimal(3.9),
+
     price_pen: new Prisma.Decimal(1170),
     capacity: 3,
-    available: true,
     hotel_id: 1,
   },
   {
     id_hotel_room: 4,
     room_type: "SINGLE",
     price_usd: new Prisma.Decimal(100),
-    service_tax: new Prisma.Decimal(0.18),
-    rate_usd: new Prisma.Decimal(3.9),
+
     price_pen: new Prisma.Decimal(390),
     capacity: 1,
-    available: true,
     hotel_id: 2,
   },
   {
     id_hotel_room: 5,
     room_type: "DOUBLE",
     price_usd: new Prisma.Decimal(200),
-    service_tax: new Prisma.Decimal(0.18),
-    rate_usd: new Prisma.Decimal(3.9),
+
     price_pen: new Prisma.Decimal(780),
     capacity: 2,
-    available: true,
     hotel_id: 2,
   },
-]
+];

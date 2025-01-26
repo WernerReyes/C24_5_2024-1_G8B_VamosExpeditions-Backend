@@ -16,8 +16,8 @@ export class ClientRoutes {
 
     router.use([Middleware.validateToken]);
 
-    router.post("/", clientController.createClient);
-    router.put("/:id", clientController.updateClient);
+    router.post("/", clientController.upsertClient);
+    router.put("/:id", clientController.upsertClient);
     router.get("", clientController.getClientsAlls);
 
     return router;

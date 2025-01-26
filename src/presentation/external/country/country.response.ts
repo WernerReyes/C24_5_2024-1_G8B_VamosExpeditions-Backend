@@ -1,11 +1,11 @@
-import { AppResponse } from "@/presentation/response";
+import { ApiResponse } from "@/presentation/response";
 import { ExternalCountryEntity } from "./country.entity";
 import type { ExternalCountryModel } from "./country.model";
 
 export class ExternalCountryResponse {
   public getCountryList(
     countries: ExternalCountryModel[]
-  ): AppResponse<ExternalCountryEntity[]> {
+  ): ApiResponse<ExternalCountryEntity[]> {
     if (countries.length > 0) {
       return {
         status: 200,
@@ -24,7 +24,7 @@ export class ExternalCountryResponse {
 
   public getCountry(
     country: ExternalCountryModel
-  ): AppResponse<ExternalCountryEntity> {
+  ): ApiResponse<ExternalCountryEntity> {
     return {
       status: 200,
       message: "País obtenido correctamente",

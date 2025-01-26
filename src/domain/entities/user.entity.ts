@@ -1,29 +1,35 @@
+import type { role, user } from "@prisma/client";
 import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
 import { RoleEntity } from "./role.entity";
+
+export type User = user & {
+  role?: role;
+};
 export class UserEntity {
-  constructor(
+  private constructor(
     public readonly id: number,
     public readonly fullname: string,
     public readonly email: string,
-    public readonly role: RoleEntity
+    public readonly role?: RoleEntity
   ) {}
 
-  public static fromObject(object: { [key: string]: any }): UserEntity {
-    const { id_user, fullname, email, password, role } = object;
+  public static fromObject(user: User): UserEntity {
+    const { id_user, fullname, email, password, role } = user;
 
     const error = Validations.validateEmptyFields({
       id_user,
       fullname,
       email,
       password,
-      role,
-    });
+    }, "UserEntity");
     if (error) throw CustomError.badRequest(error);
 
-    const roleEntity = RoleEntity.fromObject(role);
-
-    return new UserEntity(id_user, fullname, email, roleEntity);
+    return new UserEntity(
+      id_user,
+      fullname,
+      email,
+      role ? RoleEntity.fromObject(role) : undefined
+    );
   }
 }
-

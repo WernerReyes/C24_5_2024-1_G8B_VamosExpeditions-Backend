@@ -9,11 +9,22 @@ export class ClientEntity {
     public readonly email: string,
     public readonly phone: string,
     public readonly country: string,
-    public readonly continent: string
+    public readonly subregion: string,
+    public readonly createdAt: Date,
+    public readonly updatedAt: Date
   ) {}
 
   public static fromObject(client: client): ClientEntity {
-    const { id, fullName, email, phone, country, continent } = client;
+    const {
+      id,
+      fullName,
+      email,
+      phone,
+      country,
+      subregion,
+      createdAt,
+      updatedAt,
+    } = client;
 
     const error = Validations.validateEmptyFields({
       id,
@@ -21,23 +32,37 @@ export class ClientEntity {
       email,
       phone,
       country,
-      continent,
+      subregion,
+      createdAt,
+      updatedAt,
     });
 
     if (error) throw CustomError.badRequest(error);
 
-    return new ClientEntity(id, fullName, email, phone, country, continent);
+    return new ClientEntity(
+      id,
+      fullName,
+      email,
+      phone,
+      country,
+      subregion,
+      createdAt!,
+      updatedAt!
+    );
   }
 
-  public static validateEntity(entity: ClientEntity, from: string): string | null {
-    const { id, fullName, email, phone, continent, country } = entity;
+  public static validateEntity(
+    entity: ClientEntity,
+    from: string
+  ): string | null {
+    const { id, fullName, email, phone, subregion, country } = entity;
     return Validations.validateEmptyFields(
       {
         id,
         fullName,
         email,
         phone,
-        continent,
+        subregion,
         country,
       },
       `${from}, ClientEntity`

@@ -3,7 +3,7 @@ import { ClientEntity, OrderType, TravelerStyle } from "@/domain/entities";
 
 const FROM = "ReservationDto";
 export class ReservationDto {
-  constructor(
+  private constructor(
     public readonly client: ClientEntity,
     public readonly numberOfPeople: number,
     public readonly startDate: Date,
@@ -12,7 +12,8 @@ export class ReservationDto {
     public readonly travelerStyle: TravelerStyle,
     public readonly orderType: OrderType,
     public readonly destination: { [key: number]: boolean },
-    public readonly specialSpecifications?: string
+    public readonly specialSpecifications?: string,
+    public readonly id?: number
   ) {}
 
   static create(props: { [key: string]: any }): [string?, ReservationDto?] {
@@ -25,6 +26,7 @@ export class ReservationDto {
       orderType,
       destination,
       specialSpecifications,
+      id = 0,
     } = props;
 
     // Validar campos vacíos
@@ -66,6 +68,11 @@ export class ReservationDto {
     const clientEntityError = ClientEntity.validateEntity(client, FROM);
     if (clientEntityError) return [clientEntityError, undefined];
 
+    if (id !== 0) {
+      const errorId = Validations.validateNumberFields({ id });
+      if (errorId) return [errorId, undefined];
+    }
+
     return [
       undefined,
       new ReservationDto(
@@ -77,7 +84,8 @@ export class ReservationDto {
         travelerStyle,
         orderType,
         destination,
-        specialSpecifications || undefined
+        specialSpecifications,
+        +id
       ),
     ];
   }

@@ -10,24 +10,15 @@ export class ReservationController extends AppController {
   constructor(private reservationService: ReservationService) {
     super();
   }
-
-  public createReservation = (req: Request, res: Response) => {
-    const [error, createreservationtDto] = ReservationDto.create(req.body);
+  public upsertReservation = (req: Request, res: Response) => {
+    const [error, upsertReservationDto] = ReservationDto.create({
+      ...req.body,
+      id: req.params.id,
+    });
     if (error) return this.handleError(res, CustomError.badRequest(error));
 
     this.reservationService
-      .createReservation(createreservationtDto!)
-      .then((reservation) => res.status(201).json(reservation))
-      .catch((error) => this.handleError(res, error));
-  };
-
-  public updateReservation = (req: Request, res: Response) => {
-    const { id } = req.params;
-    const [error, updateReservationDto] = ReservationDto.create(req.body);
-    if (error) return this.handleError(res, CustomError.badRequest(error));
-
-    this.reservationService
-      .updateReservation(+id, updateReservationDto!)
+      .upsertReservation(upsertReservationDto!)
       .then((reservation) => res.status(200).json(reservation))
       .catch((error) => this.handleError(res, error));
   };

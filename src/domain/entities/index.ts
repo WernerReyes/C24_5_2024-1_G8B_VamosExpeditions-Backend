@@ -7,3 +7,6 @@ export * from './hotelRoom.entity';
 export * from './reservation.entity';
 export * from './role.entity';
 export * from './user.entity';
+export * from './quotation.entity';
+export * from './versionQuotation.entity';
+export * from './hotelRoomQuotation.entity';

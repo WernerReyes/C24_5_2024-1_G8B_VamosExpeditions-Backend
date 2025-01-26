@@ -1,38 +1,28 @@
 import { type Reservation, ReservationEntity } from "@/domain/entities";
-import { AppResponse } from "@/presentation/response";
+import { ApiResponse } from "@/presentation/response";
 
 export class ReservationResponse {
-  reservationCreated(reservation: Reservation): AppResponse<ReservationEntity> {
-    return {
-      status: 201,
-      message: "Reserva creada",
-      data: ReservationEntity.fromObject(reservation),
-    };
+  reservationUpserted(reservation: Reservation, id?: number) {
+    return new ApiResponse<ReservationEntity>(
+      201,
+      id === 0 ? "Reserva creada" : "Reserva actualizada",
+      ReservationEntity.fromObject(reservation)
+    );
   }
 
-  reservationUpdated(reservation: Reservation): AppResponse<ReservationEntity> {
-    return {
-      status: 200,
-      message: "Reserva actualizada",
-      data: ReservationEntity.fromObject(reservation),
-    };
+  reservationFound(reservation: Reservation) {
+    return new ApiResponse<ReservationEntity>(
+      200,
+      "Reserva encontrada",
+      ReservationEntity.fromObject(reservation)
+    );
   }
 
-  reservationFound(reservation: Reservation): AppResponse<ReservationEntity> {
-    return {
-      status: 200,
-      message: "Reserva encontrada",
-      data: ReservationEntity.fromObject(reservation),
-    };
-  }
-
-  reservationsFound(
-    reservations: Reservation[]
-  ): AppResponse<ReservationEntity[]> {
-    return {
-      status: 200,
-      message: "Reservas encontradas",
-      data: reservations.map(ReservationEntity.fromObject),
-    };
+  reservationsFound(reservations: Reservation[]) {
+    return new ApiResponse<ReservationEntity[]>(
+      200,
+      "Reservas encontradas",
+      reservations.map(ReservationEntity.fromObject)
+    );
   }
 }

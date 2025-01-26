@@ -1,8 +1,9 @@
 import { ClientDto } from "@/domain/dtos";
-import { ClienModel } from "@/data/postgres";
+import { ClientModel } from "@/data/postgres";
 import { ClientResponse } from "./client.response";
 import { CustomError } from "@/domain/error";
 import { ClientMapper } from "./client.mapper";
+import type { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export class ClientService {
   constructor(
@@ -10,61 +11,27 @@ export class ClientService {
     private readonly clientResponse: ClientResponse
   ) {}
 
-  public async createClient(clientDto: ClientDto) {
-    const client = await ClienModel.findUnique({
-      where: {
-        email: clientDto.email,
-      },
+  public async upsertClient(clientDto: ClientDto) {
+    this.clientMapper.setDto = clientDto;
+
+    const newClient = await ClientModel.upsert({
+      where: { id: clientDto.id },
+      create: this.clientMapper.toUpsert,
+      update: this.clientMapper.toUpsert,
+      include: this.clientMapper.toSelectInclude,
+    }).catch((error: PrismaClientKnownRequestError) => {
+      if (error.code === "P2002") {
+        throw CustomError.badRequest("El email ya existe");
+      }
+      throw CustomError.internalServer(`${error}`);
     });
 
-    if (client) throw CustomError.badRequest("El cliente ya existe");
-
-    try {
-      const newClient = await ClienModel.create({
-        data: this.clientMapper.toRegister(clientDto),
-      });
-      return this.clientResponse.clientCreated(newClient);
-    } catch (error) {
-      console.error(`Error inserting client:`, error);
-      throw CustomError.internalServer(`${error}`);
-    }
-  }
-
-  public async updateClient(id: number, clientDto: ClientDto) {
-    const client = await ClienModel.findUnique({
-      where: {
-        id,
-      },
-    });
-
-    if (!client) throw CustomError.badRequest("El cliente no existe");
-
-    if (client.email !== clientDto.email) {
-      const clientEmail = await ClienModel.findUnique({
-        where: {
-          email: clientDto.email,
-        },
-      });
-      if (clientEmail) throw CustomError.badRequest("El email ya existe");
-    }
-
-    try {
-      const newClient = await ClienModel.update({
-        where: {
-          id,
-        },
-        data: this.clientMapper.toRegister(clientDto),
-      });
-      return this.clientResponse.clientUpdated(newClient);
-    } catch (error) {
-      console.error(`Error updating client:`, error);
-      throw CustomError.internalServer(`${error}`);
-    }
+    return this.clientResponse.clientUpserted(newClient, clientDto.id);
   }
 
   public async getClientsAlls() {
     try {
-      const clients = await ClienModel.findMany();
+      const clients = await ClientModel.findMany();
       return this.clientResponse.clientAlls(clients);
     } catch (error) {
       throw CustomError.internalServer(`${error}`);

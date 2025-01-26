@@ -1,7 +1,7 @@
 import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
 import { HotelRoomEntity } from "./hotelRoom.entity";
-import { distrit, hotel, hotel_room } from "@prisma/client";
+import { hotel, hotel_room } from "@prisma/client";
 import { Distrit, DistritEntity } from "./distrit.entity";
 
 export type Hotel = hotel & {
@@ -9,14 +9,20 @@ export type Hotel = hotel & {
   distrit?: Distrit;
 };
 
+export enum HotelCategory {
+  THREE = "3",
+  FOUR = "4",
+  FIVE = "5",
+  BOUTIQUE = "BOUTIQUE",
+  VILLA = "VILLA",
+  LODGE = "LODGE",
+}
 export class HotelEntity {
   private constructor(
     private readonly id: number,
     private readonly name: string,
-    private readonly category: string,
+    private readonly category: HotelCategory,
     private readonly address: string,
-    private readonly rating: number,
-    private readonly email: string | null,
     private readonly hotelRooms?: HotelRoomEntity[],
     private readonly distrit?: DistritEntity
   ) {}
@@ -28,8 +34,7 @@ export class HotelEntity {
       category,
       distrit,
       address,
-      rating,
-      email,
+
       hotel_room,
     } = hotel;
 
@@ -39,20 +44,23 @@ export class HotelEntity {
         name,
         category,
         address,
-        rating,
       },
       "HotelEntity"
     );
     if (error) throw CustomError.badRequest(error);
 
+    const errorHotelCategory = Validations.validateEnumValue(
+      category,
+      Object.values(HotelCategory)
+    );
+    if (errorHotelCategory) throw CustomError.badRequest(errorHotelCategory);
+
     return new HotelEntity(
       id_hotel,
       name,
-      category,
+      category as HotelCategory,
       address,
-      rating,
-      email,
-      hotel_room ? hotel_room.map(HotelRoomEntity.fromJson) : undefined,
+      hotel_room ? hotel_room.map(HotelRoomEntity.fromObject) : undefined,
       distrit ? DistritEntity.fromObject(distrit) : undefined
     );
   }

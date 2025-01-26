@@ -12,15 +12,24 @@ const prisma = new PrismaClient();
 
 async function seed() {
   //* Delete all data
-  await Promise.all([
+  let deletedData = false
+  await prisma.$transaction([
+    prisma.hotel_room.deleteMany(),
+    prisma.hotel.deleteMany(),
     prisma.user.deleteMany(),
     prisma.role.deleteMany(),
-    prisma.country.deleteMany(),
-    prisma.city.deleteMany(),
     prisma.distrit.deleteMany(),
-    prisma.hotel.deleteMany(),
-    prisma.hotel_room.deleteMany(),
-  ]);
+    prisma.city.deleteMany(),
+    prisma.country.deleteMany(),
+  ]).then(() => {
+ 
+    deletedData = true;
+  })
+  .catch((error) => {
+    console.error("Error deleting data", error);
+  });
+
+  if (!deletedData) return;
 
   //* Insert Roles
   await prisma.role.createMany({

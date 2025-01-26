@@ -10,3 +10,11 @@ export * from './reservation/getReservations.dto';
 
 //* HOTEL
 export * from './hotel/getHotels.dto';
+
+//* VERSION QUOTATION
+export * from './versionQuotation/versionQuotation.dto';
+export * from './versionQuotation/duplicateVersionQuotation.dto';
+
+//* HOTEL ROOM QUOTATION
+export * from './hotelRoomQuotation/hotelRoomQuotation.dto';
+export * from './hotelRoomQuotation/getHotelRoomQuotations.dto';

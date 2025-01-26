@@ -1,23 +1,26 @@
 import { Validations } from "@/core/utils";
-import { ExternalCountryEntity } from "@/presentation/external/country/country.entity";
+import { Subregion } from "@/presentation/external/country/country.entity";
 
 const FROM = "ClientDto";
 export class ClientDto {
   private constructor(
-    public fullName: string,
-    public email: string,
-    public phone: string,
-    public country: ExternalCountryEntity
+    public readonly fullName: string,
+    public readonly email: string,
+    public readonly phone: string,
+    public readonly country: string,
+    public readonly subregion: Subregion,
+    public readonly id?: number
   ) {}
 
   static create(props: { [key: string]: any }): [string?, ClientDto?] {
-    const { fullName, country, email, phone } = props;
+    const { fullName, country, email, phone, subregion, id = 0 } = props;
 
     const error = Validations.validateEmptyFields(
       {
         fullName,
         country,
         email,
+        subregion,
         phone,
       },
       FROM
@@ -27,11 +30,11 @@ export class ClientDto {
     const emailError = Validations.validateEmail(email);
     if (emailError) return [emailError, undefined];
 
-    const countryEntityError = ExternalCountryEntity.validateEntity(
-      country,
-      FROM
+    const enumError = Validations.validateEnumValue(
+      subregion,
+      Object.values(Subregion)
     );
-    if (countryEntityError) return [countryEntityError, undefined];
+    if (enumError) return [enumError, undefined];
 
     return [
       undefined,
@@ -39,7 +42,9 @@ export class ClientDto {
         fullName.trim().charAt(0).toUpperCase() + fullName.slice(1),
         email.trim(),
         phone.trim(),
-        country
+        country,
+        subregion,
+        +id
       ),
     ];
   }

@@ -1,51 +1,51 @@
 import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
+import { hotel_room } from "@prisma/client";
+import { Hotel, HotelEntity } from "./hotel.entity";
+
+export type HotelRoom = hotel_room & {
+  hotel?: Hotel;
+};
 
 export class HotelRoomEntity {
   private constructor(
     private readonly id: number,
     private readonly roomType: string,
-    private readonly priceUsd: number,
-    private readonly serviceTax: number,
-    private readonly rateUsd: number,
-    private readonly pricePen: number,
     private readonly capacity: number,
-    private readonly available: boolean
+    private readonly pricePen?: number,
+    private readonly priceUsd?: number,
+    private readonly hotel?: HotelEntity
   ) {}
 
-  public static fromJson(object: { [key: string]: any }): HotelRoomEntity {
+  public static fromObject(hotelRoom: HotelRoom): HotelRoomEntity {
     const {
       id_hotel_room,
       room_type,
       price_usd,
-      service_tax,
-      rate_usd,
+
       price_pen,
       capacity,
-      available,
-    } = object;
+
+      hotel,
+    } = hotelRoom;
 
     const error = Validations.validateEmptyFields({
       id_hotel_room,
       room_type,
       price_usd,
-      service_tax,
-      rate_usd,
+
       price_pen,
       capacity,
-      available,
     });
     if (error) throw CustomError.badRequest(error);
 
     return new HotelRoomEntity(
       id_hotel_room,
-      room_type,
-      price_usd,
-      service_tax,
-      rate_usd,
-      price_pen,
+      room_type.charAt(0).toUpperCase() + room_type.slice(1).toLowerCase(),
       capacity,
-      available
+      Number(price_pen),
+      Number(price_usd),
+      hotel ? HotelEntity.fromObject(hotel) : undefined
     );
   }
 }

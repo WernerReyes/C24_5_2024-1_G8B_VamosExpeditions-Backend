@@ -5,7 +5,11 @@ import { UserEntity } from "@/domain/entities";
 import { ErrorCodeConst } from "@/core/constants";
 
 export class Middleware {
-  static async validateToken(req: Request, res: Response, next: NextFunction) {
+  static async validateToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     const token = req.cookies.token;
     if (!token) {
       return res.status(401).json({

@@ -1,14 +1,19 @@
 import { Validations } from "@/core/utils";
+import type { client, reservation, reservation_has_city } from "@prisma/client";
 import { CustomError } from "../error";
 import { City, CityEntity } from "./city.entity";
 import { ClientEntity } from "./client.entity";
-import type { client, reservation, reservation_has_city } from "@prisma/client";
+import {
+  VersionQuotationEntity,
+  type VersionQuotation,
+} from "./versionQuotation.entity";
 
 export type Reservation = reservation & {
   reservation_has_city?: (reservation_has_city & {
-    city: City;
+    city?: City;
   })[];
   client?: client;
+  version_quotation?: VersionQuotation | null;
 };
 
 export enum ReservationStatus {
@@ -41,6 +46,7 @@ export class ReservationEntity {
     public readonly status: ReservationStatus = ReservationStatus.PENDING,
     public readonly client?: ClientEntity,
     public readonly cities?: CityEntity[],
+    public readonly versionQuotation?: VersionQuotationEntity,
     public readonly specialSpecifications?: string
   ) {}
 
@@ -57,21 +63,24 @@ export class ReservationEntity {
       order_type,
       additional_specifications,
       status,
+      version_quotation,
     } = reservation;
 
     // Validación de campos vacíos
-    const error = Validations.validateEmptyFields({
-      id,
-      client,
-      number_of_people,
-      start_date,
-      end_date,
-      code,
-      traveler_style,
-      order_type,
-      additional_specifications,
-      status,
-    });
+    const error = Validations.validateEmptyFields(
+      {
+        id,
+        number_of_people,
+        start_date,
+        end_date,
+        code,
+        traveler_style,
+        order_type,
+        additional_specifications,
+        status,
+      },
+      "ReservationEntity"
+    );
 
     if (error) throw CustomError.badRequest(error);
 
@@ -107,7 +116,14 @@ export class ReservationEntity {
       status as ReservationStatus,
       client ? ClientEntity.fromObject(client) : undefined,
       reservation_has_city
-        ? reservation_has_city.map((city) => CityEntity.fromObject(city.city))
+        ? reservation_has_city
+            .map((city) =>
+              city.city ? CityEntity.fromObject(city.city) : undefined
+            )
+            .filter((city): city is CityEntity => city !== undefined)
+        : undefined,
+      version_quotation
+        ? VersionQuotationEntity.fromObject(version_quotation)
         : undefined,
       additional_specifications || undefined
     );

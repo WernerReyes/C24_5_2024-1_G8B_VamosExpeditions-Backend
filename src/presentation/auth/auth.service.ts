@@ -33,6 +33,8 @@ export class AuthService {
     })) as string;
     if (!token) throw CustomError.internalServer("Error generating token");
 
+    console.log("token", token);
+
     return this.authResponse.login(user, token);
   }
 

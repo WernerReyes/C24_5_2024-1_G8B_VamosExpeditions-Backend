@@ -1,12 +1,11 @@
-import { user } from "@prisma/client";
-import { UserEntity } from "@/domain/entities";
-import { AppResponse } from "@/presentation/response";
+import { type User, UserEntity } from "@/domain/entities";
+import { ApiResponse } from "@/presentation/response";
 
 export class AuthResponse {
   login(
-    user: user,
+    user: User,
     token: string
-  ): AppResponse<{ user: UserEntity; token: string }> {
+  ): ApiResponse<{ user: UserEntity; token: string }> {
     return {
       status: 200,
       message: "Usuario logueado correctamente",
@@ -14,7 +13,7 @@ export class AuthResponse {
     };
   }
 
-  logout(): AppResponse<null> {
+  logout(): ApiResponse<null> {
     return {
       status: 200,
       message: "Usuario deslogueado correctamente",

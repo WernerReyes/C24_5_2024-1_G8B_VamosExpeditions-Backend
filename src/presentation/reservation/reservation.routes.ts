@@ -18,8 +18,8 @@ export class ReservationRoutes {
     const reservationController = new ReservationController(reservationService);
 
     router.use(Middleware.validateToken);
-    router.post("", reservationController.createReservation);
-    router.put("/:id", reservationController.updateReservation);
+    router.post("", reservationController.upsertReservation);
+    router.put("/:id", reservationController.upsertReservation);
     router.get("/:id", reservationController.getReservationById);
     router.get("", reservationController.getReservations);
     return router;

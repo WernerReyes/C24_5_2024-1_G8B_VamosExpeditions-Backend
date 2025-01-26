@@ -1,45 +1,57 @@
-import { ReservationDto } from "@/domain/dtos";
 import type {
+  Prisma,
   reservation_order_type,
   reservation_traveler_style,
 } from "@prisma/client";
+import { type DefaultArgs } from "@prisma/client/runtime/library";
+import { ReservationDto } from "@/domain/dtos";
+
+type Dto = ReservationDto;
 
 export class ReservationMapper {
-  public toRegister(
-    reservationDto: ReservationDto,
-    op: "create" | "update" = "create"
-  ) {
-    let baseData = {
-      number_of_people: reservationDto.numberOfPeople,
-      start_date: reservationDto.startDate,
-      end_date: reservationDto.endDate,
-      clientId: reservationDto.client.id,
-      traveler_style:
-        reservationDto.travelerStyle as any as reservation_traveler_style,
-      order_type: reservationDto.orderType as any as reservation_order_type,
-      additional_specifications: reservationDto.specialSpecifications,
-      code: reservationDto.code,
+  private dto: Dto;
+
+  constructor() {
+    this.dto = {} as Dto;
+  }
+
+  public set setDto(dto: Dto) {
+    this.dto = dto;
+  }
+
+  public get toUpsert(): Prisma.reservationUncheckedCreateInput {
+    this.dto = this.dto as ReservationDto;
+    return {
+      number_of_people: this.dto.numberOfPeople,
+      start_date: this.dto.startDate,
+      end_date: this.dto.endDate,
+      clientId: this.dto.client.id,
+      traveler_style: this.dto
+        .travelerStyle as any as reservation_traveler_style,
+      order_type: this.dto.orderType as any as reservation_order_type,
+      additional_specifications: this.dto.specialSpecifications,
+      code: this.dto.code,
       reservation_has_city: {
-        create: Object.keys(reservationDto.destination).map((key) => ({
+        create: Object.keys(this.dto.destination).map((key) => ({
           city_id: +key,
         })),
       },
     };
 
-    if (op === "create") return baseData;
+    // if (this.dto.id === 0) return baseData;
 
-    const updateData = {
-      ...baseData,
-      reservation_has_city: {
-        deleteMany: {},
-        create: baseData.reservation_has_city.create,
-      },
-    };
+    // const updateData = {
+    //   ...baseData,
+    //   reservation_has_city: {
+    //     deleteMany: {},
+    //     create: baseData.reservation_has_city.create,
+    //   },
+    // };
 
-    return updateData;
+    // return updateData;
   }
 
-  public get toSelectInclude() {
+  public get toSelectInclude(): Prisma.reservationInclude<DefaultArgs> {
     return {
       reservation_has_city: {
         include: {
@@ -50,6 +62,7 @@ export class ReservationMapper {
           },
         },
       },
+      version_quotation: true,
       client: true,
     };
   }

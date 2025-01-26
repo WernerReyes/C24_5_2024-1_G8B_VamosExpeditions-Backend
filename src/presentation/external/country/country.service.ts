@@ -1,7 +1,7 @@
 import { EnvsConst } from "@/core/constants";
 import type { ExternalCountryEntity } from "./country.entity";
 import { ExternalCountryResponse } from "./country.response";
-import { AppResponse } from "../../response";
+import { ApiResponse } from "../../response";
 import { CustomError } from "@/domain/error";
 import { CacheAdapter } from "@/core/adapters";
 
@@ -18,7 +18,7 @@ export class ExternalCountryService {
     });
   }
 
-  public async getCountryList(): Promise<AppResponse<ExternalCountryEntity[]>> {
+  public async getCountryList(): Promise<ApiResponse<ExternalCountryEntity[]>> {
     const cacheKey = "country-list";
 
     const cachedCountryList = this.cache.get(cacheKey);
@@ -28,7 +28,7 @@ export class ExternalCountryService {
     }
 
     try {
-      const response = await fetch(EXTERNAL_API_COUNTRY_URL + "/all");
+      const response = await fetch(EXTERNAL_API_COUNTRY_URL + "/countries");
       const data = await response.json();
 
       this.cache.set(cacheKey, data);
@@ -42,7 +42,7 @@ export class ExternalCountryService {
 
   public async getCountryByCode(
     code: string
-  ): Promise<AppResponse<ExternalCountryEntity>> {
+  ): Promise<ApiResponse<ExternalCountryEntity>> {
     try {
       console.log(EXTERNAL_API_COUNTRY_URL + "/alpha/" + code);
       const response = await fetch(EXTERNAL_API_COUNTRY_URL + "/alpha/" + code);

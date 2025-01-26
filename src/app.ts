@@ -1,10 +1,10 @@
 import { EnvsConst } from "./core/constants";
 import {
-  ClienModel,
+  // ClienModel,
   CountryModel,
   CityModel,
   DistritModel,
-  ReservationDetailModel,
+  // ReservationDetailModel,
   ReservationModel,
   UserModel,
 } from "./data/postgres";

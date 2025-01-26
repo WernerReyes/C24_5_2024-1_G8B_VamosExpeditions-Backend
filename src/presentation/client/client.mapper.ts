@@ -1,13 +1,32 @@
-import { ClientDto } from "@/domain/dtos";
+import type { ClientDto } from "@/domain/dtos";
+import { CustomError } from "@/domain/error";
+import { type Prisma } from "@prisma/client";
+import { type DefaultArgs } from "@prisma/client/runtime/library";
 
+type Dto = ClientDto;
 export class ClientMapper {
-  public toRegister(ClientDto: ClientDto) {
+  private dto: Dto;
+
+  constructor() {
+    this.dto = {} as Dto;
+  }
+
+  public set setDto(dto: Dto) {
+    this.dto = dto;
+  }
+
+  public get toUpsert(): Prisma.clientUncheckedCreateInput {
+    this.dto = this.dto as ClientDto;
     return {
-      fullName: ClientDto.fullName,
-      country: ClientDto.country.name,
-      email: ClientDto.email,
-      phone: ClientDto.phone,
-      continent: ClientDto.country.continent,
+      fullName: this.dto.fullName,
+      country: this.dto.country,
+      email: this.dto.email,
+      phone: this.dto.phone,
+      subregion: this.dto.subregion,
     };
+  }
+
+  get toSelectInclude(): Prisma.clientInclude<DefaultArgs> {
+    return {};
   }
 }

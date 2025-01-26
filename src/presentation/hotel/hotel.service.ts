@@ -11,8 +11,9 @@ export class HotelService {
   ) {}
 
   public async getAll(getHotelsDto: GetHotelsDto) {
+    this.hotelMapper.setDto = getHotelsDto;
     const accommodationRooms = await HotelModel.findMany({
-      where: this.hotelMapper.toFilterForGetAll(getHotelsDto),
+      where: this.hotelMapper.toFilterForGetAll,
       include: this.hotelMapper.toSelectInclude,
     }).catch((error) => {
       throw CustomError.internalServer(`${error.message}`);

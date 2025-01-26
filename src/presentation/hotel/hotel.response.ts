@@ -1,9 +1,9 @@
 import { type hotel_room, hotel, city } from "@prisma/client";
 import { HotelEntity, City, CityEntity, Hotel } from "@/domain/entities";
-import { AppResponse } from "@/presentation/response";
+import { ApiResponse } from "@/presentation/response";
 
 export class HotelResponse {
-  getAll(hotels: Hotel[]): AppResponse<HotelEntity[]> {
+  getAll(hotels: Hotel[]): ApiResponse<HotelEntity[]> {
     return {
       status: 200,
       message: "Habitaciones de alojamiento obtenidas correctamente",
@@ -11,7 +11,7 @@ export class HotelResponse {
     };
   }
 
-  getAlls(accommodationRooms: City[]): AppResponse<CityEntity[]> {
+  getAlls(accommodationRooms: City[]): ApiResponse<CityEntity[]> {
     return accommodationRooms.length === 0
       ? {
           status: 200,
