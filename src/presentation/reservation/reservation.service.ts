@@ -71,36 +71,34 @@ export class ReservationService {
     versionQuotationId,
   }: GetReservationsDto) {
     try {
-      const reservations = await ReservationModel.findMany({
-        where: {
-          status: status as any,
-          ...(versionQuotationId && {
+      const whereCondition = status || versionQuotationId
+        ? {
             OR: [
-              {
-                version_quotation: {
-                  quotation_id: { equals: versionQuotationId.quotationId },
-                  version_number: { equals: versionQuotationId.versionNumber },
-                },
-              },
-              {
-                NOT: {
-                  version_quotation: {
-                    quotation_id: { equals: versionQuotationId.quotationId },
-                    version_number: {
-                      equals: versionQuotationId.versionNumber,
+              ...(status ? [{ status: status as any }] : []),
+              ...(versionQuotationId
+                ? [
+                    {
+                      version_quotation: {
+                        quotation_id: { equals: versionQuotationId.quotationId },
+                        version_number: {
+                          equals: versionQuotationId.versionNumber,
+                        },
+                      },
                     },
-                  },
-                },
-              },
+                  ]
+                : []),
             ],
-          }),
-        },
+          }
+        : {}; // Si no hay filtros, se usa un objeto vacío para traer todo
+  
+      const reservations = await ReservationModel.findMany({
+        where: whereCondition,
         include: this.reservationMapper.toSelectInclude,
       });
-
+  
       return this.reservationResponse.reservationsFound(reservations);
     } catch (error) {
       throw CustomError.internalServer(`${error}`);
     }
   }
-}
+}  

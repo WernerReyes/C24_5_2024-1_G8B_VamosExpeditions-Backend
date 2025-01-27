@@ -34,6 +34,16 @@ export class VersionQuotationResponse {
     );
   }
 
+  public versionsQuotationFound(versionQuotations: VersionQuotation[]) {
+    return new ApiResponse<VersionQuotationEntity[]>(
+      200,
+      "Versión de cotización encontrada",
+      versionQuotations.map((versionQuotation) =>
+        VersionQuotationEntity.fromObject(versionQuotation)
+      )
+    );
+  }
+
   // getQuotationResponse(quotation) {
   //     return {
   //         id: quotation.id,

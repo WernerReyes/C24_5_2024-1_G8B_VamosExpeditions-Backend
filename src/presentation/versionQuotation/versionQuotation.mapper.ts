@@ -43,6 +43,7 @@ export class VersionQuotationMapper {
   public get toUpdate(): Prisma.version_quotationUncheckedUpdateInput {
     this.validateModelInstance(this.dto, "toUpdate");
     const dto = this.dto as VersionQuotationDto;
+    console.log({ dto });
     return {
       indirect_cost_margin: dto.indirectCostMargin,
       profit_margin: dto.profitMargin,

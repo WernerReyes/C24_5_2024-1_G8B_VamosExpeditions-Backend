@@ -150,7 +150,7 @@ model hotel_room_quotation {
   hotel_room              hotel_room        @relation(fields: [hotel_room_id], references: [id_hotel_room], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_hotel_room")
   version_quotation       version_quotation @relation(fields: [version_number, quotation_id], references: [version_number, quotation_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_version_quotation")
 
-  @@unique([hotel_room_id, day], map: "unique_hotel_per_day")
+  @@unique([hotel_room_id, day, quotation_id, version_number], map: "unique_hotel_per_day")
 }
 
 enum reservation_order_type {

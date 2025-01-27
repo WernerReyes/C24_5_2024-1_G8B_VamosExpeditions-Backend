@@ -122,4 +122,21 @@ export class VersionQuotationService {
       versionsQuotation
     );
   }
+
+  public async getVersionsQuotation() {
+    const versionsQuotation = await VersionQuotationModel.findMany({
+      include: {
+        ...this.versionQuotationMapper.toSelectInclude,
+        reservation: {
+          include: {
+            client: true,
+          }
+        },
+      },
+    });
+
+    return this.versionQuotationResponse.versionsQuotationFound(
+      versionsQuotation
+    );
+  }
 }

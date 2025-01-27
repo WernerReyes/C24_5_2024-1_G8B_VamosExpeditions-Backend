@@ -21,6 +21,7 @@ export class VersionQuotationRoutes {
 
     router.use(Middleware.validateToken);
 
+    router.get("/", versionQuotationController.getVersionsQuotation);
     router.put("", versionQuotationController.updateVersionQuotation);
     router.post(
       "/duplicate",

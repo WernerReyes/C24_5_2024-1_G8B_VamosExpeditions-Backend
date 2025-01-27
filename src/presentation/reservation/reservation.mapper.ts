@@ -1,6 +1,7 @@
 import type {
   Prisma,
   reservation_order_type,
+  reservation_status,
   reservation_traveler_style,
 } from "@prisma/client";
 import { type DefaultArgs } from "@prisma/client/runtime/library";
@@ -26,6 +27,7 @@ export class ReservationMapper {
       start_date: this.dto.startDate,
       end_date: this.dto.endDate,
       clientId: this.dto.client.id,
+      status: this.dto.status as any as reservation_status,
       traveler_style: this.dto
         .travelerStyle as any as reservation_traveler_style,
       order_type: this.dto.orderType as any as reservation_order_type,

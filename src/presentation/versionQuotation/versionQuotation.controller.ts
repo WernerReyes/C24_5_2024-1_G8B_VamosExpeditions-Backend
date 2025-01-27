@@ -48,4 +48,11 @@ export class VersionQuotationController extends AppController {
       .then((versionsQuotation) => res.status(200).json(versionsQuotation))
       .catch((error) => this.handleError(res, error));
   };
+
+  public getVersionsQuotation = async (req: Request, res: Response) => {
+    this.versionQuotationService
+      .getVersionsQuotation()
+      .then((versionsQuotation) => res.status(200).json(versionsQuotation))
+      .catch((error) => this.handleError(res, error));
+  }
 }

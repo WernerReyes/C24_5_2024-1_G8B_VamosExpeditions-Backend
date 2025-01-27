@@ -145,6 +145,7 @@ export class HotelRoomQuotationService {
   public async getHotelRoomQuotations({
     versionQuotationId,
   }: GetHotelRoomQuotationsDto) {
+    console.log("versionQuotationId", versionQuotationId);
     const hotelRoomsQuotation = await HotelRoomQuotationModel.findMany({
       where: {
         version_number: versionQuotationId?.versionNumber,
@@ -198,6 +199,8 @@ export class HotelRoomQuotationService {
       throw CustomError.badRequest(
         "El día no puede ser mayor al rango de días de la cotización"
       );
+
+      console.log("hotelRoomQuotationDto.numberOfPeople", hotelRoomQuotationDto.numberOfPeople, daysRange.reservation.number_of_people);
 
     if (
       hotelRoomQuotationDto.numberOfPeople >

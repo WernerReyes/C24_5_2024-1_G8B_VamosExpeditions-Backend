@@ -1,5 +1,10 @@
 import { Validations } from "@/core/utils";
-import { ClientEntity, OrderType, TravelerStyle } from "@/domain/entities";
+import {
+  ClientEntity,
+  OrderType,
+  ReservationStatus,
+  TravelerStyle,
+} from "@/domain/entities";
 
 const FROM = "ReservationDto";
 export class ReservationDto {
@@ -9,6 +14,7 @@ export class ReservationDto {
     public readonly startDate: Date,
     public readonly endDate: Date,
     public readonly code: string,
+    public readonly status: ReservationStatus,
     public readonly travelerStyle: TravelerStyle,
     public readonly orderType: OrderType,
     public readonly destination: { [key: number]: boolean },
@@ -25,6 +31,7 @@ export class ReservationDto {
       travelerStyle,
       orderType,
       destination,
+      status,
       specialSpecifications,
       id = 0,
     } = props;
@@ -40,6 +47,7 @@ export class ReservationDto {
         orderType,
         destination,
         specialSpecifications,
+        status: ReservationStatus.PENDING,
       },
       FROM
     );
@@ -58,6 +66,11 @@ export class ReservationDto {
       Object.values(TravelerStyle)
     );
     if (errorTravelerStyle) return [errorTravelerStyle, undefined];
+
+    const errorStatus = Validations.validateEnumValue(
+      status,
+      Object.values(ReservationStatus)
+    );
 
     const errorOrderType = Validations.validateEnumValue(
       orderType,
@@ -81,6 +94,7 @@ export class ReservationDto {
         new Date(travelDates[0]),
         new Date(travelDates[1]),
         code,
+        status,
         travelerStyle,
         orderType,
         destination,
