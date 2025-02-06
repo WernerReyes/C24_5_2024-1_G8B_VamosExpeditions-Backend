@@ -14,6 +14,8 @@ model city {
   country              country                @relation(fields: [country_id], references: [id_country], onDelete: NoAction, onUpdate: NoAction, map: "fk_city_country")
   distrit              distrit[]
   reservation_has_city reservation_has_city[]
+
+  @@unique([name, country_id])
 }
 
 model client {
@@ -33,7 +35,7 @@ model client {
 
 model country {
   id_country Int    @id @default(autoincrement())
-  name       String @db.VarChar(45)
+  name       String @unique @db.VarChar(45)
   code       String @unique @db.VarChar(10)
   city       city[]
 }
@@ -44,6 +46,8 @@ model distrit {
   city_id    Int
   city       city    @relation(fields: [city_id], references: [id_city], onDelete: NoAction, onUpdate: NoAction, map: "fk_distrit_city")
   hotel      hotel[]
+
+  @@unique([name, city_id])
 }
 
 model reservation {
@@ -93,7 +97,7 @@ model hotel {
   id_hotel   Int          @id @default(autoincrement())
   name       String       @db.VarChar(45)
   category   String       @db.VarChar(50)
-  address    String       @db.VarChar(45)
+  address    String?      @db.VarChar(100)
   distrit_id Int
   distrit    distrit      @relation(fields: [distrit_id], references: [id_distrit], onDelete: NoAction, onUpdate: NoAction, map: "fk_hotel_distrit")
   hotel_room hotel_room[]
@@ -102,7 +106,10 @@ model hotel {
 model hotel_room {
   id_hotel_room        Int                    @id @default(autoincrement())
   room_type            String                 @db.VarChar(100)
+  season_type          String?                @db.VarChar(50)
   price_usd            Decimal?               @db.Decimal(10, 2)
+  service_tax          Decimal?               @db.Decimal(6, 2)
+  rate_usd             Decimal?               @db.Decimal(10, 2)
   price_pen            Decimal?               @db.Decimal(10, 2)
   capacity             Int
   hotel_id             Int

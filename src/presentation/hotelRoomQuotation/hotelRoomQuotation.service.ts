@@ -1,6 +1,8 @@
 import type {
   GetHotelRoomQuotationsDto,
   HotelRoomQuotationDto,
+  UpdateHotelRoomQuotationDayDto,
+  InsertManyHotelRoomQuotationsDto
 } from "@/domain/dtos";
 import type { HotelRoomQuotationMapper } from "./hotelRoomQuotation.mapper";
 import type { HotelRoomQuotationResponse } from "./hotelRoomQuotation.response";
@@ -10,7 +12,6 @@ import {
   VersionQuotationModel,
 } from "@/data/postgres";
 import { CustomError } from "@/domain/error";
-import { InsertManyHotelRoomQuotationsDto } from "../../domain/dtos/hotelRoomQuotation/insertManyRoomQuotation.dto";
 import {
   HotelRoomQuotation,
   HotelRoomQuotationEntity,
@@ -124,6 +125,70 @@ export class HotelRoomQuotationService {
     );
   }
 
+  public updateHotelRoomQuotationDay = async ({
+    versionQuotationId,
+    direction,
+    dayNumber,
+  }: UpdateHotelRoomQuotationDayDto) => {
+    const hotelRoomQuotations = await HotelRoomQuotationModel.findMany({
+      where: {
+        version_number: versionQuotationId.versionNumber,
+        quotation_id: versionQuotationId.quotationId,
+      },
+      include: this.hotelRoomQuotationMapper.toSelectInclude,
+    });
+
+    if (hotelRoomQuotations.length === 0)
+      throw CustomError.notFound(
+        "No se encontraron cotizaciones de habitaciones para la cotización"
+      );
+
+    let hotelRoomQuotationsUpdated: HotelRoomQuotation[] = [];
+
+    if (direction === "start") {
+      hotelRoomQuotationsUpdated = await Promise.all(
+        hotelRoomQuotations.map(async (hotelRoomQuotation) => {
+          const hotelRoomQuotationUpdated =
+            await HotelRoomQuotationModel.update({
+              where: {
+                id_hotel_room_quotation:
+                  hotelRoomQuotation.id_hotel_room_quotation,
+              },
+              data: { day: hotelRoomQuotation.day - 1 },
+              include: this.hotelRoomQuotationMapper.toSelectInclude,
+            });
+
+          return hotelRoomQuotationUpdated;
+        })
+      );
+    } else {
+      //* Middle
+      hotelRoomQuotationsUpdated = await Promise.all(
+        hotelRoomQuotations.map(async (hotelRoomQuotation) => {
+          if (hotelRoomQuotation.day < dayNumber) {
+            return hotelRoomQuotation;
+          } else {
+            const hotelRoomQuotationUpdated =
+              await HotelRoomQuotationModel.update({
+                where: {
+                  id_hotel_room_quotation:
+                    hotelRoomQuotation.id_hotel_room_quotation,
+                },
+                data: { day: hotelRoomQuotation.day - 1 },
+                include: this.hotelRoomQuotationMapper.toSelectInclude,
+              });
+
+            return hotelRoomQuotationUpdated;
+          }
+        })
+      );
+    }
+
+    return this.hotelRoomQuotationResponse.updatedManyHotelRoomQuotations(
+      hotelRoomQuotationsUpdated
+    );
+  };
+
   public async deleteHotelRoomQuotation(id: number) {
     const hotelRoomQuotation = await HotelRoomQuotationModel.findUnique({
       where: { id_hotel_room_quotation: id },
@@ -142,10 +207,29 @@ export class HotelRoomQuotationService {
     );
   }
 
+  public async deleteManyHotelRoomQuotationsByDayNumber(day: number) {
+    const hotelRoomQuotations = await HotelRoomQuotationModel.findMany({
+      where: { day },
+      include: this.hotelRoomQuotationMapper.toSelectInclude,
+    });
+
+    if (hotelRoomQuotations.length === 0)
+      throw CustomError.notFound(
+        `No se encontraron cotizaciones de habitaciones para el día ${day}`
+      );
+
+    await HotelRoomQuotationModel.deleteMany({
+      where: { day },
+    });
+
+    return this.hotelRoomQuotationResponse.deletedManyHotelRoomQuotations(
+      hotelRoomQuotations
+    );
+  }
+
   public async getHotelRoomQuotations({
     versionQuotationId,
   }: GetHotelRoomQuotationsDto) {
-    console.log("versionQuotationId", versionQuotationId);
     const hotelRoomsQuotation = await HotelRoomQuotationModel.findMany({
       where: {
         version_number: versionQuotationId?.versionNumber,
@@ -200,7 +284,11 @@ export class HotelRoomQuotationService {
         "El día no puede ser mayor al rango de días de la cotización"
       );
 
-      console.log("hotelRoomQuotationDto.numberOfPeople", hotelRoomQuotationDto.numberOfPeople, daysRange.reservation.number_of_people);
+    console.log(
+      "hotelRoomQuotationDto.numberOfPeople",
+      hotelRoomQuotationDto.numberOfPeople,
+      daysRange.reservation.number_of_people
+    );
 
     if (
       hotelRoomQuotationDto.numberOfPeople >

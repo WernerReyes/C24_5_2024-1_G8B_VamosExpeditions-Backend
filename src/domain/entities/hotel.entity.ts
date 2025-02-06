@@ -10,6 +10,7 @@ export type Hotel = hotel & {
 };
 
 export enum HotelCategory {
+  TWO = "2",
   THREE = "3",
   FOUR = "4",
   FIVE = "5",
@@ -22,7 +23,7 @@ export class HotelEntity {
     private readonly id: number,
     private readonly name: string,
     private readonly category: HotelCategory,
-    private readonly address: string,
+    private readonly address?: string,
     private readonly hotelRooms?: HotelRoomEntity[],
     private readonly distrit?: DistritEntity
   ) {}
@@ -43,7 +44,6 @@ export class HotelEntity {
         id_hotel,
         name,
         category,
-        address,
       },
       "HotelEntity"
     );
@@ -59,7 +59,7 @@ export class HotelEntity {
       id_hotel,
       name,
       category as HotelCategory,
-      address,
+      address ?? undefined,
       hotel_room ? hotel_room.map(HotelRoomEntity.fromObject) : undefined,
       distrit ? DistritEntity.fromObject(distrit) : undefined
     );

@@ -16,7 +16,7 @@ export class DistritEntity {
 
   public static fromObject(distrit: Distrit): DistritEntity {
     const { id_distrit, name, city } = distrit;
-    /* console.log(object) */
+
     const error = Validations.validateEmptyFields({
       id_distrit,
       name,

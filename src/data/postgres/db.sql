@@ -51,7 +51,7 @@ ON UPDATE NO ACTION
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS country (
   id_country SERIAL PRIMARY KEY,
-  name VARCHAR(45) NOT NULL,
+  name VARCHAR(45) NOT NULL UNIQUE,
   code VARCHAR(10) NOT NULL UNIQUE  
 );
 
@@ -65,7 +65,8 @@ CREATE TABLE IF NOT EXISTS city (
   CONSTRAINT fk_city_country FOREIGN KEY (country_id)
     REFERENCES country (id_country)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
+  UNIQUE (name, country_id)
 );
 
 -- -----------------------------------------------------
@@ -78,7 +79,8 @@ CREATE TABLE IF NOT EXISTS distrit (
   CONSTRAINT fk_distrit_city FOREIGN KEY (city_id)
     REFERENCES city (id_city)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
+  UNIQUE (name, city_id)
 );
 
 -- -----------------------------------------------------
@@ -87,8 +89,8 @@ CREATE TABLE IF NOT EXISTS distrit (
 CREATE TABLE IF NOT EXISTS hotel (
   id_hotel SERIAL PRIMARY KEY,
   name VARCHAR(45) NOT NULL,
-  category VARCHAR(50) NOT NULL CHECK (category IN ('3', '4', '5', 'BOUTIQUE', 'VILLA', 'LODGE')),
-  address VARCHAR(45) NOT NULL,
+  category VARCHAR(50) NOT NULL CHECK (category IN ('2','3', '4', '5', 'BOUTIQUE', 'VILLA', 'LODGE')),
+  address VARCHAR(100) NULL,
   distrit_id INT NOT NULL,
   CONSTRAINT fk_hotel_distrit FOREIGN KEY (distrit_id)
     REFERENCES distrit (id_distrit)
@@ -102,8 +104,11 @@ CREATE TABLE IF NOT EXISTS hotel (
 CREATE TABLE IF NOT EXISTS hotel_room (
   id_hotel_room SERIAL PRIMARY KEY,
   room_type VARCHAR(100) NOT NULL,
-  price_usd NUMERIC(10,2),
-  price_pen NUMERIC(10,2),
+  season_type VARCHAR(50) NULL,
+  price_usd NUMERIC(10,2) NULL,
+  service_tax NUMERIC(6,2) NULL,
+  rate_usd NUMERIC(10,2) NULL,
+  price_pen NUMERIC(10,2) NULL,
   capacity INT NOT NULL,
   hotel_id INT NOT NULL,
   CONSTRAINT fk_hotel_room_hotel FOREIGN KEY (hotel_id)

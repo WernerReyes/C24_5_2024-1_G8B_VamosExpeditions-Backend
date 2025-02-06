@@ -4,9 +4,10 @@ import type { HotelRoomQuotationService } from "./hotelRoomQuotation.service";
 import {
   HotelRoomQuotationDto,
   InsertManyHotelRoomQuotationsDto,
+  UpdateHotelRoomQuotationDayDto,
+  GetHotelRoomQuotationsDto
 } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
-import { GetHotelRoomQuotationsDto } from "../../domain/dtos/hotelRoomQuotation/getHotelRoomQuotations.dto";
 
 export class HotelRoomQuotationController extends AppController {
   constructor(
@@ -46,6 +47,31 @@ export class HotelRoomQuotationController extends AppController {
     this.hotelRoomQuotationService
       .deleteHotelRoomQuotation(+hotelRoomQuotationId)
       .then((hotelRoomQuotation) => res.status(200).json(hotelRoomQuotation))
+      .catch((error) => this.handleError(res, error));
+  };
+
+  public updateHotelRoomQuotationDay = async (
+    req: Request,
+    res: Response
+  ) => {
+   const [error, updateHotelRoomQuotationDayDto] = UpdateHotelRoomQuotationDayDto.create(
+      req.body
+    );
+    if (error) return this.handleError(res, CustomError.badRequest(error));
+    this.hotelRoomQuotationService
+      .updateHotelRoomQuotationDay(updateHotelRoomQuotationDayDto!)
+      .then((hotelRoomQuotation) => res.status(200).json(hotelRoomQuotation))
+      .catch((error) => this.handleError(res, error));
+  };
+
+  public deleteManyHotelRoomQuotationsByDayNumber = async (
+    req: Request,
+    res: Response
+  ) => {
+    const dayNumber = req.params.dayNumber;
+    this.hotelRoomQuotationService
+      .deleteManyHotelRoomQuotationsByDayNumber(+dayNumber)
+      .then((message) => res.status(204).json(message))
       .catch((error) => this.handleError(res, error));
   };
 

@@ -71,6 +71,7 @@ export class VersionQuotationService {
     }
   }
 
+
   public async duplicateVersionQuotation(
     duplicateVersionQuotationDto: DuplicateVersionQuotationDto
   ) {

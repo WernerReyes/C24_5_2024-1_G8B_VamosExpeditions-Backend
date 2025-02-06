@@ -71,6 +71,7 @@ export class ReservationDto {
       status,
       Object.values(ReservationStatus)
     );
+    if (errorStatus) return [errorStatus, undefined];
 
     const errorOrderType = Validations.validateEnumValue(
       orderType,

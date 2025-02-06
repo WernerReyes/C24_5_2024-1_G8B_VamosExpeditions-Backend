@@ -12,6 +12,9 @@ export class HotelRoomEntity {
     private readonly id: number,
     private readonly roomType: string,
     private readonly capacity: number,
+    private readonly seasonType?: string,
+    private readonly serviceTax?: number,
+    private readonly rateUsd?: number,
     private readonly pricePen?: number,
     private readonly priceUsd?: number,
     private readonly hotel?: HotelEntity
@@ -21,8 +24,10 @@ export class HotelRoomEntity {
     const {
       id_hotel_room,
       room_type,
+      season_type,
       price_usd,
-
+      service_tax,
+      rate_usd,
       price_pen,
       capacity,
 
@@ -32,9 +37,6 @@ export class HotelRoomEntity {
     const error = Validations.validateEmptyFields({
       id_hotel_room,
       room_type,
-      price_usd,
-
-      price_pen,
       capacity,
     });
     if (error) throw CustomError.badRequest(error);
@@ -43,6 +45,9 @@ export class HotelRoomEntity {
       id_hotel_room,
       room_type.charAt(0).toUpperCase() + room_type.slice(1).toLowerCase(),
       capacity,
+      season_type ?? undefined,
+      Number(service_tax) ?? undefined,
+      Number(rate_usd) ?? undefined,
       Number(price_pen),
       Number(price_usd),
       hotel ? HotelEntity.fromObject(hotel) : undefined
