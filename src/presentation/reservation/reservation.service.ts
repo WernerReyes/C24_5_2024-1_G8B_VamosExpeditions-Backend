@@ -8,10 +8,13 @@ import { GetReservationsDto, ReservationDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 import { ReservationResponse } from "./reservation.response";
 import { ReservationMapper } from "./reservation.mapper";
+import { PdfService } from "@/lib";
+import { getTravelItineraryReport } from "@/report";
 export class ReservationService {
   constructor(
     private reservationMapper: ReservationMapper,
-    private reservationResponse: ReservationResponse
+    private reservationResponse: ReservationResponse,
+    private pdfService:PdfService 
   ) {}
 
   public async upsertReservation(reservationDto: ReservationDto) {
@@ -95,10 +98,24 @@ export class ReservationService {
         where: whereCondition,
         include: this.reservationMapper.toSelectInclude,
       });
+
+       console.log("reservations", reservations);
   
       return this.reservationResponse.reservationsFound(reservations);
     } catch (error) {
       throw CustomError.internalServer(`${error}`);
     }
   }
-}  
+
+  public async generatePdf(id: number) {
+    
+
+    const docDefinition = getTravelItineraryReport({title: 'Resumen rápidonnn', subTitle: 'Rolando Casapaico'});
+
+    const pdf = await this.pdfService.createPdf(docDefinition);
+    return pdf;
+  }
+
+}
+
+  

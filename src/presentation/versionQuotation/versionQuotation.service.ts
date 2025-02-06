@@ -123,6 +123,7 @@ export class VersionQuotationService {
     );
   }
 
+  //
   public async getVersionsQuotation() {
     const versionsQuotation = await VersionQuotationModel.findMany({
       include: {

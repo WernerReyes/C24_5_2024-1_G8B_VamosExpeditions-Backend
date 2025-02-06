@@ -1,13 +1,14 @@
 import { EnvsConst } from "./core/constants";
 import {
-  // ClienModel,
+  ClientModel,
   CountryModel,
   CityModel,
   DistritModel,
-  // ReservationDetailModel,
   ReservationModel,
   UserModel,
+  HotelRoomQuotationModel,
 } from "./data/postgres";
+import { EmailService } from "./lib";
 import { AppRoutes } from "./presentation/routes";
 import { Server } from "./presentation/server";
 
@@ -52,7 +53,7 @@ console.dir(data1,{depth:null}); */
 
   // Itera sobre el array data1
 
- /*  const data2 = await ReservationModel.findMany({
+  /*  const data2 = await ReservationModel.findMany({
     include: {
       reservation_has_city: {
         include: {
@@ -100,7 +101,21 @@ console.dir(data1,{depth:null}); */
   });
   console.log(JSON.stringify(HotelsByCity, null, 2)) */
 
+/*   const email = new EmailService(
+    EnvsConst.MAILER_SERVICE,
+    EnvsConst.MAILER_EMAIL,
+    EnvsConst.MAILER_SECRET_KEY
+  );
 
-
+  try {
+    await email.sendEmail({
+      to: 'rcasapaico2001@gmail.com', 
+      subject: 'Bienvenido a nuestro servicio',
+      htmlBody: '<h1>Hola</h1><p>Gracias por registrarte</p>'
+    })
+    console.log('Correo enviado');
+  }catch (error) {
+    console.log(error);
+ } */
   server.start();
 }

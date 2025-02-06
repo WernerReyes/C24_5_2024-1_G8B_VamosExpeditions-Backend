@@ -39,4 +39,22 @@ export class ReservationController extends AppController {
       .then((reservations) => res.status(200).json(reservations))
       .catch((error) => this.handleError(res, error));
   };
+
+
+  public getReservationPdf = (req: Request, res: Response) => {
+    const { id } = req.params;
+    console.log("id", id);
+    this.reservationService
+      .generatePdf(+id)
+      .then((pdf) => {
+        res.setHeader("Content-Type", "application/pdf");
+/*         res.setHeader(
+          "Content-Disposition",
+          `attachment; filename=reservation.pdf`
+        ); */
+        pdf.pipe(res);
+        pdf.end();
+      })
+      .catch((error) => this.handleError(res, error));
+  }
 }

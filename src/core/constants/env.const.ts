@@ -17,4 +17,9 @@ export class EnvsConst {
   )
     .required()
     .asString();
+
+
+  public static readonly MAILER_SERVICE = get("MAILER_SERVICE").required().asString();
+  public static readonly MAILER_EMAIL = get("MAILER_EMAIL").required().asString();
+  public static readonly MAILER_SECRET_KEY = get("MAILER_SECRET_KEY").required().asString(); 
 }
