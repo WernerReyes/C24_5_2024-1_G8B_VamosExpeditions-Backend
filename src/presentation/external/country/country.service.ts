@@ -44,10 +44,8 @@ export class ExternalCountryService {
     code: string
   ): Promise<ApiResponse<ExternalCountryEntity>> {
     try {
-      console.log(EXTERNAL_API_COUNTRY_URL + "/alpha/" + code);
       const response = await fetch(EXTERNAL_API_COUNTRY_URL + "/alpha/" + code);
       const data = await response.json();
-      console.log("response",data);
       return this.externalCountryResponse.getCountry(data[0]);
     } catch (error) {
       console.log("error", error);

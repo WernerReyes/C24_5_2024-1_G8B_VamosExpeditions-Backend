@@ -14,12 +14,20 @@ export class HotelRoomQuotationResponse {
   }
 
   public createdManyHotelRoomQuotations(
-    hotelRoomsQuotation: HotelRoomQuotationEntity[]
+    hotelRoomQuotations: HotelRoomQuotationEntity[]
   ) {
     return new ApiResponse<HotelRoomQuotationEntity[]>(
       201,
-      `${hotelRoomsQuotation.length} cotizaciones de habitación creadas correctamente`,
-      hotelRoomsQuotation
+      `${hotelRoomQuotations.length} cotizaciones de habitación creadas correctamente`,
+      hotelRoomQuotations
+    );
+  }
+
+  public updatedManyHotelRoomQuotations(hotelRoomQuotations: HotelRoomQuotation[]) {
+    return new ApiResponse<HotelRoomQuotationEntity[]>(
+      200,
+      `${hotelRoomQuotations.length} cotizaciones de habitación actualizadas correctamente`,
+      hotelRoomQuotations.map(HotelRoomQuotationEntity.fromObject)
     );
   }
 
@@ -28,6 +36,16 @@ export class HotelRoomQuotationResponse {
       204,
       "Cotización de habitacion eliminada correctamente",
       HotelRoomQuotationEntity.fromObject(hotelRoomQuotation)
+    );
+  }
+
+  public deletedManyHotelRoomQuotations(
+    hotelRoomsQuotation: HotelRoomQuotation[]
+  ) {
+    return new ApiResponse<HotelRoomQuotationEntity[]>(
+      204,
+      `${hotelRoomsQuotation.length} cotizaciones de habitación eliminadas correctamente`,
+      hotelRoomsQuotation.map(HotelRoomQuotationEntity.fromObject)
     );
   }
 

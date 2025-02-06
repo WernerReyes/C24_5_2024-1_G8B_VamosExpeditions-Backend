@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS distrit (
 CREATE TABLE IF NOT EXISTS hotel (
   id_hotel SERIAL PRIMARY KEY,
   name VARCHAR(45) NOT NULL,
-  category VARCHAR(50) NOT NULL CHECK (category IN ('3', '4', '5', 'BOUTIQUE', 'VILLA', 'LODGE')),
+  category VARCHAR(50) NOT NULL CHECK (category IN ('2','3', '4', '5', 'BOUTIQUE', 'VILLA', 'LODGE')),
   address VARCHAR(45) NOT NULL,
   distrit_id INT NOT NULL,
   CONSTRAINT fk_hotel_distrit FOREIGN KEY (distrit_id)

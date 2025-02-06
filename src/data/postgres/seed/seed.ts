@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { ROLES, USERS, 
-  COUNTRIES, CITIES, DISTRICTS, HOTELS, HOTEL_ROOMS
+  COUNTRIES, CITIES, DISTRICTS, HOTELS,
  } from "./data";
 const prisma = new PrismaClient();
 
@@ -61,10 +61,10 @@ async function seed() {
     data: HOTELS,
   });
 
-  //* Insert HOTELS Rooms
-  await prisma.hotel_room.createMany({
-    data: HOTEL_ROOMS,
-  });
+  // //* Insert HOTELS Rooms
+  // await prisma.hotel_room.createMany({
+  //   data: HOTEL_ROOMS,
+  // });
   
 
   console.log("Seed completed");

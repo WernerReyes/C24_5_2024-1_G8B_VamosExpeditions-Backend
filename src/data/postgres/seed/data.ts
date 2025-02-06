@@ -189,48 +189,49 @@ export const HOTELS: Hotel[] = [
   },
 ];
 
-export const HOTEL_ROOMS: hotel_room[] = [
-  {
-    id_hotel_room: 1,
-    room_type: "SINGLE",
-    price_usd: new Prisma.Decimal(100),
-    price_pen: new Prisma.Decimal(390),
-    capacity: 1,
-    hotel_id: 1,
-  },
-  {
-    id_hotel_room: 2,
-    room_type: "DOUBLE",
-    price_usd: new Prisma.Decimal(200),
-    price_pen: new Prisma.Decimal(780),
-    capacity: 2,
-    hotel_id: 1,
-  },
-  {
-    id_hotel_room: 3,
-    room_type: "TRIPLE",
-    price_usd: new Prisma.Decimal(300),
+// export const HOTEL_ROOMS: hotel_room[] = [
+//   {
+//     id_hotel_room: 1,
+//     room_type: "SINGLE",
+//     price_usd: new Prisma.Decimal(100),
+//     price_pen: new Prisma.Decimal(390),
+//     capacity: 1,
+//     hotel_id: 1,
 
-    price_pen: new Prisma.Decimal(1170),
-    capacity: 3,
-    hotel_id: 1,
-  },
-  {
-    id_hotel_room: 4,
-    room_type: "SINGLE",
-    price_usd: new Prisma.Decimal(100),
+//   },
+//   {
+//     id_hotel_room: 2,
+//     room_type: "DOUBLE",
+//     price_usd: new Prisma.Decimal(200),
+//     price_pen: new Prisma.Decimal(780),
+//     capacity: 2,
+//     hotel_id: 1,
+//   },
+//   {
+//     id_hotel_room: 3,
+//     room_type: "TRIPLE",
+//     price_usd: new Prisma.Decimal(300),
 
-    price_pen: new Prisma.Decimal(390),
-    capacity: 1,
-    hotel_id: 2,
-  },
-  {
-    id_hotel_room: 5,
-    room_type: "DOUBLE",
-    price_usd: new Prisma.Decimal(200),
+//     price_pen: new Prisma.Decimal(1170),
+//     capacity: 3,
+//     hotel_id: 1,
+//   },
+//   {
+//     id_hotel_room: 4,
+//     room_type: "SINGLE",
+//     price_usd: new Prisma.Decimal(100),
 
-    price_pen: new Prisma.Decimal(780),
-    capacity: 2,
-    hotel_id: 2,
-  },
-];
+//     price_pen: new Prisma.Decimal(390),
+//     capacity: 1,
+//     hotel_id: 2,
+//   },
+//   {
+//     id_hotel_room: 5,
+//     room_type: "DOUBLE",
+//     price_usd: new Prisma.Decimal(200),
+
+//     price_pen: new Prisma.Decimal(780),
+//     capacity: 2,
+//     hotel_id: 2,
+//   },
+// ];

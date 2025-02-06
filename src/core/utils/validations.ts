@@ -103,7 +103,7 @@ export class Validations {
       return "Una o ambas fechas no son válidas";
     }
 
-    if (new Date(startDate) >= new Date(endDate)) {
+    if (new Date(startDate) > new Date(endDate)) {
       return "La fecha de inicio debe ser anterior a la fecha de fin";
     }
 

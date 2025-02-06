@@ -8,7 +8,7 @@ import { ApiResponse } from "../response";
 
 export class VersionQuotationResponse {
   public updatedVersionQuotation(versionQuotation: VersionQuotation) {
-    console.log(versionQuotation);
+ 
     return new ApiResponse<VersionQuotationEntity>(
       200,
       "Versión de cotización actualizada",
