@@ -41,6 +41,15 @@ export class Validations {
     return null;
   }
 
+  static validateDateFields(fields: any): string | null {
+    for (const field in fields) {
+      if (isNaN(new Date(fields[field]).getTime())) {
+        return `El campo ${field} debe ser una fecha`;
+      }
+    }
+    return null;
+  }
+
   static validateGreaterThanValueFields(
     field: any,
     value: number

@@ -1,7 +1,7 @@
-import { hotel_room_quotation, hotel_room } from "@prisma/client";
+import type { hotel_room_quotation } from "@prisma/client";
 import { HotelRoom, HotelRoomEntity } from "./hotelRoom.entity";
 import {
-  VersionQuotation,
+  type VersionQuotation,
   VersionQuotationEntity,
 } from "./versionQuotation.entity";
 import { Validations } from "@/core/utils";
@@ -15,8 +15,8 @@ export type HotelRoomQuotation = hotel_room_quotation & {
 export class HotelRoomQuotationEntity {
   constructor(
     public readonly id: number,
-    public readonly day: number,
     public readonly numberOfPeople: number,
+    public readonly date: Date,
     public readonly hotelRoom?: HotelRoomEntity,
     public readonly versionQuotation?: VersionQuotationEntity
   ) {}
@@ -24,21 +24,21 @@ export class HotelRoomQuotationEntity {
   public static fromObject(
     hotelRoomQuotation: HotelRoomQuotation
   ): HotelRoomQuotationEntity {
-    const { id_hotel_room_quotation, day, number_of_people, hotel_room, version_quotation } =
+    const { id_hotel_room_quotation,  date, number_of_people, hotel_room, version_quotation } =
       hotelRoomQuotation;
 
     const error = Validations.validateEmptyFields({
       id_hotel_room_quotation,
-      day,
       number_of_people,
+      date
     });
 
     if (error) throw CustomError.badRequest(error);
 
     return new HotelRoomQuotationEntity(
       id_hotel_room_quotation,
-      day,
       number_of_people,
+      date,
       hotel_room ? HotelRoomEntity.fromObject(hotel_room) : undefined,
       version_quotation
         ? VersionQuotationEntity.fromObject(version_quotation)

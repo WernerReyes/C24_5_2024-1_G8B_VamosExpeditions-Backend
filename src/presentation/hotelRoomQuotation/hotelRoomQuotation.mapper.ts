@@ -20,7 +20,7 @@ export class HotelRoomQuotationMapper {
       hotel_room_id: this.dto.hotelRoomId,
       version_number: this.dto.versionQuotationId.versionNumber,
       quotation_id: this.dto.versionQuotationId.quotationId,
-      day: this.dto.day,
+      date: this.dto.date,
       number_of_people: this.dto.numberOfPeople,
     };
   }

@@ -98,9 +98,6 @@ export class ReservationService {
         where: whereCondition,
         include: this.reservationMapper.toSelectInclude,
       });
-
-       console.log("reservations", reservations);
-  
       return this.reservationResponse.reservationsFound(reservations);
     } catch (error) {
       throw CustomError.internalServer(`${error}`);

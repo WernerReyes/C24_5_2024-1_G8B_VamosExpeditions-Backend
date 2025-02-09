@@ -1,7 +1,8 @@
 import { Validations } from "@/core/utils";
 import { QuotationStatus } from "@/domain/entities";
+import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
 
-export class VersionQuotationDto {
+export class VersionQuotationDto extends VersionQuotationIDDto {
   private constructor(
     public readonly id: {
       quotationId: number;
@@ -14,7 +15,9 @@ export class VersionQuotationDto {
     public readonly totalCost?: number,
     public readonly finalPrice?: number,
     public readonly reservationId?: number
-  ) {}
+  ) {
+    super(id);
+  }
 
   static create(props: {
     [key: string]: any;
@@ -30,17 +33,8 @@ export class VersionQuotationDto {
       id,
     } = props;
 
-    const emptyFieldsError = Validations.validateEmptyFields(
-      { id },
-      "VersionQuotationDto"
-    );
-    if (emptyFieldsError) return [emptyFieldsError, undefined];
-
-    const quotationIdError = Validations.validateNumberFields({
-      quotationId: id.quotationId,
-      versionNumber: id.versionNumber,
-    });
-    if (quotationIdError) return [quotationIdError, undefined];
+    const [idError, idDto] = VersionQuotationIDDto.create(id);
+    if (idError) return [idError, undefined];
 
     const statusError = Validations.validateEnumValue(
       status,
@@ -87,7 +81,7 @@ export class VersionQuotationDto {
     return [
       undefined,
       new VersionQuotationDto(
-        { quotationId: +id.quotationId, versionNumber: +id.versionNumber },
+        idDto?.versionQuotationId!,
         status,
         official,
         +indirectCostMargin,

@@ -1,8 +1,8 @@
 import type {
+  DeleteManyHotelRoomQuotationsByDateDto,
   GetHotelRoomQuotationsDto,
   HotelRoomQuotationDto,
-  UpdateHotelRoomQuotationDayDto,
-  InsertManyHotelRoomQuotationsDto
+  InsertManyHotelRoomQuotationsDto,
 } from "@/domain/dtos";
 import type { HotelRoomQuotationMapper } from "./hotelRoomQuotation.mapper";
 import type { HotelRoomQuotationResponse } from "./hotelRoomQuotation.response";
@@ -12,10 +12,7 @@ import {
   VersionQuotationModel,
 } from "@/data/postgres";
 import { CustomError } from "@/domain/error";
-import {
-  HotelRoomQuotation,
-  HotelRoomQuotationEntity,
-} from "@/domain/entities";
+import { HotelRoomQuotationEntity } from "@/domain/entities";
 
 export class HotelRoomQuotationService {
   constructor(
@@ -29,22 +26,25 @@ export class HotelRoomQuotationService {
     try {
       this.hotelRoomQuotationMapper.setDto = hotelRoomQuotationDto;
 
-      const existHotelRoomQuotation = await HotelRoomQuotationModel.findFirst({
+      const existHotelRoomQuotation = await HotelRoomQuotationModel.findUnique({
         where: {
-          hotel_room_id: hotelRoomQuotationDto.hotelRoomId,
-          version_number:
-            hotelRoomQuotationDto.versionQuotationId.versionNumber,
-          quotation_id: hotelRoomQuotationDto.versionQuotationId.quotationId,
-          day: hotelRoomQuotationDto.day,
+          hotel_room_id_date_quotation_id_version_number: {
+            hotel_room_id: hotelRoomQuotationDto.hotelRoomId,
+            version_number:
+              hotelRoomQuotationDto.versionQuotationId.versionNumber,
+            quotation_id: hotelRoomQuotationDto.versionQuotationId.quotationId,
+            date: hotelRoomQuotationDto.date,
+          },
         },
       });
+
       if (existHotelRoomQuotation)
         throw CustomError.badRequest(
           "Ya existe una habitación cotizada para este día"
         );
 
-      //* Validate if the days range is correct
-      await this.validateDaysRange(hotelRoomQuotationDto);
+      //* Validate if the date is within the range of the quotation
+      await this.validateDateRange(hotelRoomQuotationDto);
 
       const hotelRoomExists = await HotelRoomModel.findUnique({
         where: { id_hotel_room: hotelRoomQuotationDto.hotelRoomId },
@@ -76,118 +76,61 @@ export class HotelRoomQuotationService {
     const hotelRoomQuotations: HotelRoomQuotationEntity[] = [];
     const skippedDays: number[] = [];
 
-    for (
-      let i = insertManyHotelRoomQuotationsDto.dayRange[0];
-      i <= insertManyHotelRoomQuotationsDto.dayRange[1];
-      i++
-    ) {
-      try {
-        const { data } = await this.createHotelRoomQuotation({
-          hotelRoomId: insertManyHotelRoomQuotationsDto.hotelRoomId,
-          versionQuotationId:
-            insertManyHotelRoomQuotationsDto.versionQuotationId,
-          day: i,
-          numberOfPeople: insertManyHotelRoomQuotationsDto.numberOfPeople,
-        });
-        hotelRoomQuotations.push(data); // Add successful response to the array
-      } catch (error) {
-        // Handle specific error for "Already exists"
-        if (
-          error instanceof CustomError &&
-          error.message.includes(
-            "Ya existe una habitación cotizada para este día"
-          )
-        ) {
-          skippedDays.push(i); // Add the skipped day to the
-          continue; // Skip to the next iteration
-        }
-        // Re-throw any other error
-        throw CustomError.internalServer(`${error}`);
-      }
-    }
+    const dayRange: [number, number] = [
+      insertManyHotelRoomQuotationsDto.dateRange[0].getDate(),
+      insertManyHotelRoomQuotationsDto.dateRange[1].getDate(),
+    ];
 
-    // Check if all days were skipped
-    if (
-      skippedDays.length ===
-      insertManyHotelRoomQuotationsDto.dayRange[1] -
-        insertManyHotelRoomQuotationsDto.dayRange[0] +
-        1
-    ) {
-      throw CustomError.badRequest(
-        `No se pudo insertar ninguna habitación cotizada: ya existen cotizaciones para todos los días (${skippedDays.join(
-          ", "
-        )})`
-      );
-    }
+    const date = new Date(insertManyHotelRoomQuotationsDto.dateRange[0]);
 
-    return this.hotelRoomQuotationResponse.createdManyHotelRoomQuotations(
-      hotelRoomQuotations
-    );
-  }
+    try {
+      for (let i = dayRange[0]; i <= dayRange[1]; i++) {
+        try {
+          const { data } = await this.createHotelRoomQuotation({
+            hotelRoomId: insertManyHotelRoomQuotationsDto.hotelRoomId,
+            versionQuotationId:
+              insertManyHotelRoomQuotationsDto.versionQuotationId,
+            date,
+            numberOfPeople: insertManyHotelRoomQuotationsDto.numberOfPeople,
+          });
 
-  public updateHotelRoomQuotationDay = async ({
-    versionQuotationId,
-    direction,
-    dayNumber,
-  }: UpdateHotelRoomQuotationDayDto) => {
-    const hotelRoomQuotations = await HotelRoomQuotationModel.findMany({
-      where: {
-        version_number: versionQuotationId.versionNumber,
-        quotation_id: versionQuotationId.quotationId,
-      },
-      include: this.hotelRoomQuotationMapper.toSelectInclude,
-    });
-
-    if (hotelRoomQuotations.length === 0)
-      throw CustomError.notFound(
-        "No se encontraron cotizaciones de habitaciones para la cotización"
-      );
-
-    let hotelRoomQuotationsUpdated: HotelRoomQuotation[] = [];
-
-    if (direction === "start") {
-      hotelRoomQuotationsUpdated = await Promise.all(
-        hotelRoomQuotations.map(async (hotelRoomQuotation) => {
-          const hotelRoomQuotationUpdated =
-            await HotelRoomQuotationModel.update({
-              where: {
-                id_hotel_room_quotation:
-                  hotelRoomQuotation.id_hotel_room_quotation,
-              },
-              data: { day: hotelRoomQuotation.day - 1 },
-              include: this.hotelRoomQuotationMapper.toSelectInclude,
-            });
-
-          return hotelRoomQuotationUpdated;
-        })
-      );
-    } else {
-      //* Middle
-      hotelRoomQuotationsUpdated = await Promise.all(
-        hotelRoomQuotations.map(async (hotelRoomQuotation) => {
-          if (hotelRoomQuotation.day < dayNumber) {
-            return hotelRoomQuotation;
+          hotelRoomQuotations.push(data);
+        } catch (error) {
+          if (
+            error instanceof CustomError &&
+            error.message.includes(
+              "Ya existe una habitación cotizada para este día"
+            )
+          ) {
+            skippedDays.push(date.getDate());
           } else {
-            const hotelRoomQuotationUpdated =
-              await HotelRoomQuotationModel.update({
-                where: {
-                  id_hotel_room_quotation:
-                    hotelRoomQuotation.id_hotel_room_quotation,
-                },
-                data: { day: hotelRoomQuotation.day - 1 },
-                include: this.hotelRoomQuotationMapper.toSelectInclude,
-              });
-
-            return hotelRoomQuotationUpdated;
+            throw CustomError.internalServer(`${error}`);
           }
-        })
-      );
-    }
+        }
 
-    return this.hotelRoomQuotationResponse.updatedManyHotelRoomQuotations(
-      hotelRoomQuotationsUpdated
-    );
-  };
+        date.setDate(date.getDate() + 1);
+      }
+
+      //* Check if all days were skipped
+      if (skippedDays.length === dayRange[1] - dayRange[0] + 1) {
+        throw CustomError.badRequest(
+          `No se pudo insertar ninguna habitación cotizada: ya existen cotizaciones para todos los días (${skippedDays.join(
+            ", "
+          )})`
+        );
+      }
+
+      return this.hotelRoomQuotationResponse.createdManyHotelRoomQuotations(
+        hotelRoomQuotations
+      );
+    } catch (error) {
+      if (error instanceof CustomError) {
+        throw error;
+      }
+
+      throw CustomError.internalServer(`${error}`);
+    }
+  }
 
   public async deleteHotelRoomQuotation(id: number) {
     const hotelRoomQuotation = await HotelRoomQuotationModel.findUnique({
@@ -207,19 +150,49 @@ export class HotelRoomQuotationService {
     );
   }
 
-  public async deleteManyHotelRoomQuotationsByDayNumber(day: number) {
+  public async deleteManyHotelRoomQuotations(ids: number[]) {
+    console.log(ids);
     const hotelRoomQuotations = await HotelRoomQuotationModel.findMany({
-      where: { day },
+      where: { id_hotel_room_quotation: { in: ids } },
+      include: this.hotelRoomQuotationMapper.toSelectInclude,
+    });
+
+    if (hotelRoomQuotations.length === 0)
+      throw CustomError.notFound("Cotizaciones de habitaciones no encontradas");
+
+    await HotelRoomQuotationModel.deleteMany({
+      where: { id_hotel_room_quotation: { in: ids } },
+    });
+
+    return this.hotelRoomQuotationResponse.deletedManyHotelRoomQuotations(
+      hotelRoomQuotations
+    );
+  }
+
+  public async deleteManyHotelRoomQuotationsByDate({
+    versionQuotationId,
+    date,
+  }: DeleteManyHotelRoomQuotationsByDateDto) {
+    const hotelRoomQuotations = await HotelRoomQuotationModel.findMany({
+      where: {
+        version_number: versionQuotationId?.versionNumber,
+        quotation_id: versionQuotationId?.quotationId,
+        date,
+      },
       include: this.hotelRoomQuotationMapper.toSelectInclude,
     });
 
     if (hotelRoomQuotations.length === 0)
       throw CustomError.notFound(
-        `No se encontraron cotizaciones de habitaciones para el día ${day}`
+        `No se encontraron cotizaciones de habitaciones para el día ${date}`
       );
 
     await HotelRoomQuotationModel.deleteMany({
-      where: { day },
+      where: {
+        version_number: versionQuotationId?.versionNumber,
+        quotation_id: versionQuotationId?.quotationId,
+        date,
+      },
     });
 
     return this.hotelRoomQuotationResponse.deletedManyHotelRoomQuotations(
@@ -245,10 +218,10 @@ export class HotelRoomQuotationService {
     );
   }
 
-  private async validateDaysRange(
+  private async validateDateRange(
     hotelRoomQuotationDto: HotelRoomQuotationDto
   ) {
-    const daysRange = await VersionQuotationModel.findUnique({
+    const dateRange = await VersionQuotationModel.findUnique({
       where: {
         version_number_quotation_id: {
           version_number:
@@ -259,7 +232,6 @@ export class HotelRoomQuotationService {
       select: {
         reservation: {
           select: {
-            number_of_people: true,
             start_date: true,
             end_date: true,
           },
@@ -267,35 +239,19 @@ export class HotelRoomQuotationService {
       },
     });
 
-    if (!daysRange) throw CustomError.notFound("Cotización no encontrada");
+    if (!dateRange) throw CustomError.notFound("Cotización no encontrada");
 
-    if (!daysRange.reservation)
+    if (!dateRange.reservation)
       throw CustomError.notFound("La cotización no tiene una reserva");
 
-    const totalDays =
-      Math.abs(
-        (daysRange.reservation.end_date.getTime() -
-          daysRange.reservation.start_date.getTime()) /
-          (1000 * 60 * 60 * 24)
-      ) + 1;
-
-    if (hotelRoomQuotationDto.day > totalDays)
-      throw CustomError.badRequest(
-        "El día no puede ser mayor al rango de días de la cotización"
-      );
-
-    console.log(
-      "hotelRoomQuotationDto.numberOfPeople",
-      hotelRoomQuotationDto.numberOfPeople,
-      daysRange.reservation.number_of_people
-    );
-
     if (
-      hotelRoomQuotationDto.numberOfPeople >
-      daysRange.reservation.number_of_people
+      hotelRoomQuotationDto.date.getUTCDate() <
+        new Date(dateRange.reservation.start_date).getUTCDate() ||
+      hotelRoomQuotationDto.date.getUTCDate() >
+        new Date(dateRange.reservation.end_date).getUTCDate()
     )
       throw CustomError.badRequest(
-        "El número de personas no puede ser mayor al número de personas de la reserva"
+        "La fecha no puede ser menor a la fecha de inicio o mayor a la fecha de fin de la cotización"
       );
   }
 }

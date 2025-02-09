@@ -1,36 +1,29 @@
-import { Validations } from "@/core/utils";
+import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
 
-export class GetHotelRoomQuotationsDto {
+export class GetHotelRoomQuotationsDto extends VersionQuotationIDDto {
   constructor(
     public readonly versionQuotationId?: {
       quotationId: number;
       versionNumber: number;
     }
-  ) {}
+  ) {
+    super(versionQuotationId);
+  }
 
   static create(props: {
     [key: string]: any;
   }): [string?, GetHotelRoomQuotationsDto?] {
     const { quotationId, versionNumber } = props;
 
-    if (quotationId && versionNumber) {
-      const numberError = Validations.validateNumberFields({
-        quotationId: quotationId,
-        versionNumber: versionNumber,
-      });
-      if (numberError) return [numberError, undefined];
-    }
+    const [error, dto] = VersionQuotationIDDto.create(
+      {
+        quotationId,
+        versionNumber,
+      },
+      true
+    );
+    if (error) return [error, undefined];
 
-    return [
-      undefined,
-      new GetHotelRoomQuotationsDto(
-        quotationId && versionNumber
-          ? {
-              quotationId: +quotationId,
-              versionNumber: +versionNumber,
-            }
-          : undefined
-      ),
-    ];
+    return [undefined, new GetHotelRoomQuotationsDto(dto?.versionQuotationId)];
   }
 }

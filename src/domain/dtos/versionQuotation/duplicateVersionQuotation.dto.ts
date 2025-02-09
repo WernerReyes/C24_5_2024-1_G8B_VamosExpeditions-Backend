@@ -1,41 +1,39 @@
 import { Validations } from "@/core/utils";
+import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
 
-export class DuplicateVersionQuotationDto {
+export class DuplicateVersionQuotationDto extends VersionQuotationIDDto {
   private constructor(
     public readonly id: {
       quotationId: number;
       versionNumber: number;
     },
     public readonly userId: number
-  ) {}
+  ) {
+    super(id);
+  }
 
   public static create(props: {
     [key: string]: any;
   }): [string?, DuplicateVersionQuotationDto?] {
     const { userId, id } = props;
 
+    const [error, dto] = VersionQuotationIDDto.create(id);
+    if (error) return [error, undefined];
+
     const emptyFieldsError = Validations.validateEmptyFields(
-      { userId, id },
+      { userId },
       "DuplicateVersionQuotationDto"
     );
     if (emptyFieldsError) return [emptyFieldsError, undefined];
 
     const numberError = Validations.validateNumberFields({
-      quotationId: id.quotationId,
-      versionNumber: id.versionNumber,
       userId,
     });
     if (numberError) return [numberError, undefined];
 
     return [
       undefined,
-      new DuplicateVersionQuotationDto(
-        {
-          quotationId: +id.quotationId,
-          versionNumber: +id.versionNumber,
-        },
-        +userId
-      ),
+      new DuplicateVersionQuotationDto(dto?.versionQuotationId!, +userId),
     ];
   }
 }
