@@ -4,8 +4,8 @@ import {
   CustomTableLayout,
   TDocumentDefinitions,
 } from "pdfmake/interfaces";
-
 import path from "path";
+import stream from "stream";
 
 const fonts = {
   Roboto: {
@@ -19,24 +19,19 @@ const fonts = {
 const customTableLayouts: Record<string, CustomTableLayout> = {
   reservationLayout: {
     hLineWidth: function (i, node) {
-/*       if (i === 0 || i === node.table.body.length) {
-        return 0.5;
-      }
-      return i === node.table.headerRows ? 2 : 1; */
-      return 0.5;
+      return 0.8;
     },
     vLineWidth: function (i) {
-      return 0.5;
+      return 0;
     },
-   
+
     hLineColor: function (i) {
-      /* return i === 1 ? null : "#bbbbbb"; */
       return "#bbbbbb";
-    },
+    } /*
     vLineColor: function (i) {
-      /* return i === 0 ? "black" : "#bbbbbb"; */
+      
       return "#bbbbbb";
-    },
+    }, */,
     paddingLeft: function (i) {
       return i === 0 ? 0 : 8;
     },
@@ -47,13 +42,12 @@ const customTableLayouts: Record<string, CustomTableLayout> = {
       if (i === 0) {
         return "#01A3BB";
       }
-      if (i === node.table.body.length - 1) {
+      /*       if (i === node.table.body.length - 1) {
         return "gray";
-      }
+      } */
 
-      return i  === 0 ? '#01A3BB' : i % 2 === 0 ? '#F4F6F6' : null
+      return i === 0 ? "#01A3BB" : i % 2 === 0 ? "#F4F6F6" : null;
     },
-    
   },
 };
 
@@ -67,5 +61,32 @@ export class PdfService {
     }
   ): PDFKit.PDFDocument {
     return this.printer.createPdfKitDocument(docDefinition, options);
+  }
+
+  public async createPdfEmail(
+    docDefinition: TDocumentDefinitions,
+    options: BufferOptions = {
+      tableLayouts: customTableLayouts,
+    }
+  ): Promise<Buffer> {
+    // Crear el documento PDF
+    const pdfDoc = this.printer.createPdfKitDocument(docDefinition, options);
+
+    // Convertir el stream de PDF en un Buffer
+    const chunks: Uint8Array[] = [];
+    const bufferStream = new stream.PassThrough();
+
+    pdfDoc.pipe(bufferStream);
+    pdfDoc.end();
+
+    // Acumular los datos del PDF en un Buffer
+    return new Promise((resolve, reject) => {
+      bufferStream.on("data", (chunk) => chunks.push(chunk));
+      bufferStream.on("end", () => {
+        const pdfBuffer = Buffer.concat(chunks);
+        resolve(pdfBuffer);
+      });
+      bufferStream.on("error", (error) => reject(error));
+    });
   }
 }

@@ -56,4 +56,11 @@ export class ReservationController extends AppController {
       })
       .catch((error) => this.handleError(res, error));
   };
+
+  public getReservationallPdf = (req: Request, res: Response) => {
+    this.reservationService
+      .getall()
+      .then((pdf) => res.status(200).json(pdf))
+      .catch((error) => this.handleError(res, error));
+  };
 }

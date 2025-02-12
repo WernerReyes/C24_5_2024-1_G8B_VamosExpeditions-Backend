@@ -208,6 +208,7 @@ CREATE TABLE IF NOT EXISTS quotation (
 CREATE TYPE  quotation_status AS ENUM ('DRAFT', 'PENDING', 'ACCEPTED', 'REJECTED');
   CREATE TABLE IF NOT EXISTS version_quotation (
     indirect_cost_margin DECIMAL(5, 2),
+    name VARCHAR(100) NOT NULL,
     profit_margin DECIMAL(5, 2),
     total_cost DECIMAL(10, 2),
     final_price DECIMAL(10, 2),
@@ -224,6 +225,7 @@ CREATE TYPE  quotation_status AS ENUM ('DRAFT', 'PENDING', 'ACCEPTED', 'REJECTED
     CONSTRAINT fk_version_quotation_reservation FOREIGN KEY (reservation_id) REFERENCES "reservation" (id) ON DELETE CASCADE,
     CONSTRAINT fk_version_quotation_quotation FOREIGN KEY (quotation_id) REFERENCES quotation (id_quotation) ON DELETE CASCADE
 );
+
 
 -- Add an index on quotation_id for faster lookups if needed:
 CREATE INDEX idx_quotation_id ON version_quotation (quotation_id);

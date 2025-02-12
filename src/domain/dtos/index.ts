@@ -19,4 +19,8 @@ export * from './versionQuotation/duplicateVersionQuotation.dto';
 export * from './hotelRoomQuotation/hotelRoomQuotation.dto';
 export * from './hotelRoomQuotation/getHotelRoomQuotations.dto';
 export * from './hotelRoomQuotation/insertManyRoomQuotation.dto';
+
 export * from './hotelRoomQuotation/updateManyHotelRoomQuotationsByDate.dto';
+
+
+export * from './report/report.dto';
