@@ -1,5 +1,5 @@
 import type {
-  DeleteManyHotelRoomQuotationsByDateDto,
+  UpdateManyHotelRoomQuotationsByDateDto,
   GetHotelRoomQuotationsDto,
   HotelRoomQuotationDto,
   InsertManyHotelRoomQuotationsDto,
@@ -12,7 +12,11 @@ import {
   VersionQuotationModel,
 } from "@/data/postgres";
 import { CustomError } from "@/domain/error";
-import { HotelRoomQuotationEntity } from "@/domain/entities";
+import {
+  HotelRoomQuotation,
+  HotelRoomQuotationEntity,
+} from "@/domain/entities";
+import { DateUtils } from "@/core/utils";
 
 export class HotelRoomQuotationService {
   constructor(
@@ -76,15 +80,20 @@ export class HotelRoomQuotationService {
     const hotelRoomQuotations: HotelRoomQuotationEntity[] = [];
     const skippedDays: number[] = [];
 
-    const dayRange: [number, number] = [
-      insertManyHotelRoomQuotationsDto.dateRange[0].getDate(),
-      insertManyHotelRoomQuotationsDto.dateRange[1].getDate(),
-    ];
+    const diffTimeInDays =
+      Math.abs(
+        insertManyHotelRoomQuotationsDto.dateRange[1].getTime() -
+          insertManyHotelRoomQuotationsDto.dateRange[0].getTime()
+      ) /
+        (1000 * 60 * 60 * 24) +
+      1; //* Add 1 to include the last day
+
+    console.log({ diffTimeInDays });
 
     const date = new Date(insertManyHotelRoomQuotationsDto.dateRange[0]);
 
     try {
-      for (let i = dayRange[0]; i <= dayRange[1]; i++) {
+      for (let i = 0; i < diffTimeInDays; i++) {
         try {
           const { data } = await this.createHotelRoomQuotation({
             hotelRoomId: insertManyHotelRoomQuotationsDto.hotelRoomId,
@@ -112,7 +121,7 @@ export class HotelRoomQuotationService {
       }
 
       //* Check if all days were skipped
-      if (skippedDays.length === dayRange[1] - dayRange[0] + 1) {
+      if (skippedDays.length === diffTimeInDays) {
         throw CustomError.badRequest(
           `No se pudo insertar ninguna habitación cotizada: ya existen cotizaciones para todos los días (${skippedDays.join(
             ", "
@@ -130,6 +139,48 @@ export class HotelRoomQuotationService {
 
       throw CustomError.internalServer(`${error}`);
     }
+  }
+
+  public async updateManyHotelRoomQuotationsByDate({
+    versionQuotationId,
+    startDate,
+  }: UpdateManyHotelRoomQuotationsByDateDto) {
+    const hotelRoomQuotations = await HotelRoomQuotationModel.findMany({
+      where: {
+        version_number: versionQuotationId?.versionNumber,
+        quotation_id: versionQuotationId?.quotationId,
+        date: {
+          gt: startDate,
+        },
+      },
+      include: this.hotelRoomQuotationMapper.toSelectInclude,
+    });
+
+    if (hotelRoomQuotations.length === 0)
+      throw CustomError.notFound(
+        `No se encontraron cotizaciones de habitaciones para el día ${startDate}`
+      );
+
+    const updatedHotelRoomQuotations: HotelRoomQuotation[] = [];
+
+    for (let i = 0; i < hotelRoomQuotations.length; i++) {
+      const newDate = new Date(hotelRoomQuotations[i].date);
+      newDate.setDate(newDate.getDate() - 1);
+      const updatedHotelRoomQuotation = await HotelRoomQuotationModel.update({
+        where: {
+          id_hotel_room_quotation:
+            hotelRoomQuotations[i].id_hotel_room_quotation,
+        },
+        data: { date: newDate },
+        include: this.hotelRoomQuotationMapper.toSelectInclude,
+      });
+
+      updatedHotelRoomQuotations.push(updatedHotelRoomQuotation);
+    }
+
+    return this.hotelRoomQuotationResponse.updatedManyHotelRoomQuotations(
+      updatedHotelRoomQuotations
+    );
   }
 
   public async deleteHotelRoomQuotation(id: number) {
@@ -151,7 +202,6 @@ export class HotelRoomQuotationService {
   }
 
   public async deleteManyHotelRoomQuotations(ids: number[]) {
-    console.log(ids);
     const hotelRoomQuotations = await HotelRoomQuotationModel.findMany({
       where: { id_hotel_room_quotation: { in: ids } },
       include: this.hotelRoomQuotationMapper.toSelectInclude,
@@ -162,37 +212,6 @@ export class HotelRoomQuotationService {
 
     await HotelRoomQuotationModel.deleteMany({
       where: { id_hotel_room_quotation: { in: ids } },
-    });
-
-    return this.hotelRoomQuotationResponse.deletedManyHotelRoomQuotations(
-      hotelRoomQuotations
-    );
-  }
-
-  public async deleteManyHotelRoomQuotationsByDate({
-    versionQuotationId,
-    date,
-  }: DeleteManyHotelRoomQuotationsByDateDto) {
-    const hotelRoomQuotations = await HotelRoomQuotationModel.findMany({
-      where: {
-        version_number: versionQuotationId?.versionNumber,
-        quotation_id: versionQuotationId?.quotationId,
-        date,
-      },
-      include: this.hotelRoomQuotationMapper.toSelectInclude,
-    });
-
-    if (hotelRoomQuotations.length === 0)
-      throw CustomError.notFound(
-        `No se encontraron cotizaciones de habitaciones para el día ${date}`
-      );
-
-    await HotelRoomQuotationModel.deleteMany({
-      where: {
-        version_number: versionQuotationId?.versionNumber,
-        quotation_id: versionQuotationId?.quotationId,
-        date,
-      },
     });
 
     return this.hotelRoomQuotationResponse.deletedManyHotelRoomQuotations(
@@ -244,14 +263,23 @@ export class HotelRoomQuotationService {
     if (!dateRange.reservation)
       throw CustomError.notFound("La cotización no tiene una reserva");
 
+    const currentDate = DateUtils.resetTimeToMidnight(
+      hotelRoomQuotationDto.date
+    );
+    const startDate = DateUtils.resetTimeToMidnight(
+      dateRange.reservation.start_date
+    );
+    const endDate = DateUtils.resetTimeToMidnight(
+      dateRange.reservation.end_date
+    );
+    
     if (
-      hotelRoomQuotationDto.date.getUTCDate() <
-        new Date(dateRange.reservation.start_date).getUTCDate() ||
-      hotelRoomQuotationDto.date.getUTCDate() >
-        new Date(dateRange.reservation.end_date).getUTCDate()
-    )
+      currentDate.getTime() < startDate.getTime() ||
+      currentDate.getTime() > endDate.getTime()
+    ) {
       throw CustomError.badRequest(
         "La fecha no puede ser menor a la fecha de inicio o mayor a la fecha de fin de la cotización"
       );
+    }
   }
 }

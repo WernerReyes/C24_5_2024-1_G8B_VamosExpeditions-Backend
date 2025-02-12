@@ -1,8 +1,7 @@
 import { CustomError } from "@/domain/error";
 import type { QuotationMapper } from "./quotation.mapper";
 import type { QuotationResponse } from "./quotation.response";
-import { QuotationModel } from "@/data/postgres";
-
+import { QuotationModel, VersionQuotationModel } from "@/data/postgres";
 
 export class QuotationService {
   constructor(
@@ -12,14 +11,25 @@ export class QuotationService {
 
   public async createQuotation(userId: number) {
     const quotation = await QuotationModel.create({
-      data: this.quotationMapper.toCreate(userId),
       include: this.quotationMapper.toSelectInclude,
     }).catch((error) => {
       throw CustomError.internalServer(`${error}`);
     });
 
+    const version = await VersionQuotationModel.create({
+      data: this.quotationMapper.toCreateVersion(
+        quotation.id_quotation,
+        userId
+      ),
+    }).catch((error) => {
+      throw CustomError.internalServer(`${error}`);
+    });
+
+    quotation.version_quotation.push(version);
+
     return this.quotationResponse.createdQuotation(quotation);
   }
+  
 
   public async getQuotations() {
     const quotations = await QuotationModel.findMany({
@@ -30,7 +40,4 @@ export class QuotationService {
 
     return this.quotationResponse.quotationsFound(quotations);
   }
-
-
-  
 }

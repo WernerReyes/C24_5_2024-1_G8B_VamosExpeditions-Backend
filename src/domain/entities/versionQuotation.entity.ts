@@ -26,6 +26,7 @@ export class VersionQuotationEntity {
       versionNumber: number;
       quotationId: number;
     },
+    public readonly name: string,
     public readonly status: QuotationStatus,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
@@ -45,6 +46,7 @@ export class VersionQuotationEntity {
   ): VersionQuotationEntity {
     const {
       version_number,
+      name,
       quotation_id,
       status,
       official,
@@ -74,6 +76,7 @@ export class VersionQuotationEntity {
         versionNumber: +version_number,
         quotationId: +quotation_id,
       },
+      name,
       status as QuotationStatus,
       created_at,
       updated_at,

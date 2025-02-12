@@ -5,7 +5,7 @@ import {
   HotelRoomQuotationDto,
   InsertManyHotelRoomQuotationsDto,
   GetHotelRoomQuotationsDto,
-  DeleteManyHotelRoomQuotationsByDateDto,
+  UpdateManyHotelRoomQuotationsByDateDto,
 } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 
@@ -42,6 +42,22 @@ export class HotelRoomQuotationController extends AppController {
       .catch((error) => this.handleError(res, error));
   };
 
+  public updateHotelRoomQuotationByDate = async (
+    req: Request,
+    res: Response
+  ) => {
+    const [error, updateManyHotelRoomQuotationsByDateDto] =
+      UpdateManyHotelRoomQuotationsByDateDto.create(req.body);
+    if (error) return this.handleError(res, CustomError.badRequest(error));
+
+    this.hotelRoomQuotationService
+      .updateManyHotelRoomQuotationsByDate(
+        updateManyHotelRoomQuotationsByDateDto!
+      )
+      .then((hotelRoomQuotations) => res.status(200).json(hotelRoomQuotations))
+      .catch((error) => this.handleError(res, error));
+  };
+
   public deleteHotelRoomQuotation = async (req: Request, res: Response) => {
     const hotelRoomQuotationId = req.params.id;
     this.hotelRoomQuotationService
@@ -54,13 +70,16 @@ export class HotelRoomQuotationController extends AppController {
     req: Request,
     res: Response
   ) => {
-    console.log("Headers: ", req.headers);
-    // console.log(req.body);
-    // const hotelRoomQuotationIds = req.body;
-    // this.hotelRoomQuotationService
-    //   .deleteManyHotelRoomQuotations(hotelRoomQuotationIds)
-    //   .then((message) => res.status(204).json(message))
-    //   .catch((error) => this.handleError(res, error));
+    const ids = Array.isArray(req.body.ids);
+    if (!ids)
+      return this.handleError(
+        res,
+        CustomError.badRequest("ids must be an array")
+      );
+    this.hotelRoomQuotationService
+      .deleteManyHotelRoomQuotations(req.body.ids)
+      .then((message) => res.status(200).json(message))
+      .catch((error) => this.handleError(res, error));
   };
 
   public getHotelRoomQuotations = async (req: Request, res: Response) => {

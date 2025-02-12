@@ -44,6 +44,7 @@ export class VersionQuotationMapper {
     this.validateModelInstance(this.dto, "toUpdate");
     const dto = this.dto as VersionQuotationDto;
     return {
+      name: dto.name.toUpperCase().trim(),
       indirect_cost_margin: dto.indirectCostMargin,
       profit_margin: dto.profitMargin,
       total_cost: dto.totalCost,

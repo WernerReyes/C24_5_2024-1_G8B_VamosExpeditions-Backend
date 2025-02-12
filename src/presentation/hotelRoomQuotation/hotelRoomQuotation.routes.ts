@@ -28,13 +28,18 @@ export class HotelRoomQuotationRoutes {
       hotelRoomQuotationController.insertManyHotelRoomQuotations
     );
 
+    router.put(
+      "/many/date",
+      hotelRoomQuotationController.updateHotelRoomQuotationByDate
+    );
+
     router.delete(
       "/:id",
       hotelRoomQuotationController.deleteHotelRoomQuotation
     );
 
     router.delete(
-      "/many3",
+      "/many/date",
       hotelRoomQuotationController.deleteManyHotelRoomQuotations
     );
 

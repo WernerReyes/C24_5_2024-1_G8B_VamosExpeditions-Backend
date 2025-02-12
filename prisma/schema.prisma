@@ -137,6 +137,7 @@ model version_quotation {
   quotation_id         Int
   reservation_id       Int?                   @unique
   user_id              Int
+  name                 String                 @default("name") @db.VarChar(100)
   hotel_room_quotation hotel_room_quotation[]
   quotation            quotation              @relation(fields: [quotation_id], references: [id_quotation], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_quotation")
   reservation          reservation?           @relation(fields: [reservation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_reservation")

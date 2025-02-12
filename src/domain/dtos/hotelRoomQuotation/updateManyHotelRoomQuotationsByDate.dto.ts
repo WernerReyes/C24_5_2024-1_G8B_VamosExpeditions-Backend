@@ -1,42 +1,39 @@
 import { Validations } from "@/core/utils";
 import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
 
-export class DeleteManyHotelRoomQuotationsByDateDto extends VersionQuotationIDDto {
+export class UpdateManyHotelRoomQuotationsByDateDto extends VersionQuotationIDDto {
   private constructor(
     public readonly versionQuotationId: {
       quotationId: number;
       versionNumber: number;
     },
-    public readonly date: Date
+    public readonly startDate: Date
   ) {
     super(versionQuotationId);
   }
 
   public static create(props: {
     [key: string]: any;
-  }): [string?, DeleteManyHotelRoomQuotationsByDateDto?] {
-    const { quotationId, versionNumber, date } = props;
+  }): [string?, UpdateManyHotelRoomQuotationsByDateDto?] {
+    const { versionQuotationId, startDate } = props;
 
     const emptyFieldsError = Validations.validateEmptyFields(
-      { date },
-      "DeleteManyHotelRoomQuotationsByDateDto"
+      { startDate },
+      "UpdateManyHotelRoomQuotationsByDateDto"
     );
     if (emptyFieldsError) return [emptyFieldsError, undefined];
 
-    const [error, dto] = VersionQuotationIDDto.create({
-      quotationId,
-      versionNumber,
-    });
+    const [error, dto] = VersionQuotationIDDto.create(versionQuotationId);
     if (error) return [error, undefined];
 
-    const dateError = Validations.validateDateFields({ date });
+    const dateError = Validations.validateDateFields({ startDate });
     if (dateError) return [dateError, undefined];
 
     return [
       undefined,
-      new DeleteManyHotelRoomQuotationsByDateDto(
+      new UpdateManyHotelRoomQuotationsByDateDto(
         dto?.versionQuotationId!,
-        new Date(date)
+        new Date(startDate)
       ),
     ];
   }

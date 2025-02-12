@@ -44,7 +44,7 @@ export class HotelRoomQuotationResponse {
   ) {
     return new ApiResponse<HotelRoomQuotationEntity[]>(
       204,
-      `${hotelRoomsQuotation.length} cotizaciones de habitación eliminadas correctamente`,
+      `${hotelRoomsQuotation.length === 1 ? "cotización" : "cotizaciones"} de habitación eliminadas correctamente`,
       hotelRoomsQuotation.map(HotelRoomQuotationEntity.fromObject)
     );
   }

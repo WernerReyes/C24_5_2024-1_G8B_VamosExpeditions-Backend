@@ -8,6 +8,7 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
       quotationId: number;
       versionNumber: number;
     },
+    public readonly name: string = `Q-${new Date().getFullYear()}-${id}`, // Q-2025-1
     public readonly status: QuotationStatus = QuotationStatus.DRAFT,
     public readonly official: boolean = false,
     public readonly indirectCostMargin?: number,
@@ -30,6 +31,7 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
       totalCost,
       finalPrice,
       reservationId,
+      name,
       id,
     } = props;
 
@@ -82,6 +84,7 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
       undefined,
       new VersionQuotationDto(
         idDto?.versionQuotationId!,
+        name,
         status,
         official,
         +indirectCostMargin,
