@@ -26,6 +26,7 @@ export class ReservationRoutes {
     router.get("/:id", reservationController.getReservationById);
     router.get("", reservationController.getReservations);
     router.get("/pdf/:id", reservationController.getReservationPdf);
+    router.get("/report/:id", reservationController.getReservationallPdf);
     return router;
   }
 }

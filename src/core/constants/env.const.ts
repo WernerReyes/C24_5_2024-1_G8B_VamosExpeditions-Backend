@@ -22,4 +22,11 @@ export class EnvsConst {
   public static readonly MAILER_SERVICE = get("MAILER_SERVICE").required().asString();
   public static readonly MAILER_EMAIL = get("MAILER_EMAIL").required().asString();
   public static readonly MAILER_SECRET_KEY = get("MAILER_SECRET_KEY").required().asString(); 
+
+
+    /* Cloudinary */
+    public static readonly CLOUDINARY_CLOUD_NAME = get("CLOUDINARY_CLOUD_NAME").required().asString();
+    public static readonly CLOUDINARY_API_KEY = get("CLOUDINARY_API_KEY").required().asString();
+    public static readonly CLOUDINARY_API_SECRET =get("CLOUDINARY_API_SECRET").required().asString(); 
+    public static readonly CLOUDINARY_FOLDER = get("CLOUDINARY_FOLDER").required().asString();
 }

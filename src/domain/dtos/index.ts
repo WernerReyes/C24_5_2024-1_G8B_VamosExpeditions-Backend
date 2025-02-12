@@ -20,3 +20,4 @@ export * from './hotelRoomQuotation/hotelRoomQuotation.dto';
 export * from './hotelRoomQuotation/getHotelRoomQuotations.dto';
 export * from './hotelRoomQuotation/insertManyRoomQuotation.dto';
 export * from './hotelRoomQuotation/deleteManyHotelRoomQuotationsByDate.dto';
+export * from './report/report.dto';

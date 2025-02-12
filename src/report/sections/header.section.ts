@@ -1,43 +1,31 @@
-/* import { DateFormatter } from "@/core/utils"; */
-
 import { Content } from "pdfmake/interfaces";
 
 const logo: Content = {
-  image: "public/images/logo.png",
-  alignment: "center",
-  /* margin: [0, 15, 20, 0], */
-  fit: [220, 200],
+  image: "public/images/logo_1.png",
+  /* cover: {
+    width: 65,
+    height: 65,
+  }, */
+  fit: [65, 65],
 };
 
-const currentDate: Content =   {
-  text: "",/* DateFormatter.getDDMMMMYYYY(new Date()), */
-  alignment: "right",
-  /* margin: [60, 30], */
-};
-
-/* const currentDate: Content = {
-  margin: [80, 0, 0, 0],
-  layout: "noBorders",
-
-  table: {
-    body: [
-      [
-        {
-          layout: "noBorders",
-          width: "auto",
-          table: {
-            body: [
-              [
-                { text: "Fecha " },
-                { text: DateFormatter.getDDMMMMYYYY(new Date()), bold: true },
-              ],
-            ],
-          },
-        },
-      ],
-    ],
+const currentDate: Content = {
+  stack: [
+    {
+      text: "+51987524304",
+    },
+    {
+      text: "https://vamosexpeditions.com/",
+      link: "https://vamosexpeditions.com/",
+    },
+  ],
+  style: {
+    bold: false,
+    color: "white",
+    italics: true,
   },
-}; */
+  alignment: "right",
+};
 
 interface HeaderOptions {
   title?: string;
@@ -56,7 +44,6 @@ export const headerSection = (options: HeaderOptions): Content => {
     ? {
         text: subTitle,
         alignment: "center",
-        /* margin: [0, 2, 0, 0], */
       }
     : { text: "" };
 
@@ -66,17 +53,33 @@ export const headerSection = (options: HeaderOptions): Content => {
           {
             text: title,
             alignment: "center",
-            /* margin: [0, 15, 0, 0], */
-            style: "title", // Usar estilo global
+            style: "title",
           },
           headerSubTitle,
         ],
       }
-    : { text: "" }; // Evitar null
+    : { text: "" };
 
   return {
-    /* margin: [0, 15, 0, 0], */
-    margin: [0, 20, 0, 0],
-    columns: [headerLogo, headerTitle, headerDate],
+    table: {
+      widths: ["*", "*", "*"],
+      body: [
+        [
+          { margin: [20, -10, 20, 0], stack: [headerLogo] },
+          { margin: [20, 10, 20, 0], stack: [headerTitle] },
+          { margin: [20, 10, 20, 0], stack: [headerDate] },
+        ],
+        // Línea horizontal
+        
+      ],
+    },
+    style: {
+      fillColor: "#01A3BB",
+      fontSize: 10,
+    },
+    layout: {
+      defaultBorder: false,
+     
+    },
   };
 };

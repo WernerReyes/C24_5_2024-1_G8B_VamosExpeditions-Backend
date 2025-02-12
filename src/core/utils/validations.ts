@@ -74,7 +74,6 @@ export class Validations {
     }
     return true;
   }
-  
 
   static validateEnumValue(value: string, enumValues: string[]): string | null {
     if (!enumValues.includes(value)) {
@@ -128,5 +127,24 @@ export class Validations {
       }
     });
     return;
+  }
+
+
+  // Validar que 'emails' sea un array
+  static validateArrayEmail(emails: string[]): string | undefined {
+   
+    if (!Array.isArray(emails)) {
+      return "El campo debe ser un array de correos electrónicos";
+    }
+
+    for (const email of emails) {
+      const emailError = Validations.validateEmail(email);
+      if (emailError) {
+        return `Correo electrónico inválido: ${email}`;
+      }
+    }
+  
+    // Si todo está bien, no hay errores
+    return undefined;
   }
 }

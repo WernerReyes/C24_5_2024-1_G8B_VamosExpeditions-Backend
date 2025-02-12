@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { AppController } from "../controller";
 import { QuotationService } from "./quotation.service";
 import { CustomError } from "@/domain/error";
+import { Reportdto } from "../../domain/dtos/report/report.dto";
 
 export class QuotationController extends AppController {
   constructor(private readonly quotationService: QuotationService) {
@@ -23,4 +24,13 @@ export class QuotationController extends AppController {
       .catch((error) => this.handleError(res, error));
   };
 
+  public sendEmailPdf = async (req: Request, res: Response) => {
+    const [error, reportdto] = Reportdto.create(req.body);
+    if (error) return this.handleError(res, CustomError.badRequest(error));
+
+    this.quotationService
+      .sendEmailAndPdf(reportdto!)
+      .then((report) => res.status(200).json(report))
+      .catch((error) => this.handleError(res, error));
+  };
 }
