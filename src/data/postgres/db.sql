@@ -181,7 +181,7 @@ CREATE TYPE  version_quotation_status AS ENUM ('DRAFT', 'COMPLETED', 'CANCELATED
     PRIMARY KEY (version_number, quotation_id),
     CONSTRAINT fk_version_quotation_user FOREIGN KEY (user_id) REFERENCES "user" (id_user) ON DELETE CASCADE,
     CONSTRAINT fk_version_quotation_quotation FOREIGN KEY (quotation_id) REFERENCES quotation (id_quotation) ON DELETE CASCADE,
-    CONSTRAINT chk_completion_percentage CHECK (completion_percentage IN (0, 25, 50, 75, 100)),
+    CONSTRAINT chk_completion_percentage CHECK (completion_percentage IN (0, 25, 50, 75, 100))
 );
 
 ALTER TABLE version_quotation ADD CONSTRAINT unique_official 
