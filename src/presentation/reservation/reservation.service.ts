@@ -1,7 +1,7 @@
 import {
   ClientModel,
   prisma,
-  ReservationHasCityModel,
+  TripDetailsHasCityModel,
   ReservationModel,
   VersionQuotationModel,
 } from "@/data/postgres";
@@ -30,7 +30,7 @@ export class ReservationService {
 
     const [_, reservation] = await prisma
       .$transaction([
-        ReservationHasCityModel.deleteMany({
+        TripDetailsHasCityModel.deleteMany({
           where: { reservation_id: reservationDto.id },
         }),
         ReservationModel.upsert({

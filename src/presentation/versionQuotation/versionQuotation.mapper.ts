@@ -1,5 +1,5 @@
 import { type DefaultArgs } from "@prisma/client/runtime/library";
-import type { Prisma, quotation_status } from "@prisma/client";
+import type { Prisma, version_quotation_status } from "@prisma/client";
 import type {
   DuplicateVersionQuotationDto,
   VersionQuotationDto,
@@ -43,15 +43,22 @@ export class VersionQuotationMapper {
   public get toUpdate(): Prisma.version_quotationUncheckedUpdateInput {
     this.validateModelInstance(this.dto, "toUpdate");
     const dto = this.dto as VersionQuotationDto;
+    const defaultName =
+      "Q-" +
+      new Date().getFullYear() +
+      "-" +
+      dto.versionQuotationId?.quotationId;
+
     return {
-      name: dto.name.toUpperCase().trim(),
+      name:
+        dto.name.trim().length > 0
+          ? dto.name.toUpperCase().trim()
+          : defaultName,
       indirect_cost_margin: dto.indirectCostMargin,
       profit_margin: dto.profitMargin,
-      total_cost: dto.totalCost,
       final_price: dto.finalPrice,
-      reservation_id: dto.reservationId,
-      official: dto.official,
-      status: dto.status as quotation_status,
+      completion_percentage: dto.completionPercentage,
+      status: dto.status as version_quotation_status,
     };
   }
 
@@ -63,7 +70,7 @@ export class VersionQuotationMapper {
 
     const dto = this.dto as DuplicateVersionQuotationDto;
 
-    const { quotation, hotel_room_quotation, ...rest } = this.versionQuotation;
+    const { quotation, trip_details, user, ...rest } = this.versionQuotation;
 
     const maxVersion = quotation?.version_quotation?.reduce((prev, current) =>
       prev.version_number > current.version_number ? prev : current
@@ -75,16 +82,33 @@ export class VersionQuotationMapper {
       status: this.versionQuotation.status,
       version_number: maxVersion! + 1,
       official: false,
+      trip_details: trip_details
+        ? {
+            create: {
+              number_of_people: trip_details.number_of_people,
+              start_date: trip_details.start_date,
+              end_date: trip_details.end_date,
+              client_id: trip_details.client_id,
+              traveler_style: trip_details.traveler_style,
+              order_type: trip_details.order_type,
+              additional_specifications: trip_details.additional_specifications,
+              code: trip_details.code,
+              trip_details_has_city: {
+                create: trip_details?.trip_details_has_city?.map((city) => ({
+                  city_id: city.city_id,
+                })),
+              },
+            },
+          }
+        : undefined,
     };
   }
 
   public get toSelectInclude(): Prisma.version_quotationInclude<DefaultArgs> {
     return {
       user: true,
-      reservation: true,
     };
   }
-
   private validateModelInstance(models: any[] | any, methodName: string): void {
     Validations.validateModelInstance(models, `${FROM}.${methodName}`);
   }

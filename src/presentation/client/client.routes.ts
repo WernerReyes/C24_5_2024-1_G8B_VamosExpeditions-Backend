@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { Middleware } from "../middleware";
 import { ClientController } from "./client.controller";
-import { ClientResponse } from "./client.response";
 import { ClientService } from "./client.service";
 import { ClientMapper } from "./client.mapper";
 
@@ -10,8 +9,7 @@ export class ClientRoutes {
     const router = Router();
 
     const clientMapper = new ClientMapper();
-    const clientResponse = new ClientResponse();
-    const clientService = new ClientService(clientMapper, clientResponse);
+    const clientService = new ClientService(clientMapper);
     const clientController = new ClientController(clientService);
 
     router.use([Middleware.validateToken]);

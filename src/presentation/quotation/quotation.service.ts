@@ -1,43 +1,49 @@
 import { CustomError } from "@/domain/error";
 import type { QuotationMapper } from "./quotation.mapper";
-import type { QuotationResponse } from "./quotation.response";
-
-import { QuotationModel, VersionQuotationModel } from "@/data/postgres";
-
-
+import { prisma, QuotationModel } from "@/data/postgres";
 import { ContextStrategy } from "../../lib/strategies/context.strategy";
 import { Reportdto } from "@/domain/dtos";
 import { ReservationType } from "@/lib";
-
+import { ApiResponse } from "../response";
+import { QuotationEntity } from "@/domain/entities";
 
 export class QuotationService {
   constructor(
     private readonly quotationMapper: QuotationMapper,
-    private readonly quotationResponse: QuotationResponse,
     private readonly contextStrategy: ContextStrategy
   ) {}
 
   public async createQuotation(userId: number) {
-    const quotation = await QuotationModel.create({
-      include: this.quotationMapper.toSelectInclude,
+    const quotation = await prisma.$transaction(async (tx) => {
+      const quotation = await tx.quotation.create({
+        include: this.quotationMapper.toSelectInclude,
+      });
+
+      const version = await tx.version_quotation.create({
+        data: {
+          ...this.quotationMapper.toCreateVersion(
+            quotation.id_quotation,
+            userId
+          ),
+        },
+        include: {
+          user: true
+        }
+      });
+
+      quotation.version_quotation.push(version);
+
+      return quotation;
     }).catch((error) => {
       throw CustomError.internalServer(`${error}`);
     });
 
-    const version = await VersionQuotationModel.create({
-      data: this.quotationMapper.toCreateVersion(
-        quotation.id_quotation,
-        userId
-      ),
-    }).catch((error) => {
-      throw CustomError.internalServer(`${error}`);
-    });
-
-    quotation.version_quotation.push(version);
-
-    return this.quotationResponse.createdQuotation(quotation);
+    return new ApiResponse<QuotationEntity>(
+      200,
+      "Cotización creada correctamente",
+      QuotationEntity.fromObject(quotation)
+    );
   }
-  
 
   public async getQuotations() {
     const quotations = await QuotationModel.findMany({
@@ -46,24 +52,22 @@ export class QuotationService {
       throw CustomError.internalServer(`${error}`);
     });
 
-    return this.quotationResponse.quotationsFound(quotations);
+    return new ApiResponse<QuotationEntity[]>(
+      200,
+      "Lista de cotizaciones",
+      quotations.map(QuotationEntity.fromObject)
+    );
   }
-
 
   public async sendEmailAndPdf(reportdto: Reportdto) {
-    try {
-      await this.contextStrategy.executeStrategy({
-        to: reportdto.to,
-        subject: reportdto.subject,
-        type: reportdto.resources as ReservationType,
-        htmlBody: reportdto.description,
-      });
-      return {
-        message: "Email sent successfully",
-      };
-    } catch (error) {
-      throw CustomError.internalServer(`${error}`);
-    }
+    await this.contextStrategy.executeStrategy({
+      to: reportdto.to,
+      subject: reportdto.subject,
+      type: reportdto.resources as ReservationType,
+      htmlBody: reportdto.description,
+    });
+    return {
+      message: "Email sent successfully",
+    };
   }
-
 }

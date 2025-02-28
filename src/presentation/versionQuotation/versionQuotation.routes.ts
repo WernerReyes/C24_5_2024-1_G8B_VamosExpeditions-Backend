@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { Middleware } from "../middleware";
+import { Middleware, type RequestAuth } from "../middleware";
 import { VersionQuotationMapper } from "./versionQuotation.mapper";
-import { VersionQuotationResponse } from "./versionQuotation.response";
 import { VersionQuotationService } from "./versionQuotation.service";
 import { VersionQuotationController } from "./versionQuotation.controller";
 
@@ -10,10 +9,8 @@ export class VersionQuotationRoutes {
     const router = Router();
 
     const versionQuotationMapper = new VersionQuotationMapper();
-    const versionQuotationResponse = new VersionQuotationResponse();
     const versionQuotationService = new VersionQuotationService(
-      versionQuotationMapper,
-      versionQuotationResponse
+      versionQuotationMapper
     );
     const versionQuotationController = new VersionQuotationController(
       versionQuotationService
@@ -23,9 +20,15 @@ export class VersionQuotationRoutes {
 
     router.get("/", versionQuotationController.getVersionsQuotation);
     router.put("", versionQuotationController.updateVersionQuotation);
-    router.post(
-      "/duplicate",
-      versionQuotationController.duplicateVersionQuotation
+    router.put(
+      "/official",
+      versionQuotationController.updateOfficialVersionQuotation
+    );
+    router.post("/duplicate-multiple", (req, res) =>
+      versionQuotationController.duplicateMultipleVersionQuotation(
+        req as RequestAuth,
+        res
+      )
     );
     router.get(
       "/:quotationId/:versionNumber",

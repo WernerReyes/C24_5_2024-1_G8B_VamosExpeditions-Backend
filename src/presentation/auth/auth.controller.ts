@@ -4,6 +4,7 @@ import { EnvsConst } from "@/core/constants";
 import { LoginDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 import { AuthService } from "./auth.service";
+import type { RequestAuth } from "../middleware";
 
 export class AuthController extends AppController {
   private TOKEN_COOKIE_NAME = "token";
@@ -40,10 +41,10 @@ export class AuthController extends AppController {
 
   public login = async (req: Request, res: Response) => {
     const [error, loginDto] = LoginDto.create(req.body);
-    if (error) return this.handleError(res, CustomError.badRequest(error));
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
 
-    await this.authService
-      .login(loginDto!)
+    this.handleError(this.authService.login(loginDto!))
       .then((response) => {
         const { expiresAt } = this.setCookie(res, response.data.token);
         return res.status(200).json({
@@ -55,7 +56,7 @@ export class AuthController extends AppController {
           },
         });
       })
-      .catch((error) => this.handleError(res, error));
+      .catch((error) => this.handleResponseError(res, error));
   };
 
   public logout = async (req: Request, res: Response) => {
@@ -63,16 +64,16 @@ export class AuthController extends AppController {
     this.authService
       .logout()
       .then((response) => res.status(200).json(response))
-      .catch((error) => this.handleError(res, error));
+      .catch((error) => this.handleResponseError(res, error));
   };
 
-  public userAuthenticated = async (req: Request, res: Response) => {
+  public userAuthenticated = async (req: RequestAuth, res: Response) => {
     const expiresAt = req.cookies.expiresAt;
     return res.status(200).json({
       message: "Usuario autenticado correctamente",
       status: 200,
       data: {
-        user: req.body.user,
+        user: req.user,
         expiresAt,
       },
     });

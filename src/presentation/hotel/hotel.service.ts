@@ -1,13 +1,13 @@
 import { HotelModel } from "@/data/postgres";
-import { HotelResponse } from "./hotel.response";
 import { GetHotelsDto } from "@/domain/dtos";
 import { HotelMapper } from "./hotel.mapper";
 import { CustomError } from "@/domain/error";
+import { ApiResponse } from "../response";
+import { HotelEntity } from "@/domain/entities";
 
 export class HotelService {
   constructor(
     private readonly hotelMapper: HotelMapper,
-    private readonly hotelResponse: HotelResponse
   ) {}
 
   public async getAll(getHotelsDto: GetHotelsDto) {
@@ -19,6 +19,10 @@ export class HotelService {
       throw CustomError.internalServer(`${error.message}`);
     });
 
-    return this.hotelResponse.getAll(accommodationRooms);
+    return new ApiResponse<HotelEntity[]>(
+      200,
+      "Lista de hoteles",
+      accommodationRooms.map((hotel) => HotelEntity.fromObject(hotel))
+    );
   }
 }

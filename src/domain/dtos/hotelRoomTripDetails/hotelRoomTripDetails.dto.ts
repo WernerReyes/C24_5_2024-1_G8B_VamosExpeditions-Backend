@@ -1,36 +1,28 @@
 import { Validations } from "@/core/utils";
-import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
 
-export class InsertManyHotelRoomQuotationsDto extends VersionQuotationIDDto {
+export class HotelRoomTripDetailsDto {
   private constructor(
     public readonly hotelRoomId: number,
-    public readonly versionQuotationId: {
-      quotationId: number;
-      versionNumber: number;
-    },
-    public readonly dateRange: [Date, Date],
+    public readonly tripDetailsId: number,
+    public readonly date: Date,
     public readonly numberOfPeople: number
-  ) {
-    super(versionQuotationId);
-  }
+  ) {}
 
   public static create(props: {
     [key: string]: any;
-  }): [string?, InsertManyHotelRoomQuotationsDto?] {
-    const { hotelRoomId, versionQuotationId, dateRange, numberOfPeople } =
-      props;
-
-    const [error, dto] = VersionQuotationIDDto.create(versionQuotationId);
-    if (error) return [error, undefined];
+  }): [string?, HotelRoomTripDetailsDto?] {
+    const { hotelRoomId, tripDetailsId, date, numberOfPeople } =
+      props as HotelRoomTripDetailsDto;
 
     const emptyFieldsError = Validations.validateEmptyFields(
-      { hotelRoomId, numberOfPeople, dateRange },
-      "InsertManyHotelRoomQuotationsDto"
+      { hotelRoomId, tripDetailsId, date, numberOfPeople },
+      "HotelRoomTripDetailsDto"
     );
     if (emptyFieldsError) return [emptyFieldsError, undefined];
 
     const numberError = Validations.validateNumberFields({
       hotelRoomId,
+      tripDetailsId,
       numberOfPeople,
     });
     if (numberError) return [numberError, undefined];
@@ -38,6 +30,7 @@ export class InsertManyHotelRoomQuotationsDto extends VersionQuotationIDDto {
     const greaterThanZeroError = Validations.validateGreaterThanValueFields(
       {
         hotelRoomId,
+        tripDetailsId,
         numberOfPeople,
       },
       0
@@ -46,10 +39,10 @@ export class InsertManyHotelRoomQuotationsDto extends VersionQuotationIDDto {
 
     return [
       undefined,
-      new InsertManyHotelRoomQuotationsDto(
+      new HotelRoomTripDetailsDto(
         +hotelRoomId,
-        dto?.versionQuotationId!,
-        [new Date(dateRange[0]), new Date(dateRange[1])],
+        +tripDetailsId,
+        new Date(date),
         +numberOfPeople
       ),
     ];

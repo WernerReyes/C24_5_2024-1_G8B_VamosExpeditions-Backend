@@ -4,12 +4,12 @@ import { JwtAdapter } from "@/core/adapters";
 import { UserEntity } from "@/domain/entities";
 import { ErrorCodeConst } from "@/core/constants";
 
+export interface RequestAuth extends Request {
+  user: UserEntity;
+}
+
 export class Middleware {
-  static async validateToken(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
+  static async validateToken(req: Request, res: Response, next: NextFunction) {
     const token = req.cookies.token;
     if (!token) {
       return res.status(401).json({
@@ -36,7 +36,7 @@ export class Middleware {
         });
       }
       const userEntity = UserEntity.fromObject(user);
-      req.body.user = userEntity;
+      (req as RequestAuth).user = userEntity;
       next();
     } catch (error) {
       return res.status(401).json({

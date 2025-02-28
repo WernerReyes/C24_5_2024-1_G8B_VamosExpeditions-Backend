@@ -33,6 +33,8 @@ export class QuotationEntity {
 
     if (error) throw CustomError.badRequest(error);
 
+    console.log(version_quotation)
+
     return new QuotationEntity(
       id_quotation,
       created_at,

@@ -1,20 +1,20 @@
 import { CountryModel } from "@/data/postgres";
-import { CustomError } from "@/domain/error";
-import { CountryResponse } from "./country.response";
+import { ApiResponse } from "../response";
+import { CountryEntity } from "@/domain/entities";
 
 export class CountryService {
-  constructor(private readonly countryResponse: CountryResponse) {}
+  constructor() {}
 
   public async getAllCountries() {
-    try {
-      const countries = await CountryModel.findMany({
-        include: {
-          city: true,
-        },
-      });
-      return this.countryResponse.countriesFound(countries);
-    } catch (error) {
-      throw CustomError.internalServer(`${error}`);
-    }
+    const countries = await CountryModel.findMany({
+      include: {
+        city: true,
+      },
+    });
+    return new ApiResponse<CountryEntity[]>(
+      200,
+      "Lista de países",
+      countries.map((country) => CountryEntity.fromObject(country))
+    );
   }
 }

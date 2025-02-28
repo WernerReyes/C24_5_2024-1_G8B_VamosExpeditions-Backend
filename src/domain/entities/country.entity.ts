@@ -1,11 +1,20 @@
 import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
 import { CityEntity } from "./city.entity";
+import type {
+  ExternalCountryEntity,
+  Image,
+} from "@/presentation/external/country/country.entity";
+import { CacheAdapter } from "@/core/adapters";
+import { CacheConst } from "@/core/constants";
 export class CountryEntity {
+  private static cache: CacheAdapter = CacheAdapter.getInstance();
+
   private constructor(
     public readonly id: number,
     public readonly name: string,
     public readonly code: string,
+    public readonly image?: Image,
     public readonly cities?: CityEntity[]
   ) {}
 
@@ -23,6 +32,7 @@ export class CountryEntity {
       id_country,
       name,
       code,
+      this.getCountriImage(code),
       city ? city.map(CityEntity.fromObject) : undefined
     );
   }
@@ -49,5 +59,15 @@ export class CountryEntity {
       },
       `${from}, CountryEntity`
     );
+  }
+
+  private static getCountriImage(code: string): Image | undefined {
+    try {
+      const cachedCountries =
+        this.cache.get<ExternalCountryEntity[]>(CacheConst.COUNTRIES) || [];
+      return cachedCountries.find((country) => country.code === code)?.image;
+    } catch (e) {
+      return undefined;
+    }
   }
 }

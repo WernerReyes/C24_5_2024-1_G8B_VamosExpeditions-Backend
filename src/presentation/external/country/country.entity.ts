@@ -2,7 +2,7 @@ import { Validations } from "@/core/utils";
 import { CustomError } from "@/domain/error";
 import type { ExternalCountryModel } from "./country.model";
 
-type Image = {
+export type Image = {
   svg: string;
   png: string;
 };

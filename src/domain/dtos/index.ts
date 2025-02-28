@@ -14,13 +14,20 @@ export * from './hotel/getHotels.dto';
 //* VERSION QUOTATION
 export * from './versionQuotation/versionQuotation.dto';
 export * from './versionQuotation/duplicateVersionQuotation.dto';
+export * from './versionQuotation/duplicateMultipleVersionQuotation.dto';
 
-//* HOTEL ROOM QUOTATION
-export * from './hotelRoomQuotation/hotelRoomQuotation.dto';
-export * from './hotelRoomQuotation/getHotelRoomQuotations.dto';
-export * from './hotelRoomQuotation/insertManyRoomQuotation.dto';
+//* HOTEL ROOM TRIP DETAILS
+export * from './hotelRoomTripDetails/hotelRoomTripDetails.dto';
+export * from './hotelRoomTripDetails/getManyHotelRoomTripDetails.dto';
+export * from './hotelRoomTripDetails/updateManyHotelRoomTripDetailsByDate.dto';
+export * from './hotelRoomTripDetails/insertManyRoomTripDetails.dto';
 
-export * from './hotelRoomQuotation/updateManyHotelRoomQuotationsByDate.dto';
 
+//* TRIP DETAILS
+export * from './tripDetails/tripDetails.dto';
 
 export * from './report/report.dto';
+
+
+//* COMMON
+export * from './common/versionQuotationID.dto';

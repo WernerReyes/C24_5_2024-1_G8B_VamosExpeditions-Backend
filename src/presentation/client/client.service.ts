@@ -1,15 +1,13 @@
-import { ClientDto } from "@/domain/dtos";
 import { ClientModel } from "@/data/postgres";
-import { ClientResponse } from "./client.response";
+import { ClientDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
-import { ClientMapper } from "./client.mapper";
 import type { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { ClientMapper } from "./client.mapper";
+import { ApiResponse } from "../response";
+import { ClientEntity } from "@/domain/entities";
 
 export class ClientService {
-  constructor(
-    private readonly clientMapper: ClientMapper,
-    private readonly clientResponse: ClientResponse
-  ) {}
+  constructor(private readonly clientMapper: ClientMapper) {}
 
   public async upsertClient(clientDto: ClientDto) {
     this.clientMapper.setDto = clientDto;
@@ -26,15 +24,21 @@ export class ClientService {
       throw CustomError.internalServer(`${error}`);
     });
 
-    return this.clientResponse.clientUpserted(newClient, clientDto.id);
+    return new ApiResponse<ClientEntity>(
+      200,
+      !clientDto.id || clientDto.id === 0
+        ? "Cliente creado correctamente"
+        : "Cliente actualizado correctamente",
+      ClientEntity.fromObject(newClient)
+    );
   }
 
   public async getClientsAlls() {
-    try {
-      const clients = await ClientModel.findMany();
-      return this.clientResponse.clientAlls(clients);
-    } catch (error) {
-      throw CustomError.internalServer(`${error}`);
-    }
+    const clients = await ClientModel.findMany();
+    return new ApiResponse<ClientEntity[]>(
+      200,
+      "lista de clientes",
+      clients.map((client) => ClientEntity.fromObject(client))
+    );
   }
 }

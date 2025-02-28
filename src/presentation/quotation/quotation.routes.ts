@@ -1,9 +1,8 @@
 import { Router } from "express";
 import { QuotationMapper } from "./quotation.mapper";
-import { QuotationResponse } from "./quotation.response";
 import { QuotationService } from "./quotation.service";
 import { QuotationController } from "./quotation.controller";
-import { Middleware } from "../middleware";
+import { Middleware, type RequestAuth } from "../middleware";
 import {
   CloudinaryService,
   ContextStrategy,
@@ -26,19 +25,18 @@ export class QuotationRoutes {
       cloudinaryService
     );
     const quotationMapper = new QuotationMapper();
-    const quotationResponse = new QuotationResponse();
-
     const contextStrategy = new ContextStrategy(emailStrategy);
     const quotationService = new QuotationService(
       quotationMapper,
-      quotationResponse,
       contextStrategy
     );
     const quotationController = new QuotationController(quotationService);
 
-    /* router.use(Middleware.validateToken); */
+    router.use(Middleware.validateToken);
 
-    router.post("", quotationController.createQuotation);
+    router.post("", (req, res) =>
+      quotationController.createQuotation(req as RequestAuth, res)
+    );
     router.get("", quotationController.getQuotations);
     router.post("/send-email-pdf", quotationController.sendEmailPdf);
 

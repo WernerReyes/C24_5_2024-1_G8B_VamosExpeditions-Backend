@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { Middleware } from "../middleware";
 import { HotelController } from "./hotel.controller";
-import { HotelResponse } from "./hotel.response";
 import { HotelService } from "./hotel.service";
 import { HotelMapper } from "./hotel.mapper";
 
@@ -10,8 +9,7 @@ export class HotelRoutes {
     const router = Router();
 
     const hotelMapper = new HotelMapper();
-    const hotelResponse = new HotelResponse();
-    const hotelService = new HotelService(hotelMapper, hotelResponse);
+    const hotelService = new HotelService(hotelMapper);
     const hotelController = new HotelController(hotelService);
 
     router.use(Middleware.validateToken);

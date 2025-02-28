@@ -1,13 +1,16 @@
 import { type DefaultArgs } from "@prisma/client/runtime/library";
-import { type Prisma, quotation_status } from "@prisma/client";
+import { type Prisma, version_quotation_status } from "@prisma/client";
 
 export class QuotationMapper {
-  public toCreateVersion(quotationId: number, userId: number): Prisma.version_quotationUncheckedCreateInput {
+  public toCreateVersion(
+    quotationId: number,
+    userId: number
+  ): Prisma.version_quotationUncheckedCreateInput {
     return {
       quotation_id: quotationId,
-      name: "Q-"+new Date().getFullYear() + "-" + quotationId,
+      name: `Q-${new Date().getFullYear()}-${quotationId}`,
       user_id: userId,
-      status: quotation_status.DRAFT,
+      status: version_quotation_status.DRAFT,
       version_number: 1,
       official: true,
     };
@@ -15,13 +18,7 @@ export class QuotationMapper {
 
   public get toSelectInclude(): Prisma.quotationInclude<DefaultArgs> {
     return {
-      version_quotation: {
-        include: {
-          user: true,
-          reservation: true,
-          hotel_room_quotation: true,
-        },
-      },
+      version_quotation: true
     };
   }
 }

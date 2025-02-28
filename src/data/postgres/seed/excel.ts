@@ -126,11 +126,12 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
     let deletedData = false;
     await prisma
       .$transaction([
-        prisma.quotation.deleteMany(),
-        prisma.version_quotation.deleteMany(),
-        prisma.hotel_room_quotation.deleteMany(),
         prisma.reservation.deleteMany(),
-        prisma.reservation_has_city.deleteMany(),
+        prisma.hotel_room_trip_details.deleteMany(),
+        prisma.trip_details_has_city.deleteMany(),
+        prisma.trip_details.deleteMany(),
+        prisma.version_quotation.deleteMany(),
+        prisma.quotation.deleteMany(),
         prisma.client.deleteMany(),
         prisma.hotel_room.deleteMany(),
         prisma.hotel.deleteMany(),

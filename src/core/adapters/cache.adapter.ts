@@ -3,16 +3,27 @@ import NodeCache from "node-cache";
 export class CacheAdapter {
   private cache: NodeCache;
 
+  private static instance: CacheAdapter;
+
   constructor({
     stdTTL = 60 * 60 * 24, // 1 day
   }) {
-    this.cache = new NodeCache({
-      stdTTL,
-    });
+    this.cache = new NodeCache({ stdTTL });
   }
 
-  public get = (key: string): any => {
-    return this.cache.get(key);
+  public static getInstance = (): CacheAdapter => {
+    if (!CacheAdapter.instance) {
+      CacheAdapter.instance = new CacheAdapter({
+        stdTTL: 60 * 60 * 24,
+      });
+    }
+
+
+    return CacheAdapter.instance;
+  };
+
+  public get = <T>(key: string): T => {
+    return this.cache.get(key) as T;
   };
 
   public set = (key: string, value: any): boolean => {

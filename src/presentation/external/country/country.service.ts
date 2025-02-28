@@ -1,55 +1,25 @@
-import { EnvsConst } from "@/core/constants";
+import { CacheConst } from "@/core/constants";
 import type { ExternalCountryEntity } from "./country.entity";
-import { ExternalCountryResponse } from "./country.response";
-import { ApiResponse } from "../../response";
-import { CustomError } from "@/domain/error";
 import { CacheAdapter } from "@/core/adapters";
+import { CustomError } from "@/domain/error";
+import { ApiResponse } from "../../response";
 
-const { EXTERNAL_API_COUNTRY_URL } = EnvsConst;
 
 export class ExternalCountryService {
-  private cache: CacheAdapter;
+  private cache: CacheAdapter = CacheAdapter.getInstance();
 
-  constructor(
-    private readonly externalCountryResponse: ExternalCountryResponse
-  ) {
-    this.cache = new CacheAdapter({
-      stdTTL: 60 * 60 * 24,
-    });
-  }
-
-  public async getCountryList(): Promise<ApiResponse<ExternalCountryEntity[]>> {
-    const cacheKey = "country-list";
-
-    const cachedCountryList = this.cache.get(cacheKey);
-    if (cachedCountryList) {
-      console.log("Country list from cache");
-      return this.externalCountryResponse.getCountryList(cachedCountryList);
-    }
-
-    try {
-      const response = await fetch(EXTERNAL_API_COUNTRY_URL + "/countries");
-      const data = await response.json();
-
-      this.cache.set(cacheKey, data);
-
-      return this.externalCountryResponse.getCountryList(data);
-    } catch (error) {
-      console.log("error", error);
+public async getCountryList(): Promise<ApiResponse<ExternalCountryEntity[]>> {
+    const cachedCountryList = this.cache.get<ExternalCountryEntity[]>(
+      CacheConst.COUNTRIES
+    );
+    if (!cachedCountryList) {
       throw CustomError.internalServer("Servicio de países no disponible");
     }
-  }
 
-  public async getCountryByCode(
-    code: string
-  ): Promise<ApiResponse<ExternalCountryEntity>> {
-    try {
-      const response = await fetch(EXTERNAL_API_COUNTRY_URL + "/alpha/" + code);
-      const data = await response.json();
-      return this.externalCountryResponse.getCountry(data[0]);
-    } catch (error) {
-      console.log("error", error);
-      throw CustomError.internalServer("Servicio de países no disponible");
-    }
+    return new ApiResponse<ExternalCountryEntity[]>(
+      200,
+      "Lista de países obtenida correctamente",
+      cachedCountryList
+    );
   }
 }

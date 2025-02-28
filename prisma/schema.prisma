@@ -8,26 +8,26 @@ datasource db {
 }
 
 model city {
-  id_city              Int                    @id @default(autoincrement())
-  name                 String                 @db.VarChar(45)
-  country_id           Int
-  country              country                @relation(fields: [country_id], references: [id_country], onDelete: NoAction, onUpdate: NoAction, map: "fk_city_country")
-  distrit              distrit[]
-  reservation_has_city reservation_has_city[]
+  id_city               Int                     @id @default(autoincrement())
+  name                  String                  @db.VarChar(45)
+  country_id            Int
+  country               country                 @relation(fields: [country_id], references: [id_country], onDelete: NoAction, onUpdate: NoAction, map: "fk_city_country")
+  distrit               distrit[]
+  trip_details_has_city trip_details_has_city[]
 
   @@unique([name, country_id])
 }
 
 model client {
-  id          Int           @id @default(autoincrement())
-  fullName    String        @db.VarChar(255)
-  country     String        @db.VarChar(255)
-  email       String        @unique @db.VarChar(255)
-  phone       String        @db.VarChar(30)
-  subregion   String        @db.VarChar(150)
-  createdAt   DateTime?     @default(now()) @db.Timestamp(6)
-  updatedAt   DateTime?     @default(now()) @db.Timestamp(6)
-  reservation reservation[]
+  id           Int            @id @default(autoincrement())
+  fullName     String         @db.VarChar(255)
+  country      String         @db.VarChar(255)
+  email        String         @unique @db.VarChar(255)
+  phone        String         @db.VarChar(30)
+  subregion    String         @db.VarChar(150)
+  createdAt    DateTime?      @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime?      @default(now()) @db.Timestamp(6)
+  trip_details trip_details[]
 
   @@index([email], map: "idx_email")
   @@index([fullName], map: "idx_full_name")
@@ -48,33 +48,6 @@ model distrit {
   hotel      hotel[]
 
   @@unique([name, city_id])
-}
-
-model reservation {
-  id                        Int                        @id @default(autoincrement())
-  number_of_people          Int
-  start_date                DateTime                   @db.Date
-  end_date                  DateTime                   @db.Date
-  traveler_style            reservation_traveler_style
-  status                    reservation_status         @default(PENDING)
-  order_type                reservation_order_type     @default(DIRECT)
-  additional_specifications String?
-  code                      String                     @db.VarChar(50)
-  clientId                  Int
-  createdAt                 DateTime?                  @default(now()) @db.Timestamp(6)
-  updatedAt                 DateTime?                  @default(now()) @db.Timestamp(6)
-  client                    client                     @relation(fields: [clientId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_client")
-  reservation_has_city      reservation_has_city[]
-  version_quotation         version_quotation?
-}
-
-model reservation_has_city {
-  city_id        Int
-  reservation_id Int
-  city           city        @relation(fields: [city_id], references: [id_city], onDelete: Cascade, onUpdate: NoAction)
-  reservation    reservation @relation(fields: [reservation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([city_id, reservation_id])
 }
 
 model role {
@@ -104,17 +77,17 @@ model hotel {
 }
 
 model hotel_room {
-  id_hotel_room        Int                    @id @default(autoincrement())
-  room_type            String                 @db.VarChar(100)
-  season_type          String?                @db.VarChar(50)
-  price_usd            Decimal?               @db.Decimal(10, 2)
-  service_tax          Decimal?               @db.Decimal(6, 2)
-  rate_usd             Decimal?               @db.Decimal(10, 2)
-  price_pen            Decimal?               @db.Decimal(10, 2)
-  capacity             Int
-  hotel_id             Int
-  hotel                hotel                  @relation(fields: [hotel_id], references: [id_hotel], onDelete: NoAction, onUpdate: NoAction, map: "fk_hotel_room_hotel")
-  hotel_room_quotation hotel_room_quotation[]
+  id_hotel_room           Int                       @id @default(autoincrement())
+  room_type               String                    @db.VarChar(100)
+  season_type             String?                   @db.VarChar(50)
+  price_usd               Decimal?                  @db.Decimal(10, 2)
+  service_tax             Decimal?                  @db.Decimal(6, 2)
+  rate_usd                Decimal?                  @db.Decimal(10, 2)
+  price_pen               Decimal?                  @db.Decimal(10, 2)
+  capacity                Int
+  hotel_id                Int
+  hotel                   hotel                     @relation(fields: [hotel_id], references: [id_hotel], onDelete: NoAction, onUpdate: NoAction, map: "fk_hotel_room_hotel")
+  hotel_room_trip_details hotel_room_trip_details[]
 }
 
 model quotation {
@@ -125,58 +98,81 @@ model quotation {
 }
 
 model version_quotation {
-  indirect_cost_margin Decimal?               @db.Decimal(5, 2)
-  profit_margin        Decimal?               @db.Decimal(5, 2)
-  total_cost           Decimal?               @db.Decimal(10, 2)
-  final_price          Decimal?               @db.Decimal(10, 2)
-  status               quotation_status       @default(DRAFT)
-  official             Boolean                @default(false)
-  created_at           DateTime               @default(now()) @db.Timestamp(6)
-  updated_at           DateTime               @default(now()) @db.Timestamp(6)
-  version_number       Int
-  quotation_id         Int
-  reservation_id       Int?                   @unique
-  user_id              Int
-  name                 String                 @default("name") @db.VarChar(100)
-  hotel_room_quotation hotel_room_quotation[]
-  quotation            quotation              @relation(fields: [quotation_id], references: [id_quotation], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_quotation")
-  reservation          reservation?           @relation(fields: [reservation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_reservation")
-  user                 user                   @relation(fields: [user_id], references: [id_user], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_user")
+  version_number        Int
+  quotation_id          Int
+  indirect_cost_margin  Decimal?                 @db.Decimal(5, 2)
+  name                  String                   @db.VarChar(100)
+  profit_margin         Decimal?                 @db.Decimal(5, 2)
+  final_price           Decimal?                 @db.Decimal(10, 2)
+  official              Boolean                  @default(false)
+  user_id               Int
+  created_at            DateTime                 @default(now()) @db.Timestamp(6)
+  updated_at            DateTime                 @default(now()) @db.Timestamp(6)
+  status                version_quotation_status @default(DRAFT)
+  completion_percentage Int                      @default(0)
+  trip_details          trip_details?
+  quotation             quotation                @relation(fields: [quotation_id], references: [id_quotation], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_quotation")
+  user                  user                     @relation(fields: [user_id], references: [id_user], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_user")
 
   @@id([version_number, quotation_id])
   @@index([quotation_id], map: "idx_quotation_id")
   @@index([version_number], map: "idx_version_number")
 }
 
-model hotel_room_quotation {
-  id_hotel_room_quotation Int               @id @default(autoincrement())
-  number_of_people        Int
-  date                    DateTime          @db.Date
-  hotel_room_id           Int
-  version_number          Int
-  quotation_id            Int
-  hotel_room              hotel_room        @relation(fields: [hotel_room_id], references: [id_hotel_room], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_hotel_room")
-  version_quotation       version_quotation @relation(fields: [version_number, quotation_id], references: [version_number, quotation_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_version_quotation")
+model hotel_room_trip_details {
+  id               Int          @id @default(autoincrement())
+  hotel_room_id    Int
+  date             DateTime     @db.Date
+  trip_details_id  Int
+  number_of_people Int
+  hotel_room       hotel_room   @relation(fields: [hotel_room_id], references: [id_hotel_room], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_hotel_room")
+  trip_details     trip_details @relation(fields: [trip_details_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_trip_details")
 
-  @@unique([hotel_room_id, date, quotation_id, version_number], map: "unique_hotel_per_day")
+  @@unique([hotel_room_id, date, trip_details_id], map: "unique_hotel_per_trip")
 }
 
-enum reservation_order_type {
-  DIRECT
-  INDIRECT
+model trip_details {
+  id                        Int                         @id @default(autoincrement())
+  version_number            Int
+  quotation_id              Int
+  start_date                DateTime                    @db.Date
+  end_date                  DateTime                    @db.Date
+  number_of_people          Int
+  traveler_style            trip_details_traveler_style
+  code                      String                      @db.VarChar(50)
+  order_type                trip_details_order_type
+  additional_specifications String?
+  client_id                 Int
+  hotel_room_trip_details   hotel_room_trip_details[]
+  reservation               reservation?
+  client                    client                      @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_trip_details_client")
+  version_quotation         version_quotation           @relation(fields: [version_number, quotation_id], references: [version_number, quotation_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_trip_details_version")
+  trip_details_has_city     trip_details_has_city[]
+
+  @@unique([version_number, quotation_id], map: "unique_version_id")
+}
+
+model trip_details_has_city {
+  trip_details_id Int
+  city_id         Int
+  city            city         @relation(fields: [city_id], references: [id_city], onDelete: Cascade, onUpdate: NoAction)
+  trip_details    trip_details @relation(fields: [trip_details_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([city_id, trip_details_id])
+}
+
+model reservation {
+  id              Int                @id @default(autoincrement())
+  trip_details_id Int                @unique
+  status          reservation_status @default(ACCEPTED)
+  created_at      DateTime           @default(now()) @db.Timestamp(6)
+  updated_at      DateTime           @default(now()) @db.Timestamp(6)
+  trip_details    trip_details       @relation(fields: [trip_details_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reservation_trip_details")
 }
 
 enum reservation_status {
-  ACTIVE
-  PENDING
-  COMPLETED
-  CANCELATED
-}
-
-enum reservation_traveler_style {
-  STANDARD
-  COMFORT
-  LUXUS
+  ACCEPTED
+  REJECTED
 }
 
 enum role_type {
@@ -184,9 +180,19 @@ enum role_type {
   EMPLOYEE_ROLE
 }
 
-enum quotation_status {
+enum trip_details_order_type {
+  DIRECT
+  INDIRECT
+}
+
+enum trip_details_traveler_style {
+  STANDARD
+  COMFORT
+  LUXUS
+}
+
+enum version_quotation_status {
   DRAFT
-  PENDING
-  ACCEPTED
-  REJECTED
+  COMPLETED
+  CANCELATED
 }

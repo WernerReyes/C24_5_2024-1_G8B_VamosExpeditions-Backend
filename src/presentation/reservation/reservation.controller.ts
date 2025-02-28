@@ -15,12 +15,12 @@ export class ReservationController extends AppController {
       ...req.body,
       id: req.params.id,
     });
-    if (error) return this.handleError(res, CustomError.badRequest(error));
+    if (error) return this.handleResponseError(res, CustomError.badRequest(error));
 
     this.reservationService
       .upsertReservation(upsertReservationDto!)
       .then((reservation) => res.status(200).json(reservation))
-      .catch((error) => this.handleError(res, error));
+      .catch((error) => this.handleResponseError(res, error));
   };
 
   public getReservationById = (req: Request, res: Response) => {
@@ -28,16 +28,16 @@ export class ReservationController extends AppController {
     this.reservationService
       .getReservationById(+id)
       .then((reservation) => res.status(200).json(reservation))
-      .catch((error) => this.handleError(res, error));
+      .catch((error) => this.handleResponseError(res, error));
   };
 
   public getReservations = (req: Request, res: Response) => {
     const [error, getReservationsDto] = GetReservationsDto.create(req.query);
-    if (error) return this.handleError(res, CustomError.badRequest(error));
+    if (error) return this.handleResponseError(res, CustomError.badRequest(error));
     this.reservationService
       .getReservations(getReservationsDto!)
       .then((reservations) => res.status(200).json(reservations))
-      .catch((error) => this.handleError(res, error));
+      .catch((error) => this.handleResponseError(res, error));
   };
 
   public getReservationPdf = (req: Request, res: Response) => {
@@ -54,13 +54,13 @@ export class ReservationController extends AppController {
         pdf.pipe(res);
         pdf.end();
       })
-      .catch((error) => this.handleError(res, error));
+      .catch((error) => this.handleResponseError(res, error));
   };
 
   public getReservationallPdf = (req: Request, res: Response) => {
     this.reservationService
       .getall()
       .then((pdf) => res.status(200).json(pdf))
-      .catch((error) => this.handleError(res, error));
+      .catch((error) => this.handleResponseError(res, error));
   };
 }

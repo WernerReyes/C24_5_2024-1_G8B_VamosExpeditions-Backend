@@ -1,6 +1,6 @@
 import { Validations } from "@/core/utils";
-import { QuotationStatus } from "@/domain/entities";
-import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
+import { VersionQuotationStatus } from "@/domain/entities";
+import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
 
 export class VersionQuotationDto extends VersionQuotationIDDto {
   private constructor(
@@ -8,14 +8,14 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
       quotationId: number;
       versionNumber: number;
     },
-    public readonly name: string = `Q-${new Date().getFullYear()}-${id}`, // Q-2025-1
-    public readonly status: QuotationStatus = QuotationStatus.DRAFT,
-    public readonly official: boolean = false,
+    public readonly name: string = `Q-${new Date().getFullYear()}-${
+      id.quotationId
+    }`, // Q-2025-1
+    public readonly status: VersionQuotationStatus = VersionQuotationStatus.DRAFT,
+    public readonly completionPercentage: number,
     public readonly indirectCostMargin?: number,
     public readonly profitMargin?: number,
-    public readonly totalCost?: number,
-    public readonly finalPrice?: number,
-    public readonly reservationId?: number
+    public readonly finalPrice?: number
   ) {
     super(id);
   }
@@ -24,14 +24,12 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
     [key: string]: any;
   }): [string?, VersionQuotationDto?] {
     const {
-      status = QuotationStatus.DRAFT,
-      official = false,
+      status = VersionQuotationStatus.DRAFT,
       indirectCostMargin,
       profitMargin,
-      totalCost,
       finalPrice,
-      reservationId,
       name,
+      completionPercentage,
       id,
     } = props;
 
@@ -40,15 +38,11 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
 
     const statusError = Validations.validateEnumValue(
       status,
-      Object.values(QuotationStatus)
+      Object.values(VersionQuotationStatus)
     );
     if (statusError) return [statusError, undefined];
 
-    if (official) {
-      const officialError = Validations.validateBooleanFields({ official });
-      if (officialError) return [officialError, undefined];
-    }
-
+    
     if (indirectCostMargin) {
       const indirectCostMarginError = Validations.validateNumberFields({
         indirectCostMargin,
@@ -63,22 +57,18 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
       if (profitMarginError) return [profitMarginError, undefined];
     }
 
-    if (totalCost) {
-      const totalCostError = Validations.validateNumberFields({ totalCost });
-      if (totalCostError) return [totalCostError, undefined];
-    }
 
     if (finalPrice) {
       const finalPriceError = Validations.validateNumberFields({ finalPrice });
       if (finalPriceError) return [finalPriceError, undefined];
     }
 
-    if (reservationId) {
-      const reservationIdError = Validations.validateNumberFields({
-        reservationId,
-      });
-      if (reservationIdError) return [reservationIdError, undefined];
-    }
+
+    if ([0, 25, 50, 75, 100].indexOf(+completionPercentage) === -1)
+      return [
+        "El porcentaje de completitud debe ser 0, 25, 50 o 100",
+        undefined,
+      ];
 
     return [
       undefined,
@@ -86,12 +76,10 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
         idDto?.versionQuotationId!,
         name,
         status,
-        official,
+        +completionPercentage,
         +indirectCostMargin,
         +profitMargin,
-        +totalCost,
-        +finalPrice,
-        +reservationId
+        +finalPrice
       ),
     ];
   }

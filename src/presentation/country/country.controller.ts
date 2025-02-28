@@ -8,9 +8,8 @@ export class CountryController extends AppController {
   }
 
   public getAllCountries = async (req: Request, res: Response) => {
-    this.countryService
-      .getAllCountries()
+    this.handleError(this.countryService.getAllCountries())
       .then((clients) => res.status(200).json(clients))
-      .catch((error) => this.handleError(res, error));
+      .catch((error) => this.handleResponseError(res, error));
   };
 }

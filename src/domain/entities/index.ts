@@ -9,4 +9,5 @@ export * from './role.entity';
 export * from './user.entity';
 export * from './quotation.entity';
 export * from './versionQuotation.entity';
-export * from './hotelRoomQuotation.entity';
+export * from './hotelRoomTripDetails.entity';
+export * from './tripDetails.entity';

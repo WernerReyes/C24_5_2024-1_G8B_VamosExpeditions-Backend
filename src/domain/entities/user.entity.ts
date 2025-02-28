@@ -3,7 +3,7 @@ import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
 import { RoleEntity } from "./role.entity";
 
-export type User = user & {
+export interface User extends user {
   role?: role;
 };
 export class UserEntity {
@@ -16,7 +16,6 @@ export class UserEntity {
 
   public static fromObject(user: User): UserEntity {
     const { id_user, fullname, email, password, role } = user;
-
     const error = Validations.validateEmptyFields({
       id_user,
       fullname,

@@ -3,7 +3,7 @@ import { ReservationStatus } from "@/domain/entities";
 
 export class GetReservationsDto {
   constructor(
-    public readonly status?: ReservationStatus,
+  
     public readonly versionQuotationId?: {
       quotationId: number;
       versionNumber: number;
@@ -12,18 +12,10 @@ export class GetReservationsDto {
 
   static create(props: { [key: string]: any }): [string?, GetReservationsDto?] {
     const {
-      status,
+  
       quotationId,
       versionNumber,
     } = props;
-
-    if (status) {
-      const errorStatus = Validations.validateEnumValue(
-        status,
-        Object.values(ReservationStatus)
-      );
-      if (errorStatus) return [errorStatus, undefined];
-    }
 
     if ((quotationId && !versionNumber) || (versionNumber && !quotationId)) {
       return [
@@ -49,7 +41,6 @@ export class GetReservationsDto {
     return [
       undefined,
       new GetReservationsDto(
-        status,
         quotationId &&
           versionNumber ? {
             quotationId: +quotationId,
