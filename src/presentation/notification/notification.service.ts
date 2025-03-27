@@ -8,7 +8,7 @@ interface NotificationMessage {
 }
 
 export class NotificationService {
-  public async getAllUserConected() {
+  public async getAllUserConected(userId: number) {
     try {
       const users = await UserModel.findMany({
         include: {
@@ -18,12 +18,19 @@ export class NotificationService {
           password: true,
           id_role: true,
         },
+        where: {
+          id_user: { not: userId },
+         
+        },
         orderBy: {
           online: "desc",
         },
       });
 
+     
       return users.map((user) => UserEntity.fromObject(user));
+     
+      
     } catch (error) {
       console.error(error);
     }

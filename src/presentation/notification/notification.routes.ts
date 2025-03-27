@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { NotificationController } from "./notification.controller";
 import { NotificationService } from "./notification.service";
-import { Middleware } from "../middleware";
+import { Middleware, type RequestAuth } from "../middleware";
 
 export class NotificationRoutes {
   static get routes(): Router {
@@ -12,7 +12,9 @@ export class NotificationRoutes {
     );
     router.use(Middleware.validateToken);
     router.get("/user", notificationController.getAllUserConected);
-    router.get("/messages/:id", notificationController.listUserNotifications);
+    router.get("/messages", (req, res) => 
+      notificationController.listUserNotifications(req as RequestAuth, res)
+    );
     router.post("/delete", notificationController.deleteNotifications);
     router.put("/mark-as-read", notificationController.markNotificationsAsRead);
 

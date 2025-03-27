@@ -55,6 +55,7 @@ export class AuthController extends AppController {
       path: "/",
     });
 
+
     return {
       expiresAt: expiresAt.toISOString(),
     };
@@ -99,6 +100,7 @@ export class AuthController extends AppController {
   public logout = async (req: Request, res: Response) => {
     res.clearCookie(EnvsConst.TOKEN_COOKIE_NAME);
     res.clearCookie(EnvsConst.EXPIRATION_TOKEN_COOKIE_NAME);
+    res.clearCookie(EnvsConst.REFRESH_TOKEN_COOKIE_NAME);
     this.authService
       .logout()
       .then((response) => res.status(200).json(response))
