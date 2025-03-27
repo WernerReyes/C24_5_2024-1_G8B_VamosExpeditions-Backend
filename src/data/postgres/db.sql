@@ -12,6 +12,8 @@ DROP TABLE IF EXISTS trip_details;
 DROP TABLE IF EXISTS version_quotation;
 DROP TABLE IF EXISTS quotation;
 
+
+DROP TABLE IF EXISTS notification;
 DROP TABLE IF EXISTS "user";
 DROP TABLE IF EXISTS role;
 
@@ -24,7 +26,6 @@ DROP table if EXISTS client;
 DROP table if EXISTS distrit;
 DROP table if EXISTS city;
 DROP table if EXISTS country;
-
 
 
 -- -----------------------------------------------------
@@ -48,12 +49,37 @@ CREATE TABLE IF NOT EXISTS "user" ( -- Use double quotes for reserved keywords l
 id_user SERIAL PRIMARY KEY, -- Use SERIAL for auto-incrementing IDs
 fullname VARCHAR(45) NOT NULL,
 email VARCHAR(45) NOT NULL,
+online BOOlEAN DEFAULT FAlSE,
 password VARCHAR(200) NOT NULL,
+description TEXT NULL,
+phone_number VARCHAR(20) NULL;
 id_role INT NOT NULL,
 CONSTRAINT fk_user_role FOREIGN KEY (id_role)
 REFERENCES role (id_role)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
+);
+
+
+-- -----------------------------------------------------
+-- Table `notification`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS notification (
+    id SERIAL PRIMARY KEY,
+    from_user INT NOT NULL,
+    to_user INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_notifications_from FOREIGN KEY (from_user)
+        REFERENCES "user"(id_user)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_notifications_to FOREIGN KEY (to_user)
+        REFERENCES "user"(id_user)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 -- -----------------------------------------------------
@@ -162,7 +188,9 @@ CREATE TABLE IF NOT EXISTS quotation (
 -- -----------------------------------------------------
 -- Table `version_quotation`
 -- -----------------------------------------------------
-CREATE TYPE  version_quotation_status AS ENUM ('DRAFT', 'COMPLETED', 'CANCELATED');
+CREATE TYPE  version_quotation_status AS ENUM ('DRAFT', 'COMPLETED', 'CANCELATED', 'APPROVED');
+
+ALTER TYPE version_quotation_status ADD VALUE 'APPROVED' BEFORE 'COMPLETED';
 
 
   CREATE TABLE IF NOT EXISTS version_quotation (
@@ -184,8 +212,7 @@ CREATE TYPE  version_quotation_status AS ENUM ('DRAFT', 'COMPLETED', 'CANCELATED
     CONSTRAINT chk_completion_percentage CHECK (completion_percentage IN (0, 25, 50, 75, 100))
 );
 
-ALTER TABLE version_quotation ADD CONSTRAINT unique_official 
-    UNIQUE (quotation_id) WHERE official = TRUE;
+
 
 
 -- Add an index on quotation_id for faster lookups if needed:
@@ -240,27 +267,6 @@ CREATE TABLE IF NOT EXISTS trip_details_has_city (
   FOREIGN KEY (trip_details_id) REFERENCES trip_details(id) ON DELETE CASCADE -- Relación con la tabla 'reservation'
 );
 
-
-
--- -----------------------------------------------------
--- Table `reservation`
--- -----------------------------------------------------
-CREATE TYPE  reservation_status AS ENUM (
-    'ACCEPTED', 
-    'REJECTED'
-);
-
-CREATE TABLE IF NOT EXISTS reservation (
-    id SERIAL PRIMARY KEY,
-    trip_details_id INT NOT NULL UNIQUE,  -- Se enlaza solo con trip_details
-    status reservation_status DEFAULT 'ACCEPTED' NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT fk_reservation_trip_details FOREIGN KEY (trip_details_id) 
-        REFERENCES trip_details(id) ON DELETE CASCADE
-);
-
-
 -- -----------------------------------------------------
 -- Table `hotel_room_quotation`
 -- -----------------------------------------------------
@@ -274,3 +280,44 @@ CREATE TABLE IF NOT EXISTS hotel_room_trip_details (
   CONSTRAINT fk_hotel_room_quotation_trip_details FOREIGN KEY (trip_details_id) REFERENCES trip_details(id) ON DELETE CASCADE,
   CONSTRAINT unique_hotel_per_trip UNIQUE (hotel_room_id, date, trip_details_id)
 );
+
+
+
+-- -----------------------------------------------------
+-- Table `reservation`
+-- -----------------------------------------------------
+CREATE TYPE reservation_status AS ENUM ('PENDING', 'ACTIVE', 'REJECTED');
+
+
+CREATE TABLE IF NOT EXISTS reservation (
+    id SERIAL PRIMARY KEY,
+    quotation_id INT NOT NULL,
+    status reservation_status DEFAULT 'PENDING' NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    ALTER TABLE reservation ADD CONSTRAINT fk_reservation_quotation FOREIGN KEY (quotation_id) 
+    REFERENCES quotation(id_quotation) ON DELETE CASCADE,
+    ALTER TABLE reservation ADD CONSTRAINT unique_reservation UNIQUE (quotation_id);
+        
+);
+
+
+-- -----------------------------------------------------
+-- View `reservation_version_summary`
+-- -----------------------------------------------------
+CREATE OR REPLACE VIEW reservation_version_summary AS
+SELECT 
+  r.created_at AS reservation_date,
+  v.final_price,
+  v.profit_margin,
+  q.id_quotation AS quotation_id,
+  v.version_number,
+   r.status AS reservation_status, -- Add reservation status
+  r.id AS id  -- Add a unique identifier
+FROM reservation r
+JOIN quotation q ON r.quotation_id = q.id_quotation
+JOIN version_quotation v ON q.id_quotation = v.quotation_id
+WHERE v.status = 'APPROVED' AND v.official = TRUE;
+
+
+DROP VIEW reservation_version_summary;

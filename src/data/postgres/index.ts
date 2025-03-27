@@ -17,6 +17,7 @@ export const TripDetailsHasCityModel = prisma.trip_details_has_city;
 export const QuotationModel = prisma.quotation;
 export const VersionQuotationModel = prisma.version_quotation;
 export const HotelRoomTripDetailsModel = prisma.hotel_room_trip_details;
+export const NotificationModel = prisma.notification;
 
 //* VIEWS
 export const ReservationVersionSummaryView = prisma.reservation_version_summary;

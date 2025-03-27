@@ -10,7 +10,8 @@ import {
 import { TripDetailsService } from "./tripDetails.service";
 
 export class TripDetailsController extends AppController {
-  constructor(private tripDetailsService: TripDetailsService) {
+  constructor(
+    private tripDetailsService: TripDetailsService) {
     super();
   }
   public upsertTripDetails = (req: Request, res: Response) => {
@@ -54,18 +55,16 @@ export class TripDetailsController extends AppController {
 
   public getTripDetailsPdf = (req: Request, res: Response) => {
     const { id } = req.params;
+    
     this.handleError(this.tripDetailsService.generatePdf(+id))
-      .then((pdf) => {
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader(
-          "Content-Disposition",
-          `attachment; filename=tripDetails.pdf`
-        );
+      .then((pdf) => {res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition",`attachment; filename=tripDetails.pdf`);
         pdf.pipe(res);
         pdf.end();
       })
       .catch((error) => this.handleResponseError(res, error));
   };
+
 
   public getAllTripDetailsPdf = (req: Request, res: Response) => {
     this.handleError(this.tripDetailsService.getAll())

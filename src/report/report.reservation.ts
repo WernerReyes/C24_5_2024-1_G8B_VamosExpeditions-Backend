@@ -37,6 +37,7 @@ export const getTravelItineraryReport = (
       ]
     ) || [];
 
+    const user= "Annelies Hamerlinck";
   return {
     pageOrientation: "portrait",
     header: headerSection({
@@ -46,7 +47,7 @@ export const getTravelItineraryReport = (
     pageSize: "A4",
     pageMargins: [20, 75, 20, 40], // Margen inferior aumentado
     footer: (currentPage, pageCount, pageSize) =>
-      footerSection(currentPage, pageCount, pageSize), // Llamada correcta al footer
+      footerSection(currentPage, pageCount, pageSize, user), // Llamada correcta al footer
     content: [
       { text: "Quick Summary", style: "textHeader" },
       {

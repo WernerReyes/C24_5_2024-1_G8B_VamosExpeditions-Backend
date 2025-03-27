@@ -482,7 +482,7 @@ export class VersionQuotationService {
       );
     }
 
-    await prisma.$transaction(async (prisma) => {
+    await prisma.$transaction(async () => {
       const uniqueQuotations = versionQuotationsDeleted.filter(
         (version, index, self) =>
           index ===

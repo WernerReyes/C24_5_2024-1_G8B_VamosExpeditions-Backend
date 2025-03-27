@@ -11,6 +11,8 @@ export class QuotationController extends AppController {
   }
 
   public createQuotation = async (req: RequestAuth, res: Response) => {
+    
+
     this.handleError(this.quotationService.createQuotation(+req.user.id))
       .then((quotation) => res.status(201).json(quotation))
       .catch((error) => this.handleResponseError(res, error));
@@ -23,10 +25,11 @@ export class QuotationController extends AppController {
   };
 
   public sendEmailPdf = async (req: Request, res: Response) => {
+    
     const [error, reportdto] = Reportdto.create(req.body);
-    if (error)
+    if (error){
       return this.handleResponseError(res, CustomError.badRequest(error));
-
+    }
     this.handleError(this.quotationService.sendEmailAndPdf(reportdto!))
       .then((report) => res.status(200).json(report))
       .catch((error) => this.handleResponseError(res, error));

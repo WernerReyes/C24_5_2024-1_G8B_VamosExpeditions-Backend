@@ -17,7 +17,7 @@ export class HotelService {
       throw CustomError.internalServer(`${error.message}`);
     });
 
-    return new ApiResponse<Partial<HotelEntity>[]>(
+    return new ApiResponse<HotelEntity[]>(
       200,
       "Lista de hoteles",
       accommodationRooms.map((hotel) => HotelEntity.fromObject(hotel))

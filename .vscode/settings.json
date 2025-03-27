@@ -19,6 +19,9 @@
         "titleBar.inactiveForeground": "#e7e7e799"
     },
     "peacock.color": "#215732",
+<<<<<<< HEAD
     "liveServer.settings.port": 5501,
+=======
+>>>>>>> 29589238842b5dc1e553998f5756427bf3806f07
     "prismaERDPreviewer.preferredTheme": "dark"
 }

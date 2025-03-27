@@ -17,12 +17,16 @@ export class ReservationRoutes {
     );
     const reservationController = new ReservationController(reservationService);
 
-    
     router.use(Middleware.validateToken);
-    
+
+    router.use(Middleware.validateToken);
+
     router.post("", reservationController.upsertReservation);
     router.put("/:id/cancel", reservationController.cancelReservation);
-    router.delete("/multiple", reservationController.deleteMultipleReservations);
+    router.delete(
+      "/multiple",
+      reservationController.deleteMultipleReservations
+    );
     router.put("/:id", reservationController.upsertReservation);
     router.get("", reservationController.getReservations);
     router.get("/stadistics", reservationController.getStadistics);

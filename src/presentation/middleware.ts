@@ -1,8 +1,12 @@
 import type { NextFunction, Request, Response } from "express";
 import { UserModel } from "@/data/postgres";
 import { JwtAdapter } from "@/core/adapters";
+
 import { RoleEnum, UserEntity } from "@/domain/entities";
 import { EnvsConst, ErrorCodeConst } from "@/core/constants";
+
+import { Socket } from "socket.io";
+import * as cookie from "cookie";
 
 export interface RequestAuth extends Request {
   user: UserEntity;
@@ -74,5 +78,26 @@ export class Middleware {
       }
       next();
     };
+  }
+
+  public static async validateSocketToken(
+    socket: Socket,
+    next: (err?: any) => void
+  ) {
+    try {
+      const cookies = socket.handshake.headers.cookie;
+      if (!cookies) return next(new Error("Token no proporcionado"));
+
+      const token = cookie.parse(cookies).token;
+      if (!token) return next(new Error("Token is required"));
+
+      const payload = await JwtAdapter.verifyToken<{ id: string }>(token);
+      if (!payload) return next(new Error("Invalid token"));
+
+      socket.data = { id: payload.id };
+      next();
+    } catch (error) {
+      next(new Error("Invalid token"));
+    }
   }
 }
