@@ -1,12 +1,14 @@
 import { version_quotation } from '@prisma/client';
-import { Quotation, QuotationEntity } from "./quotation.entity";
+import { Quotation } from "./quotation.entity";
 import { TripDetails, TripDetailsEntity } from "./tripDetails.entity";
 import { User, UserEntity } from "./user.entity";
+import { ReservationEntity } from './reservation.entity';
 
 export enum VersionQuotationStatus {
   DRAFT = "DRAFT",
   COMPLETED = "COMPLETED",
-  CANCELED = "CANCELED",
+  CANCELATED = "CANCELATED",
+  APPROVED = "APPROVED",
 }
 
 export type VersionQuotation = version_quotation & {
@@ -32,7 +34,7 @@ export class VersionQuotationEntity {
     public readonly finalPrice?: number,
     public readonly tripDetails?: TripDetailsEntity,
     public readonly user?: UserEntity,
-    public readonly quotation?: QuotationEntity,
+    public readonly reservation?: ReservationEntity,
   ) {}
 
   public static fromObject(
@@ -54,7 +56,7 @@ export class VersionQuotationEntity {
       user,
       quotation,
     } = versionQuotation;
-
+    
     return new VersionQuotationEntity(
       {
         versionNumber: +version_number,
@@ -71,8 +73,10 @@ export class VersionQuotationEntity {
       final_price ? Number(final_price) : undefined,
       trip_details ? TripDetailsEntity.fromObject(trip_details) : undefined,
       user ? UserEntity.fromObject(user) : undefined,
-      quotation ? QuotationEntity.fromObject(quotation) : undefined,
+      quotation?.reservation ? ReservationEntity.fromObject(quotation.reservation) : undefined,
       
     );
   }
+
+  
 }

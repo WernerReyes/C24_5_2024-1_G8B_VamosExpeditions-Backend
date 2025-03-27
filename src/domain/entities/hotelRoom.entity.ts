@@ -8,16 +8,16 @@ export type HotelRoom = hotel_room & {
 };
 
 export class HotelRoomEntity {
-  private constructor(
-    private readonly id: number,
-    private readonly roomType: string,
-    private readonly capacity: number,
-    private readonly seasonType?: string,
-    private readonly serviceTax?: number,
-    private readonly rateUsd?: number,
-    private readonly pricePen?: number,
-    private readonly priceUsd?: number,
-    private readonly hotel?: HotelEntity
+  public constructor(
+    public readonly id: number,
+    public readonly roomType: string,
+    public readonly capacity: number,
+    public readonly seasonType?: string,
+    public readonly serviceTax?: number,
+    public readonly rateUsd?: number,
+    public readonly pricePen?: number,
+    public readonly priceUsd?: number,
+    public readonly hotel?: HotelEntity
   ) {}
 
   public static fromObject(hotelRoom: HotelRoom): HotelRoomEntity {
@@ -33,13 +33,6 @@ export class HotelRoomEntity {
 
       hotel,
     } = hotelRoom;
-
-    const error = Validations.validateEmptyFields({
-      id_hotel_room,
-      room_type,
-      capacity,
-    });
-    if (error) throw CustomError.badRequest(error);
 
     return new HotelRoomEntity(
       id_hotel_room,

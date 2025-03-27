@@ -42,6 +42,23 @@ export class AuthService {
     });
   }
 
+  public async reLogin(user: UserEntity) {
+    console.log(user);
+    //* Generate token
+    const token = (await JwtAdapter.generateToken({
+      id: user.id,
+    })) as string;
+    if (!token) throw CustomError.internalServer("Error generating token");
+
+    return new ApiResponse<{
+      user: UserEntity;
+      token: string;
+    }>(200, "Usuario autenticado", {
+      user,
+      token,
+    });
+  }
+
   public async logout() {
     return new ApiResponse<null>(
       200,

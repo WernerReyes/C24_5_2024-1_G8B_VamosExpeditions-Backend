@@ -18,11 +18,20 @@ export class VersionQuotationRoutes {
 
     router.use(Middleware.validateToken);
 
-    router.get("/", versionQuotationController.getVersionsQuotation);
+    router.get("/", versionQuotationController.getVersionQuotations);
+
+    router.get(
+      "/drafts",
+      versionQuotationController.getTotalDraftsVersionQuotation
+    );
     router.put("", versionQuotationController.updateVersionQuotation);
     router.put(
       "/official",
       versionQuotationController.updateOfficialVersionQuotation
+    );
+    router.put(
+      "/cancel-replace",
+      versionQuotationController.cancelAndReplaceApprovedOfficialVersionQuotation
     );
     router.post("/duplicate-multiple", (req, res) =>
       versionQuotationController.duplicateMultipleVersionQuotation(
@@ -30,9 +39,15 @@ export class VersionQuotationRoutes {
         res
       )
     );
+
     router.get(
       "/:quotationId/:versionNumber",
       versionQuotationController.getVersionsQuotationById
+    );
+
+    router.delete(
+      "/multiple",
+      versionQuotationController.deleteMultipleVersionQuotation
     );
 
     return router;

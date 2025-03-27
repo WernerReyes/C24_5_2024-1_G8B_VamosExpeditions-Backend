@@ -51,14 +51,6 @@ export class TripDetailsController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public getTripDetails = (req: Request, res: Response) => {
-    const [error, getTripDetailsDto] = GetReservationsDto.create(req.query);
-    if (error)
-      return this.handleResponseError(res, CustomError.badRequest(error));
-    this.handleError(this.tripDetailsService.getTripDetails(getTripDetailsDto!))
-      .then((tripDetails) => res.status(200).json(tripDetails))
-      .catch((error) => this.handleResponseError(res, error));
-  };
 
   public getTripDetailsPdf = (req: Request, res: Response) => {
     const { id } = req.params;

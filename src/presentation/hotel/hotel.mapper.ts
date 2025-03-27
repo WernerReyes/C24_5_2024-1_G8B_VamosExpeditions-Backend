@@ -34,13 +34,21 @@ export class HotelMapper {
     return {
       hotel_room: true,
       distrit: {
-        include: {
+        select: {
           city: {
-            include: {
-              country: true,
-            },
-          },
-        },
+            select: {
+              id_city: true,
+              name: true,
+              country: {
+                select: {
+                  id_country: true,
+                  name: true,
+                },
+              },
+            }
+          }
+        }
+        
       },
     };
   }

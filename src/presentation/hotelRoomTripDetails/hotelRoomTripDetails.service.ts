@@ -135,7 +135,7 @@ export class HotelRoomTripDetailsService {
           gt: startDate,
         },
       },
-      include: this.hotelRoomTripDetailsMapper.toSelectInclude,
+   
     });
 
     const updatedManyHotelRoomTripDetails: HotelRoomTripDetails[] = [];
@@ -155,6 +155,8 @@ export class HotelRoomTripDetailsService {
         updatedManyHotelRoomTripDetails.push(updatedHotelRoomTripDetails);
       }
     }
+
+
 
     return new ApiResponse<HotelRoomTripDetailsEntity[]>(
       200,

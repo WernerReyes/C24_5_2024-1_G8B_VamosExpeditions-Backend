@@ -21,7 +21,7 @@ export class TripDetailsRoutes {
 
     router.post("", tripDetailsController.upsertTripDetails);
     router.put("/:id", tripDetailsController.upsertTripDetails);
-    router.get("", tripDetailsController.getTripDetails);
+    
     // router.get("/:id", tripDetailsController.getTripDetailsById);
     router.get(
       "/version-quotation",

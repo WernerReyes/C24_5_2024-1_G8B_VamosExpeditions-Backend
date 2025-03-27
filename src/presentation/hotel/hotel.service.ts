@@ -6,9 +6,7 @@ import { ApiResponse } from "../response";
 import { HotelEntity } from "@/domain/entities";
 
 export class HotelService {
-  constructor(
-    private readonly hotelMapper: HotelMapper,
-  ) {}
+  constructor(private readonly hotelMapper: HotelMapper) {}
 
   public async getAll(getHotelsDto: GetHotelsDto) {
     this.hotelMapper.setDto = getHotelsDto;
@@ -19,7 +17,7 @@ export class HotelService {
       throw CustomError.internalServer(`${error.message}`);
     });
 
-    return new ApiResponse<HotelEntity[]>(
+    return new ApiResponse<Partial<HotelEntity>[]>(
       200,
       "Lista de hoteles",
       accommodationRooms.map((hotel) => HotelEntity.fromObject(hotel))

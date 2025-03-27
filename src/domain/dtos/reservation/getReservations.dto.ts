@@ -1,51 +1,61 @@
-import { Validations } from "@/core/utils";
 import { ReservationStatus } from "@/domain/entities";
+import { PaginationDto } from "../common/pagination.dto";
+import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
+import { ParamsUtils, Validations } from "@/core/utils";
 
-export class GetReservationsDto {
+export class GetReservationsDto extends PaginationDto {
   constructor(
-  
-    public readonly versionQuotationId?: {
-      quotationId: number;
-      versionNumber: number;
-    }
-  ) {}
+    public readonly limit: number,
+    public readonly page: number,
+    public readonly status?: ReservationStatus[],
+    public readonly createdAt?: Date,
+    public readonly updatedAt?: Date
+  ) {
+    super(limit, page);
+  }
 
   static create(props: { [key: string]: any }): [string?, GetReservationsDto?] {
     const {
-  
-      quotationId,
-      versionNumber,
+      page,
+      limit,
+      status,
+      createdAt,
+      updatedAt,
     } = props;
 
-    if ((quotationId && !versionNumber) || (versionNumber && !quotationId)) {
-      return [
-        "quotationId and versionNumber must be provided together",
-        undefined,
-      ];
+    const [errorPagination, paginationDto] = PaginationDto.create({
+      page,
+      limit,
+    });
+    if (errorPagination) return [errorPagination, undefined];
+
+    if (status) {
+      const error = Validations.validateEnumValues(
+        ParamsUtils.parseArray(status),
+        Object.values(ReservationStatus),
+        "status"
+      );
+      if (error) return [error, undefined];
     }
 
-    if (quotationId) {
-      const errorQuotationId = Validations.validateNumberFields({
-        quotationId,
-      });
-      if (errorQuotationId) return [errorQuotationId, undefined];
+    if (createdAt) {
+      const error = Validations.validateDateFields({ createdAt });
+      if (error) return [error, undefined];
     }
 
-    if (versionNumber) {
-      const errorVersionNumber = Validations.validateNumberFields({
-        versionNumber,
-      });
-      if (errorVersionNumber) return [errorVersionNumber, undefined];
+    if (updatedAt) {
+      const error = Validations.validateDateFields({ updatedAt });
+      if (error) return [error, undefined];
     }
 
     return [
       undefined,
       new GetReservationsDto(
-        quotationId &&
-          versionNumber ? {
-            quotationId: +quotationId,
-            versionNumber: +versionNumber,
-          } : undefined
+        paginationDto!.limit!,
+        paginationDto!.page!,
+        status ? ParamsUtils.parseArray(status) : undefined,
+        createdAt ? new Date(createdAt) : undefined,
+        updatedAt ? new Date(updatedAt) : undefined
       ),
     ];
   }

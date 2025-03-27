@@ -18,7 +18,7 @@ export class QuotationMapper {
 
   public get toSelectInclude(): Prisma.quotationInclude<DefaultArgs> {
     return {
-      version_quotation: true
+      version_quotation: true,
     };
   }
 }

@@ -1,13 +1,21 @@
 import { type DefaultArgs } from "@prisma/client/runtime/library";
-import type { Prisma, version_quotation_status } from "@prisma/client";
+import type {
+  hotel_room_trip_details,
+  Prisma,
+  version_quotation_status,
+} from "@prisma/client";
 import type {
   DuplicateVersionQuotationDto,
+  GetVersionQuotationsDto,
   VersionQuotationDto,
 } from "@/domain/dtos";
 import type { VersionQuotation } from "@/domain/entities";
 import { Validations } from "@/core/utils";
 
-type Dto = DuplicateVersionQuotationDto | VersionQuotationDto;
+type Dto =
+  | DuplicateVersionQuotationDto
+  | VersionQuotationDto
+  | GetVersionQuotationsDto;
 
 const FROM = "VersionQuotationMapper";
 
@@ -30,6 +38,8 @@ export class VersionQuotationMapper {
 
   public get findById(): Prisma.version_quotationFindUniqueArgs {
     this.validateModelInstance(this.dto, "findById");
+    this.dto = this.dto as VersionQuotationDto | DuplicateVersionQuotationDto;
+
     return {
       where: {
         version_number_quotation_id: {
@@ -58,7 +68,8 @@ export class VersionQuotationMapper {
       profit_margin: dto.profitMargin,
       final_price: dto.finalPrice,
       completion_percentage: dto.completionPercentage,
-      status: dto.status as version_quotation_status,
+      status: dto.status,
+      updated_at: new Date(),
     };
   }
 
@@ -82,6 +93,7 @@ export class VersionQuotationMapper {
       status: this.versionQuotation.status,
       version_number: maxVersion! + 1,
       official: false,
+      updated_at: new Date(),
       trip_details: trip_details
         ? {
             create: {
@@ -98,17 +110,143 @@ export class VersionQuotationMapper {
                   city_id: city.city_id,
                 })),
               },
+              hotel_room_trip_details: {
+                create: trip_details?.hotel_room_trip_details?.map(
+                  (hotel: hotel_room_trip_details) => ({
+                    hotel_room_id: hotel.hotel_room_id,
+                    date: hotel.date,
+                    number_of_people: hotel.number_of_people,
+                  })
+                ),
+              },
             },
           }
         : undefined,
     };
   }
 
-  public get toSelectInclude(): Prisma.version_quotationInclude<DefaultArgs> {
+  public get getVersionsQuotationsWhere(): Prisma.version_quotationWhereInput {
+    this.validateModelInstance(this.dto, "getVersionsQuotationsWhere");
+    this.dto = this.dto as GetVersionQuotationsDto;
     return {
-      user: true,
+      official: this.dto.official,
+      name: {
+        contains: this.dto.name,
+        mode: "insensitive",
+      },
+      quotation_id: this.dto.quotationId,
+      trip_details: {
+        client_id: this.dto.clientsIds
+          ? { in: this.dto.clientsIds }
+          : undefined,
+        start_date: this.dto.startDate
+          ? { gte: this.dto.startDate }
+          : undefined,
+        end_date: this.dto.endDate ? { lte: this.dto.endDate } : undefined,
+      },
+      status: this.dto.status
+        ? { in: this.dto.status as version_quotation_status[] }
+        : undefined,
+      user_id: this.dto.representativesIds
+        ? { in: this.dto.representativesIds }
+        : undefined,
     };
   }
+
+  public get toSelectInclude(): Prisma.version_quotationInclude<DefaultArgs> {
+    return {
+      user: {
+        select: {
+          id_user: true,
+          fullname: true,
+        },
+      },
+      trip_details: {
+        select: {
+          id: true,
+          start_date: true,
+          end_date: true,
+          number_of_people: true,
+          code: true,
+          traveler_style: true,
+          order_type: true,
+          client: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              phone: true,
+              subregion: true,
+              country: true,
+            },
+          },
+        },
+      },
+      quotation: {
+        select: {
+          reservation: {
+            select: {
+              id: true,
+              status: true,
+            },
+          },
+        },
+      },
+    };
+  }
+
+  public get toInclude(): Prisma.version_quotationInclude<DefaultArgs> {
+    return {
+      user: {
+        select: {
+          id_user: true,
+          fullname: true,
+        },
+      },
+      trip_details: {
+        include: {
+          trip_details_has_city: {
+            include: {
+              city: {
+                include: {
+                  country: true,
+                },
+              },
+            },
+          },
+          hotel_room_trip_details: {
+            include: {
+              hotel_room: {
+                include: {
+                  hotel: {
+                    include: {
+                      distrit: {
+                        include: {
+                          city: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          client: true,
+        },
+      },
+      quotation: {
+        select: {
+          reservation: {
+            select: {
+              id: true,
+              status: true,
+            },
+          },
+        },
+      },
+    };
+  }
+
   private validateModelInstance(models: any[] | any, methodName: string): void {
     Validations.validateModelInstance(models, `${FROM}.${methodName}`);
   }

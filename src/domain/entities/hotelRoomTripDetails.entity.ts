@@ -24,14 +24,6 @@ export class HotelRoomTripDetailsEntity {
     const { id, date, number_of_people, hotel_room, trip_details } =
       HotelRoomTripDetails;
 
-    const error = Validations.validateEmptyFields({
-      id,
-      number_of_people,
-      date,
-    });
-
-    if (error) throw CustomError.badRequest(error);
-
     return new HotelRoomTripDetailsEntity(
       id,
       number_of_people,

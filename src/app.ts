@@ -13,7 +13,7 @@ const { EXTERNAL_API_COUNTRY_URL } = EnvsConst;
 
 async function main() {
   try {
-  await externalCountries();
+  // await externalCountries();
 } catch(error) {
   
 }

@@ -1,8 +1,8 @@
-import type { Prisma, reservation_status } from "@prisma/client";
-import { type DefaultArgs } from "@prisma/client/runtime/library";
-import { ReservationDto } from "@/domain/dtos";
+import type { Prisma } from "@prisma/client";
+import { GetReservationsDto, ReservationDto } from "@/domain/dtos";
+import { ReservationStatus, VersionQuotationStatus } from "@/domain/entities";
 
-type Dto = ReservationDto;
+type Dto = ReservationDto | GetReservationsDto;
 
 export class ReservationMapper {
   private dto: Dto;
@@ -15,29 +15,75 @@ export class ReservationMapper {
     this.dto = dto;
   }
 
-  public get toUpsert(): Prisma.reservationUncheckedCreateInput {
+  public get createReservation(): Prisma.reservationCreateInput {
     this.dto = this.dto as ReservationDto;
     return {
-      status: this.dto.status as any as reservation_status,
-      trip_details_id: this.dto.tripDetailsId,
+      status: ReservationStatus.PENDING,
+      quotation: { connect: { id_quotation: this.dto.quotationId } },
+      updated_at: new Date(),
     };
-
-    // if (this.dto.id === 0) return baseData;
-
-    // const updateData = {
-    //   ...baseData,
-    //   reservation_has_city: {
-    //     deleteMany: {},
-    //     create: baseData.reservation_has_city.create,
-    //   },
-    // };
-
-    // return updateData;
   }
 
-  public get toSelectInclude(): Prisma.reservationInclude<DefaultArgs> {
+  public get getReservationsWhere(): Prisma.reservationWhereInput {
+    this.dto = this.dto as GetReservationsDto;
     return {
-     trip_details: true,
+      status: this.dto.status ? { in: this.dto.status } : undefined,
+      created_at: this.dto.createdAt ? { gte: this.dto.createdAt } : undefined,
+      updated_at: this.dto.updatedAt ? { gte: this.dto.updatedAt } : undefined,
+    };
+  }
+
+  public get toSelectInclude(): Prisma.reservationInclude {
+    return {
+      quotation: {
+        include: {
+          version_quotation: {
+            where: {
+              official: true,
+              OR: [
+                { status: VersionQuotationStatus.APPROVED },
+                {
+                  status: VersionQuotationStatus.CANCELATED,
+                },
+              ],
+            },
+            orderBy: { version_number: "desc" },
+            take: 1,
+            include: {
+              trip_details: {
+                include: {
+                  client: {
+                    select: {
+                      id: true,
+                      fullName: true,
+                      country: true,
+                      subregion: true,
+                      email: true,
+                      phone: true,
+                    },
+                  },
+                  trip_details_has_city: {
+                    include: {
+                      city: {
+                        select: {
+                          id_city: true,
+                          name: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              user: {
+                select: {
+                  id_user: true,
+                  fullname: true,
+                },
+              }
+            },
+          },
+        },
+      },
     };
   }
 }

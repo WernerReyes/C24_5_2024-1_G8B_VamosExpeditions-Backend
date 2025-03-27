@@ -5,9 +5,11 @@ import {
 } from "./versionQuotation.entity";
 import { Validations } from "@/core/utils";
 import { CustomError } from "../error";
+import { type Reservation, ReservationEntity } from "./reservation.entity";
 
 export type Quotation = quotation & {
   version_quotation?: VersionQuotation[];
+  reservation?: Reservation | null;
 };
 
 export class QuotationEntity {
@@ -15,25 +17,18 @@ export class QuotationEntity {
     public readonly id: number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
-    public readonly versions?: VersionQuotationEntity[]
+    public readonly versions?: VersionQuotationEntity[],
+    public readonly reservation?: ReservationEntity
   ) {}
 
   public static fromObject(quotation: Quotation): QuotationEntity {
-    const { id_quotation, created_at, updated_at, version_quotation } =
-      quotation;
-
-    const error = Validations.validateEmptyFields(
-      {
-        id_quotation,
-        created_at,
-        updated_at,
-      },
-      "QuotationEntity"
-    );
-
-    if (error) throw CustomError.badRequest(error);
-
-    console.log(version_quotation)
+    const {
+      id_quotation,
+      created_at,
+      updated_at,
+      version_quotation,
+      reservation,
+    } = quotation;
 
     return new QuotationEntity(
       id_quotation,
@@ -41,7 +36,8 @@ export class QuotationEntity {
       updated_at,
       version_quotation
         ? version_quotation.map(VersionQuotationEntity.fromObject)
-        : undefined
+        : undefined,
+      reservation ? ReservationEntity.fromObject(reservation) : undefined
     );
   }
 }

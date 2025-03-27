@@ -25,6 +25,7 @@ export class Validations {
 
   static validateBooleanFields(fields: any): string | null {
     for (const field in fields) {
+      if (fields[field] === "true" || fields[field] === "false") continue;
       if (typeof fields[field] !== "boolean") {
         return `El campo ${field} debe ser un booleano`;
       }
@@ -45,6 +46,16 @@ export class Validations {
     for (const field in fields) {
       if (isNaN(new Date(fields[field]).getTime())) {
         return `El campo ${field} debe ser una fecha`;
+      }
+    }
+    return null;
+  }
+
+
+  static validateArrayFields(fields: any): string | null {
+    for (const field in fields) {
+      if (!Array.isArray(fields[field])) {
+        return `El campo ${field} debe ser un array`;
       }
     }
     return null;
@@ -80,6 +91,22 @@ export class Validations {
       return `El valor ${value} no es permitido. Los valores permitidos son: ${enumValues.join(
         ", "
       )}`;
+    }
+    return null;
+  }
+
+  static validateEnumValues(
+    values: string[],
+    enumValues: string[],
+    field: string
+  ): string | null {
+    for (const value of values) {
+      const error = Validations.validateEnumValue(value, enumValues);
+      if (error) {
+        return `El valor ${value} no es permitido en el campo ${field}. Los valores permitidos son: ${enumValues.join(
+          ", "
+        )}`;
+      }
     }
     return null;
   }
@@ -129,10 +156,8 @@ export class Validations {
     return;
   }
 
-
   // Validar que 'emails' sea un array
   static validateArrayEmail(emails: string[]): string | undefined {
-   
     if (!Array.isArray(emails)) {
       return "El campo debe ser un array de correos electrónicos";
     }
@@ -143,7 +168,7 @@ export class Validations {
         return `Correo electrónico inválido: ${email}`;
       }
     }
-  
+
     // Si todo está bien, no hay errores
     return undefined;
   }

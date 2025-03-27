@@ -29,27 +29,5 @@ export class CityEntity {
     );
   }
 
-  public static validateEntity(
-    entity: CityEntity,
-    from: string
-  ): string | null {
-    const { id, name, country } = entity;
-
-    if (country) {
-      const countryError = CountryEntity.validateEntity(
-        country,
-        `${from}, CityEntity`
-      );
-      if (countryError) return countryError;
-    }
-
-    return Validations.validateEmptyFields(
-      {
-        id,
-        name,
-        country,
-      },
-      `${from}, CityEntity`
-    );
-  }
+  
 }

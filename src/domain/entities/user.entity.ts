@@ -16,14 +16,7 @@ export class UserEntity {
 
   public static fromObject(user: User): UserEntity {
     const { id_user, fullname, email, password, role } = user;
-    const error = Validations.validateEmptyFields({
-      id_user,
-      fullname,
-      email,
-      password,
-    }, "UserEntity");
-    if (error) throw CustomError.badRequest(error);
-
+    
     return new UserEntity(
       id_user,
       fullname,

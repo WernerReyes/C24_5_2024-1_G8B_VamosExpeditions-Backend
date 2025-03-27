@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
 import {
   DuplicateMultipleVersionQuotationDto,
+  GetVersionQuotationsDto,
+  PaginationDto,
   VersionQuotationDto,
   VersionQuotationIDDto,
 } from "@/domain/dtos";
@@ -47,6 +49,25 @@ export class VersionQuotationController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
+  public cancelAndReplaceApprovedOfficialVersionQuotation = async (
+    req: Request,
+    res: Response
+  ) => {
+    const [error, versionQuotationIDDto] = VersionQuotationIDDto.create(
+      req.body
+    );
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(
+      this.versionQuotationService.cancelAndReplaceApprovedOfficialVersionQuotation(
+        versionQuotationIDDto!
+      )
+    )
+      .then((versionQuotation) => res.status(200).json(versionQuotation))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
   public duplicateMultipleVersionQuotation = async (
     req: RequestAuth,
     res: Response
@@ -78,8 +99,58 @@ export class VersionQuotationController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public getVersionsQuotation = async (req: Request, res: Response) => {
-    this.handleError(this.versionQuotationService.getVersionsQuotation())
+  public getVersionQuotations = async (req: Request, res: Response) => {
+    const [error, getVersionQuotationsDto] = GetVersionQuotationsDto.create(
+      req.query
+    );
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(
+      this.versionQuotationService.getVersionsQuotation(
+        getVersionQuotationsDto!
+      )
+    )
+      .then((versionsQuotation) => res.status(200).json(versionsQuotation))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public getTotalDraftsVersionQuotation = async (
+    req: Request,
+    res: Response
+  ) => {
+    this.handleError(
+      this.versionQuotationService.getTotalDraftsVersionQuotation()
+    )
+      .then((totalDrafts) => res.status(200).json(totalDrafts))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public deleteMultipleVersionQuotation = async (
+    req: Request,
+    res: Response
+  ) => {
+    const ids = req.body.ids;
+    if (!ids || ids.length === 0)
+      return this.handleResponseError(
+        res,
+        CustomError.badRequest("ids must be an array")
+      );
+
+    let validatedIds: VersionQuotationIDDto[] = [];
+
+    for (const id of ids) {
+      const [error, dtoValidated] = VersionQuotationIDDto.create(id);
+      if (error) {
+        return this.handleResponseError(res, CustomError.badRequest(error));
+      }
+
+      validatedIds.push(dtoValidated!);
+    }
+
+    this.handleError(
+      this.versionQuotationService.deleteMultipleVersionQuotation(validatedIds)
+    )
       .then((versionsQuotation) => res.status(200).json(versionsQuotation))
       .catch((error) => this.handleResponseError(res, error));
   };

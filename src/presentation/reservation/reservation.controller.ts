@@ -2,7 +2,11 @@ import { AppController } from "../controller";
 import { CustomError } from "@/domain/error";
 import { Request, Response } from "express";
 
-import { GetReservationsDto, ReservationDto } from "@/domain/dtos";
+import {
+  GetReservationsDto,
+  GetStadisticsDto,
+  ReservationDto,
+} from "@/domain/dtos";
 
 import { ReservationService } from "./reservation.service";
 
@@ -15,52 +19,59 @@ export class ReservationController extends AppController {
       ...req.body,
       id: req.params.id,
     });
-    if (error) return this.handleResponseError(res, CustomError.badRequest(error));
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
 
-    this.reservationService
-      .upsertReservation(upsertReservationDto!)
+    this.handleError(
+      this.reservationService.upsertReservation(upsertReservationDto!)
+    )
       .then((reservation) => res.status(200).json(reservation))
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public getReservationById = (req: Request, res: Response) => {
-    const { id } = req.params;
-    this.reservationService
-      .getReservationById(+id)
+  public cancelReservation = (req: Request, res: Response) => {
+    this.handleError(this.reservationService.cancelReservation(+req.params.id))
       .then((reservation) => res.status(200).json(reservation))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public deleteMultipleReservations = (req: Request, res: Response) => {
+    if (!req.body || !Array.isArray(req.body) || req.body.length === 0)
+      return this.handleResponseError(
+        res,
+        CustomError.badRequest("Reservations must be an array")
+      );
+    this.handleError(
+      this.reservationService.deleteMultipleReservations(req.body)
+    )
+      .then((reservations) => res.status(200).json(reservations))
       .catch((error) => this.handleResponseError(res, error));
   };
 
   public getReservations = (req: Request, res: Response) => {
     const [error, getReservationsDto] = GetReservationsDto.create(req.query);
-    if (error) return this.handleResponseError(res, CustomError.badRequest(error));
-    this.reservationService
-      .getReservations(getReservationsDto!)
+    console.log(getReservationsDto);
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+    this.handleError(
+      this.reservationService.getReservations(getReservationsDto!)
+    )
       .then((reservations) => res.status(200).json(reservations))
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public getReservationPdf = (req: Request, res: Response) => {
-    const { id } = req.params;
-    console.log("id", id);
-    this.reservationService
-      .generatePdf(+id)
-      .then((pdf) => {
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader(
-          "Content-Disposition",
-          `attachment; filename=reservation.pdf`
-        );
-        pdf.pipe(res);
-        pdf.end();
-      })
+  public getStadistics = (req: Request, res: Response) => {
+    const [error, getStadisticsDto] = GetStadisticsDto.create(req.query);
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+    this.handleError(this.reservationService.getStadistics(getStadisticsDto!))
+      .then((stadistics) => res.status(200).json(stadistics))
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public getReservationallPdf = (req: Request, res: Response) => {
-    this.reservationService
-      .getall()
-      .then((pdf) => res.status(200).json(pdf))
+  public getStats = (req: Request, res: Response) => {
+    this.handleError(this.reservationService.getStats())
+      .then((stats) => res.status(200).json(stats))
       .catch((error) => this.handleResponseError(res, error));
   };
 }

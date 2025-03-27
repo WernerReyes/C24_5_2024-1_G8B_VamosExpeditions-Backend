@@ -95,39 +95,7 @@ export class TripDetailsService {
     );
   }
 
-  public async getTripDetails({ versionQuotationId }: GetReservationsDto) {
-    const whereCondition = versionQuotationId
-      ? {
-          OR: [
-            ...(versionQuotationId
-              ? [
-                  {
-                    version_quotation: {
-                      quotation_id: {
-                        equals: versionQuotationId.quotationId,
-                      },
-                      version_number: {
-                        equals: versionQuotationId.versionNumber,
-                      },
-                    },
-                  },
-                ]
-              : []),
-          ],
-        }
-      : {}; // Si no hay filtros, se usa un objeto vacío para traer todo
-
-    const tripDetails = await TripDetailsModel.findMany({
-      where: whereCondition,
-      include: this.tripDetailsMapper.toSelectInclude,
-    });
-
-    return new ApiResponse<TripDetailsEntity[]>(
-      200,
-      "Detalles del viaje encontrados",
-      tripDetails.map(TripDetailsEntity.fromObject)
-    );
-  }
+ 
 
   public async generatePdf(id: number) {
     const data = await TripDetailsModel.findMany({

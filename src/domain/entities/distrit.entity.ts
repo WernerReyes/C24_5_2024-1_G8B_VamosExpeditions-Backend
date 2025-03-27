@@ -1,6 +1,4 @@
-import { Validations } from "@/core/utils";
-import { CustomError } from "../error";
-import type { city, distrit } from "@prisma/client";
+import type { distrit } from "@prisma/client";
 import { City, CityEntity } from "./city.entity";
 
 export type Distrit = distrit & {
@@ -8,20 +6,14 @@ export type Distrit = distrit & {
 };
 
 export class DistritEntity {
-  private constructor(
-    private readonly id: number,
-    private readonly name: string,
-    private readonly city?: CityEntity
+  public constructor(
+    public readonly id: number,
+    public readonly name: string,
+    public readonly city?: CityEntity
   ) {}
 
   public static fromObject(distrit: Distrit): DistritEntity {
     const { id_distrit, name, city } = distrit;
-
-    const error = Validations.validateEmptyFields({
-      id_distrit,
-      name,
-    });
-    if (error) throw CustomError.badRequest(error);
 
     return new DistritEntity(
       id_distrit,

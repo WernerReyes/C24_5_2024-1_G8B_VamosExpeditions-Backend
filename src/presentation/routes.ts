@@ -32,7 +32,7 @@ export class AppRoutes {
       `${this.prefix}/hotel-room-trip-details`,
       HotelRoomTripDetailsRoutes.getRoutes
     );
-    // router.use(`${this.prefix}/reservation`, ReservationRoutes.routes);
+    router.use(`${this.prefix}/reservation`, ReservationRoutes.routes);
 
     //* External
     router.use(`${this.prefix}/external/country`, ExternalCountryRoutes.routes);

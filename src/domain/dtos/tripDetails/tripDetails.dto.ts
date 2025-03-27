@@ -41,6 +41,8 @@ export class TripDetailsDto extends VersionQuotationIDDto {
       id = 0,
     } = props;
 
+    console.log("props", props);
+
     // Validar campos vacíos
     const error = Validations.validateEmptyFields(
       {

@@ -1,12 +1,10 @@
-import { Validations } from "@/core/utils";
-import { CustomError } from "../error";
-import type { client } from "@prisma/client";
+import { CacheAdapter } from "@/core/adapters";
+import { CacheConst } from "@/core/constants";
 import type {
   ExternalCountryEntity,
   Image,
 } from "@/presentation/external/country/country.entity";
-import { CacheAdapter } from "@/core/adapters";
-import { CacheConst } from "@/core/constants";
+import type { client } from "@prisma/client";
 
 export type Client = client & {};
 
@@ -39,22 +37,9 @@ export class ClientEntity {
       updatedAt,
     } = client;
 
-    const error = Validations.validateEmptyFields({
-      id,
-      fullName,
-      email,
-      phone,
-      country,
-      subregion,
-      createdAt,
-      updatedAt,
-    });
-
-    if (error) throw CustomError.badRequest(error);
-
     const cachedCountries =
       this.cache.get<ExternalCountryEntity[]>(CacheConst.COUNTRIES) || [];
-  
+
     return new ClientEntity(
       id,
       fullName,
@@ -67,24 +52,6 @@ export class ClientEntity {
       subregion,
       createdAt!,
       updatedAt!
-    );
-  }
-
-  public static validateEntity(
-    entity: ClientEntity,
-    from: string
-  ): string | null {
-    const { id, fullName, email, phone, subregion, country } = entity;
-    return Validations.validateEmptyFields(
-      {
-        id,
-        fullName,
-        email,
-        phone,
-        subregion,
-        country,
-      },
-      `${from}, ClientEntity`
     );
   }
 }
