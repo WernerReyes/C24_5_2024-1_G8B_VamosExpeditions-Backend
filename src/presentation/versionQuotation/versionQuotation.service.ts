@@ -60,7 +60,7 @@ export class VersionQuotationService {
     const updatedVersionQuotation = await VersionQuotationModel.update({
       where: this.versionQuotationMapper.findById.where,
       data: this.versionQuotationMapper.toUpdate,
-      include: this.versionQuotationMapper.toSelectInclude,
+      include: this.versionQuotationMapper.toInclude,
     }).catch((error: PrismaClientKnownRequestError) => {
       if (error.code === "P2002") {
         throw CustomError.badRequest(

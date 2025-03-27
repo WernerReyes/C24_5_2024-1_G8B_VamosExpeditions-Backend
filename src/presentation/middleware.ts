@@ -88,7 +88,7 @@ export class Middleware {
       const cookies = socket.handshake.headers.cookie;
       if (!cookies) return next(new Error("Token no proporcionado"));
 
-      const token = cookie.parse(cookies).token;
+      const token = cookie.parse(cookies)[EnvsConst.TOKEN_COOKIE_NAME];
       if (!token) return next(new Error("Token is required"));
 
       const payload = await JwtAdapter.verifyToken<{ id: string }>(token);
