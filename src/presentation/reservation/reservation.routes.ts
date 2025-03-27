@@ -20,7 +20,7 @@ export class ReservationRoutes {
     );
     const reservationController = new ReservationController(reservationService);
 
-   /*  router.use(Middleware.validateToken) */;
+    router.use(Middleware.validateToken);
     router.post("", reservationController.upsertReservation);
     router.put("/:id", reservationController.upsertReservation);
     router.get("/:id", reservationController.getReservationById);

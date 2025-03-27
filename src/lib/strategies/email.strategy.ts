@@ -4,6 +4,8 @@ import { EmailService, SendMailOptions } from "../nodemailer/email.service";
 import { PdfService } from "../pdfmake/pdf.service";
 import { Strategy } from "./context.strategy";
 import { reportTransport, reportHotel } from "@/report";
+import { TripDetailsModel } from "@/data/postgres";
+import { HotelReportPDF } from "@/report/pdf-reports/report.hotel.pdf";
 
 export class EmailStrategy implements Strategy {
   constructor(
@@ -12,9 +14,14 @@ export class EmailStrategy implements Strategy {
     private cloudinaryService: CloudinaryService
   ) {}
 
-  async sendMailWithPDF(data: SendMailOptions): Promise<void> {
+  async sendMailWithPDF(data: SendMailOptions): Promise<boolean> {
     try {
-      const queryResult = this.queryResultDB(data.type || "");
+      const queryResult = await this.queryResultDB(
+        data.type || "",
+        Number(data.reservationId) || 0
+      );
+      
+
       const pdfData = this.generatePDF(data.type || "", queryResult);
 
       if (!pdfData) {
@@ -42,29 +49,87 @@ export class EmailStrategy implements Strategy {
           },
         ],
       });
+
+      
+      return true;
     } catch (error) {
-      console.error("Error en sendMailWithPDF:", error);
       throw CustomError.internalServer("Error interno del servidor");
     }
   }
 
-  private async queryResultDB(type: string): Promise<any> {
+  private async queryResultDB(
+    type: string,
+    reservationId: number
+  ): Promise<any> {
     switch (type) {
       case "Transporte":
         return { destino: "Lima", fecha: "2024-02-11", pasajero: "Juan Pérez" };
       case "Alojamiento":
-        return { hotel: "Hotel Central", noches: 3, huesped: "Ana Gómez" };
+        return await TripDetailsModel.findMany({
+          where: { id: reservationId },
+          omit: {
+            client_id: true,
+          },
+          include: {
+            client: {
+              omit: {
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            hotel_room_trip_details: {
+              orderBy: {
+                date: "asc",
+              },
+              include: {
+                hotel_room: {
+                  include: {
+                    hotel: {},
+                  },
+                },
+              },
+            },
+            version_quotation: {
+              omit: {
+                created_at: true,
+                updated_at: true,
+              },
+              include: {
+                quotation: {
+                  omit: {
+                    created_at: true,
+                    updated_at: true,
+                  },
+                },
+                user: {
+                  omit: {
+                    id_role: true,
+                    password: true,
+                    online: true,
+                  },
+                },
+              },
+            },
+          },
+        });
       default:
         throw CustomError.badRequest("Tipo de servicio no soportado");
     }
   }
 
   private generatePDF(type: string, data: any): any {
+
+    const hotelReportPDF = new HotelReportPDF();
+
     switch (type) {
       case "Transporte":
         return reportTransport();
       case "Alojamiento":
-        return reportHotel();
+        return hotelReportPDF.generateReport({
+          title: "",
+          subTitle: "",
+          dataQuey: data,
+        });
       default:
         throw CustomError.badRequest("Tipo de servicio no soportado");
     }

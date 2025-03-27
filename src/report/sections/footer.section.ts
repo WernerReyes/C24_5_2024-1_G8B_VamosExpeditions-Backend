@@ -8,7 +8,8 @@ const footerText: Content = {
 export const footerSection = (
   currentPage: number,
   pageCount: number,
-  pageSize: ContextPageSize
+  pageSize: ContextPageSize,
+  user: any
 ): Content => {
   return {
     layout: "noBorders",
@@ -26,7 +27,7 @@ export const footerSection = (
                 style: "footerText",
               },
               {
-                text: "Prepared By: Annelies Hamerlinck",
+                text: `Prepared By: ${user}`,
                 alignment: "left",
                 style: "footerText",
               },

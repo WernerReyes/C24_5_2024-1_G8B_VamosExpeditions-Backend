@@ -168,7 +168,7 @@ export class VersionQuotationService {
         },
       },
     });
-
+   //console.log(versionsQuotation)
     return new ApiResponse<VersionQuotationEntity[]>(
       200,
       "Versión de cotización encontrada",

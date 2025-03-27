@@ -15,11 +15,13 @@ import { getTravelItineraryReport } from "@/report";
 import { TripDetailsMapper } from "./tripDetails.mapper";
 import { ApiResponse } from "../response";
 import { TripDetailsEntity } from "@/domain/entities";
+import { HotelReportPDF } from "@/report/pdf-reports/report.hotel.pdf";
 
 export class TripDetailsService {
   constructor(
     private tripDetailsMapper: TripDetailsMapper,
-    private pdfService: PdfService
+    private pdfService: PdfService,
+    private hotelReportPDF: HotelReportPDF
   ) {}
 
   public async upsertTripDetails(tripDetailsDto: TripDetailsDto) {
@@ -130,89 +132,70 @@ export class TripDetailsService {
   }
 
   public async generatePdf(id: number) {
-    const data = await TripDetailsModel.findMany({
-      where: { id: id },
-      select: {
-        id: true,
-        number_of_people: true,
-        start_date: true,
-        end_date: true,
-        traveler_style: true,
-
-        order_type: true,
-        additional_specifications: true,
-        code: true,
+    const TripDetailsQuery = await TripDetailsModel.findMany({
+      where: { id: id},
+      omit: {
+        client_id: true,
+      },
+      include: {
         client: {
-          select: {
-            id: true,
-            fullName: true,
-            country: true,
-            email: true,
-            phone: true,
-            subregion: true,
+          omit: {
+            createdAt: true,
+            updatedAt: true,
           },
         },
         hotel_room_trip_details: {
           orderBy: {
             date: "asc",
           },
-          select: {
-            id: true,
-            number_of_people: true,
-            date: true,
+          include: {
             hotel_room: {
-              select: {
-                id_hotel_room: true,
-                room_type: true,
-                price_pen: true,
-                price_usd: true,
-                rate_usd: true,
-                capacity: true,
-                hotel: {
-                  select: {
-                    id_hotel: true,
-                    name: true,
-                    category: true,
-                    address: true,
-                  },
-                },
+              include: {
+                hotel: {},
               },
             },
           },
         },
         version_quotation: {
-          select: {
-            indirect_cost_margin: true,
-            profit_margin: true,
-            final_price: true,
-            status: true,
-            official: true,
+          omit: {
+            created_at: true,
+            updated_at: true,
+          },
+          include: {
             quotation: {
-              select: {
-                id_quotation: true,
+              omit: {
+                created_at: true,
+                updated_at: true,
               },
             },
-
             user: {
-              select: {
-                id_user: true,
-                fullname: true,
+              omit: {
+                id_role: true,
+                password: true,
+                online: true,
               },
             },
           },
+          
         },
+        
       },
     });
 
-    const docDefinition = getTravelItineraryReport({
-      title: "Resumen rápidonnn",
-      subTitle: "Rolando Casapaico",
-      data: data,
+    
+    const pdfGenerated = await this.hotelReportPDF.generateReport({
+      title: "",
+      subTitle: "",
+      dataQuey: TripDetailsQuery,
     });
 
-    const pdf = await this.pdfService.createPdf(docDefinition);
+    const pdf = await this.pdfService.createPdf(pdfGenerated);
     return pdf;
   }
+
+
+
+
 
   public async getAll() {
     const data = await TripDetailsModel.findMany({
@@ -292,3 +275,5 @@ export class TripDetailsService {
 
   async sendServiceEmail(data: ReservationType) {}
 }
+
+

@@ -11,3 +11,4 @@ export * from './quotation.entity';
 export * from './versionQuotation.entity';
 export * from './hotelRoomTripDetails.entity';
 export * from './tripDetails.entity';
+export * from './notification.message.entity';

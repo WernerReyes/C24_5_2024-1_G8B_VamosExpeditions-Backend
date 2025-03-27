@@ -9,6 +9,7 @@ import { type DefaultArgs } from "@prisma/client/runtime/library";
 type Dto = TripDetailsDto;
 
 export class TripDetailsMapper {
+  
   private dto: Dto;
 
   constructor() {

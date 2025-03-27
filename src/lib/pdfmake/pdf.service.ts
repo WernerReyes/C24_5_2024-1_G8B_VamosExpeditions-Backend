@@ -21,20 +21,20 @@ const customTableLayouts: Record<string, CustomTableLayout> = {
     hLineWidth: function (i, node) {
       return 0.8;
     },
-    vLineWidth: function (i) {
-      return 0;
+    vLineWidth: function (i, node) {
+     
+      return 0.8;
     },
 
     hLineColor: function (i) {
       return "#bbbbbb";
-    } /*
-    vLineColor: function (i) {
-      
-      return "#bbbbbb";
-    }, */,
-    paddingLeft: function (i) {
-      return i === 0 ? 0 : 8;
     },
+    vLineColor: function (i) {
+      return "#bbbbbb";
+    },
+    /* paddingLeft: function (i) {
+      return i === 0 ? 0 : 8;
+    }, */
     paddingRight: function (i, node) {
       return node.table.widths && i === node.table.widths.length - 1 ? 0 : 8;
     },
@@ -45,6 +45,9 @@ const customTableLayouts: Record<string, CustomTableLayout> = {
       /*       if (i === node.table.body.length - 1) {
         return "gray";
       } */
+      if (i === node.table.body.length - 1) {
+        return "white";
+      }
 
       return i === 0 ? "#01A3BB" : i % 2 === 0 ? "#F4F6F6" : null;
     },
@@ -69,17 +72,17 @@ export class PdfService {
       tableLayouts: customTableLayouts,
     }
   ): Promise<Buffer> {
-    // Crear el documento PDF
+    
     const pdfDoc = this.printer.createPdfKitDocument(docDefinition, options);
 
-    // Convertir el stream de PDF en un Buffer
+    
     const chunks: Uint8Array[] = [];
     const bufferStream = new stream.PassThrough();
 
     pdfDoc.pipe(bufferStream);
     pdfDoc.end();
 
-    // Acumular los datos del PDF en un Buffer
+    
     return new Promise((resolve, reject) => {
       bufferStream.on("data", (chunk) => chunks.push(chunk));
       bufferStream.on("end", () => {

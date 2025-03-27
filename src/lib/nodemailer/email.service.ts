@@ -10,6 +10,7 @@ export interface SendMailOptions {
   attachements?: Attachement[];
   type?: ReservationType;
   queryResult?: any;
+  reservationId?: number;
 }
 
 export interface Attachement {

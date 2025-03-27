@@ -9,6 +9,7 @@ export class Reportdto {
     public readonly reservationId: number,
     public readonly description?: string
     
+    
   ) {}
 
   static create(props: { [key: string]: any }): [string?, Reportdto?] {

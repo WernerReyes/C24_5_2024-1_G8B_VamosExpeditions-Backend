@@ -1,16 +1,18 @@
-import jsw from "jsonwebtoken";
+import jsw, { SignOptions } from "jsonwebtoken";
 import { EnvsConst } from "../constants";
 
 export class JwtAdapter {
+  
   static async generateToken(
     payload: any,
-    duration: string = EnvsConst.JWT_DURATION
+    duration: number | string = EnvsConst.JWT_DURATION as string
   ) {
     return new Promise((resolve) => {
+    
       jsw.sign(
         payload,
         EnvsConst.JWT_SEED,
-        { expiresIn: duration },
+        { expiresIn: duration as SignOptions["expiresIn"] /* parseInt(duration,10) */ },
         (err, token) => {
           if (err) resolve(null);
 

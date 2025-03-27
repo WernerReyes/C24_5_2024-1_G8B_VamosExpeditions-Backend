@@ -19,6 +19,7 @@ export class HotelService {
       throw CustomError.internalServer(`${error.message}`);
     });
 
+    console.log(accommodationRooms);
     return new ApiResponse<HotelEntity[]>(
       200,
       "Lista de hoteles",

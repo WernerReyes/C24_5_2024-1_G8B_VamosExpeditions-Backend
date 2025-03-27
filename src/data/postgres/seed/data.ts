@@ -29,6 +29,7 @@ export const USERS: user[] = [
     password: BcryptAdapter.hash("aLTEC1234@"),
     fullname: "Test 1",
     id_role: 1,
+  online: false,
   },
   {
     id_user: 2,
@@ -36,6 +37,7 @@ export const USERS: user[] = [
     password: BcryptAdapter.hash("aLTEC1234@"),
     fullname: "Test 2",
     id_role: 2,
+    online: false,
   },
   {
     id_user: 3,
@@ -43,6 +45,7 @@ export const USERS: user[] = [
     password: BcryptAdapter.hash("aLTEC1234@"),
     fullname: "Test 3",
     id_role: 1,
+    online: false,
   },
   {
     id_user: 4,
@@ -50,6 +53,7 @@ export const USERS: user[] = [
     password: BcryptAdapter.hash("aLTEC1234@"),
     fullname: "Test 4",
     id_role: 2,
+    online: false,
   },
   {
     id_user: 5,
@@ -57,6 +61,7 @@ export const USERS: user[] = [
     password: BcryptAdapter.hash("aLTEC1234@"),
     fullname: "Test 5",
     id_role: 1,
+    online: false,
   },
   {
     id_user: 6,
@@ -64,6 +69,7 @@ export const USERS: user[] = [
     password: BcryptAdapter.hash("aLTEC1234@"),
     fullname: "Test 6",
     id_role: 2,
+    online: false,
   },
 ];
 

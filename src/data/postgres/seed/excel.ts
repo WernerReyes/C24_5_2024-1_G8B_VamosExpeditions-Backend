@@ -92,7 +92,7 @@ type ExelHotelRoom = {
 (async () => {
   await prisma.$connect();
   const rutaArchivo =
-    "C:\\Users\\HP\\Downloads\\TARIFAS HOTELES Y SERVICIOS 2025.xlsx";
+    "C:\\Users\\ROLANDO\\Downloads\\TARIFAS HOTELES Y SERVICIOS 2025.xlsx";
   await cargarDatosDesdeExcel(rutaArchivo);
   await prisma.$disconnect();
 })();

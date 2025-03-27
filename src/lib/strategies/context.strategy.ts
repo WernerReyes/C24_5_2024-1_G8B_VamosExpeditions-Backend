@@ -1,7 +1,7 @@
 import { SendMailOptions } from "../nodemailer/email.service";
 
 export interface Strategy {
-  sendMailWithPDF(data: SendMailOptions): Promise<void>;
+  sendMailWithPDF(data: SendMailOptions): Promise<boolean>;
 }
 
 export class ContextStrategy {
@@ -17,5 +17,6 @@ export class ContextStrategy {
 
   public async executeStrategy(data: SendMailOptions) {
     await this.strategy.sendMailWithPDF(data);
+    return true;
   }
 }

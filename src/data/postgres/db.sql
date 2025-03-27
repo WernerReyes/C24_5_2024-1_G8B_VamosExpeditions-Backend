@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS quotation;
 
 DROP TABLE IF EXISTS "user";
 DROP TABLE IF EXISTS role;
+DROP TABLE IF EXISTS notification;
 
 DROP table if EXISTS hotel_room;
 DROP table if EXISTS hotel;
@@ -48,6 +49,7 @@ CREATE TABLE IF NOT EXISTS "user" ( -- Use double quotes for reserved keywords l
 id_user SERIAL PRIMARY KEY, -- Use SERIAL for auto-incrementing IDs
 fullname VARCHAR(45) NOT NULL,
 email VARCHAR(45) NOT NULL,
+online BOOlEAN DEFAULT FAlSE,
 password VARCHAR(200) NOT NULL,
 id_role INT NOT NULL,
 CONSTRAINT fk_user_role FOREIGN KEY (id_role)
@@ -55,6 +57,27 @@ REFERENCES role (id_role)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 );
+
+CREATE TABLE IF NOT EXISTS notification (
+    id SERIAL PRIMARY KEY,
+    from_user INT NOT NULL,
+    to_user INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_notifications_from FOREIGN KEY (from_user)
+        REFERENCES "user"(id_user)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_notifications_to FOREIGN KEY (to_user)
+        REFERENCES "user"(id_user)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+
+
 
 -- -----------------------------------------------------
 -- Table `country`
