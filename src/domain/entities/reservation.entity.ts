@@ -1,6 +1,5 @@
 import type { reservation } from "@prisma/client";
 import {
-  type VersionQuotation,
   VersionQuotationEntity,
 } from "./versionQuotation.entity";
 import { Quotation } from "./quotation.entity";

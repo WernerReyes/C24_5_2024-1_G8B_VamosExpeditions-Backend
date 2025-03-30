@@ -1,4 +1,4 @@
-import { BcryptAdapter } from "@/core/adapters";
+import { BcryptAdapter } from "../../core/adapters";
 import { UserDto } from "@/domain/dtos";
 import { Prisma } from "@prisma/client";
 

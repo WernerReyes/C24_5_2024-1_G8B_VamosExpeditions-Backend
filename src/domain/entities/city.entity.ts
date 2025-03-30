@@ -1,7 +1,8 @@
-import { Validations } from "@/core/utils";
+
 import { CustomError } from "../error";
 import type { city, country } from "@prisma/client";
 import { CountryEntity } from "./country.entity";
+import { Validations } from "@/core/utils";
 
 export type City = city & {
   country?: country;

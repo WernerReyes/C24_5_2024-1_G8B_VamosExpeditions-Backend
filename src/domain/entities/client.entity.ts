@@ -1,4 +1,4 @@
-import { CacheAdapter } from "@/core/adapters";
+import { CacheAdapter } from "../../core/adapters";
 import { CacheConst } from "@/core/constants";
 import type {
   ExternalCountryEntity,

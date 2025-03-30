@@ -30,7 +30,7 @@ export class AuthController extends AppController {
       secure: false,
       // secure: EnvsConst.NODE_ENV === "production",
       expires: expiresAt,
-      // sameSite: "none",
+      sameSite: "none",
       path: "/",
     });
 
@@ -69,6 +69,7 @@ export class AuthController extends AppController {
     this.handleError(this.authService.login(loginDto!))
       .then((response) => {
         const { expiresAt } = this.setCookie(res, response.data.token);
+        
         return res.status(200).json({
           message: response.message,
           status: response.status,
@@ -85,6 +86,7 @@ export class AuthController extends AppController {
     this.handleError(this.authService.reLogin(req.user))
       .then((response) => {
         const { expiresAt } = this.setCookie(res, response.data.token);
+     
         return res.status(200).json({
           message: response.message,
           status: response.status,

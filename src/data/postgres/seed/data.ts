@@ -1,4 +1,4 @@
-import { BcryptAdapter } from "@/core/adapters";
+import { BcryptAdapter } from "../../../core/adapters";
 import { Hotel, HotelCategory } from "@/domain/entities";
 import {
   role,
@@ -29,7 +29,9 @@ export const USERS: user[] = [
     password: BcryptAdapter.hash("aLTEC1234@"),
     fullname: "Test 1",
     id_role: 1,
-  online: false,
+    online: false,
+    description:"description 1",
+    phone_number: "123456789",
   },
   {
     id_user: 2,
@@ -38,6 +40,8 @@ export const USERS: user[] = [
     fullname: "Test 2",
     id_role: 2,
     online: false,
+    description:"description 2",
+    phone_number: "123456789",
   },
   {
     id_user: 3,
@@ -46,6 +50,8 @@ export const USERS: user[] = [
     fullname: "Test 3",
     id_role: 1,
     online: false,
+    description:"description 3",
+    phone_number: "123456789",
   },
   {
     id_user: 4,
@@ -54,6 +60,8 @@ export const USERS: user[] = [
     fullname: "Test 4",
     id_role: 2,
     online: false,
+    description:"description 4",
+    phone_number: "123456789",
   },
   {
     id_user: 5,
@@ -62,6 +70,8 @@ export const USERS: user[] = [
     fullname: "Test 5",
     id_role: 1,
     online: false,
+    description:"description 5",
+    phone_number: "123456789",
   },
   {
     id_user: 6,
@@ -70,6 +80,8 @@ export const USERS: user[] = [
     fullname: "Test 6",
     id_role: 2,
     online: false,
+    description:"description 6",
+    phone_number: "123456789",
   },
 ];
 

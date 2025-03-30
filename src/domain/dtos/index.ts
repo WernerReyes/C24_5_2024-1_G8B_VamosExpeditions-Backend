@@ -35,5 +35,5 @@ export * from './report/report.dto';
 
 
 //* COMMON
-export * from './common/versionQuotationID.dto';
+export * from './common/VersionQuotationID.dto';
 export * from './common/pagination.dto';

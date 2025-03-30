@@ -1,10 +1,11 @@
-import { CacheAdapter } from "@/core/adapters";
+import { CacheAdapter } from "../../core/adapters";
 import { CacheConst } from "@/core/constants";
 import type {
   ExternalCountryEntity,
   Image,
 } from "@/presentation/external/country/country.entity";
 import { CityEntity } from "./city.entity";
+
 export class CountryEntity {
   private static cache: CacheAdapter = CacheAdapter.getInstance();
 

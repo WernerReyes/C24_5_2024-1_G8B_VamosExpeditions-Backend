@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
-import { UserModel } from "@/data/postgres";
-import { JwtAdapter } from "@/core/adapters";
+import { UserModel } from "../data/postgres";
+import { JwtAdapter } from "../core/adapters";
 
-import { RoleEnum, UserEntity } from "@/domain/entities";
+import { RoleEnum, UserEntity } from "../domain/entities";
 import { EnvsConst, ErrorCodeConst } from "@/core/constants";
 
 import { Socket } from "socket.io";

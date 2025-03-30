@@ -54,7 +54,11 @@ export class Server {
       cors({
         origin: this.clientUrl,
         credentials: true,
-      })
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],  // ✅ Asegura que POST está permitido
+        allowedHeaders: ["Content-Type", "Authorization"],
+      }
+      
+    )
     );
 
     //* Public Folder

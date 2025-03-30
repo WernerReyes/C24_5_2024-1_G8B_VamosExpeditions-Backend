@@ -1,3 +1,4 @@
+import "module-alias/register";
 export * from './city.entity';
 export * from './client.entity';
 export * from './country.entity';

@@ -1,6 +1,4 @@
 import type { role, user } from "@prisma/client";
-import { Validations } from "@/core/utils";
-import { CustomError } from "../error";
 import { RoleEntity } from "./role.entity";
 
 export interface User extends Omit<user, "password" | "id_role"> {
