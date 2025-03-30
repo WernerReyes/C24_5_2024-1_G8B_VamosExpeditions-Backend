@@ -5,13 +5,14 @@ export class HotelRoomTripDetailsDto {
     public readonly hotelRoomId: number,
     public readonly tripDetailsId: number,
     public readonly date: Date,
+    public readonly countPerDay: number,
     public readonly numberOfPeople: number
   ) {}
 
   public static create(props: {
     [key: string]: any;
   }): [string?, HotelRoomTripDetailsDto?] {
-    const { hotelRoomId, tripDetailsId, date, numberOfPeople } =
+    const { hotelRoomId, tripDetailsId, date, numberOfPeople, countPerDay } =
       props as HotelRoomTripDetailsDto;
 
     const emptyFieldsError = Validations.validateEmptyFields(
@@ -43,6 +44,7 @@ export class HotelRoomTripDetailsDto {
         +hotelRoomId,
         +tripDetailsId,
         new Date(date),
+        +countPerDay,
         +numberOfPeople
       ),
     ];

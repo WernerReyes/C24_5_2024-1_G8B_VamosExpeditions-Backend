@@ -68,6 +68,7 @@ export class QuotationService {
       type: reportdto.resources as ReservationType,
       htmlBody: reportdto.description,
       reservationId: reportdto.reservationId,
+      
     });
 
     if (!resultSend) {

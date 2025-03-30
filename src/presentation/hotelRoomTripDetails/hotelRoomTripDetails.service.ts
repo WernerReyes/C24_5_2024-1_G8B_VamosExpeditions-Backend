@@ -28,22 +28,6 @@ export class HotelRoomTripDetailsService {
   ) {
     this.hotelRoomTripDetailsMapper.setDto = hotelRoomTripDetailsDto;
 
-    const existHotelRoomTripDetails =
-      await HotelRoomTripDetailsModel.findUnique({
-        where: {
-          hotel_room_id_date_trip_details_id: {
-            hotel_room_id: hotelRoomTripDetailsDto.hotelRoomId,
-            trip_details_id: hotelRoomTripDetailsDto.tripDetailsId,
-            date: hotelRoomTripDetailsDto.date,
-          },
-        },
-      });
-
-    if (existHotelRoomTripDetails)
-      throw CustomError.badRequest(
-        "Ya existe una habitación cotizada para este día"
-      );
-
     //* Validate if the date is within the range of the quotation
     await this.validateDateRange(hotelRoomTripDetailsDto);
 
@@ -53,16 +37,22 @@ export class HotelRoomTripDetailsService {
 
     if (!hotelRoomExists)
       throw CustomError.notFound("Habitación no encontrada");
-
-    const hotelRoomTripDetails = await HotelRoomTripDetailsModel.create({
+    
+    let hotelRoomTripDetails: HotelRoomTripDetails[] = [];
+    for(let i = 0; i < hotelRoomTripDetailsDto.countPerDay; i++) {
+    const data = await HotelRoomTripDetailsModel.create({
       data: this.hotelRoomTripDetailsMapper.toCreate,
       include: this.hotelRoomTripDetailsMapper.toSelectInclude,
     });
+    hotelRoomTripDetails.push(data);
+  }
 
-    return new ApiResponse<HotelRoomTripDetailsEntity>(
+    return new ApiResponse<HotelRoomTripDetailsEntity[]>(
       201,
       "Cotización de habitación creada correctamente",
-      HotelRoomTripDetailsEntity.fromObject(hotelRoomTripDetails)
+      hotelRoomTripDetails.map((hotelRoomTripDetails) =>
+        HotelRoomTripDetailsEntity.fromObject(hotelRoomTripDetails)
+      )
     );
   }
 
@@ -88,15 +78,18 @@ export class HotelRoomTripDetailsService {
           hotelRoomId: InsertManyHotelRoomTripDetailsDto.hotelRoomId,
           tripDetailsId: InsertManyHotelRoomTripDetailsDto.tripDetailsId,
           date,
+          countPerDay: InsertManyHotelRoomTripDetailsDto.countPerDay,
           numberOfPeople: InsertManyHotelRoomTripDetailsDto.numberOfPeople,
         });
 
-        hotelRoomTripDetails.push(data);
+        for (let i = 0; i < data.length; i++) {
+          hotelRoomTripDetails.push(data[i]);
+        }
       } catch (error) {
         if (
           error instanceof CustomError &&
           error.message.includes(
-            "Ya existe una habitación cotizada para este día"
+            "El número de personas no puede ser mayor a la capacidad de la habitación para este día"
           )
         ) {
           skippedDays.push(date.getDate());
@@ -111,12 +104,13 @@ export class HotelRoomTripDetailsService {
     //* Check if all days were skipped
     if (skippedDays.length === diffTimeInDays) {
       throw CustomError.badRequest(
-        `No se pudo insertar ninguna habitación cotizada: ya existen cotizaciones para todos los días (${skippedDays.join(
+        `No se pudo insertar ninguna habitación cotizada, ya que el número de personas no puede ser mayor a la capacidad de la habitación para los días (${skippedDays.join(
           ", "
         )})`
       );
     }
 
+  
     return new ApiResponse<HotelRoomTripDetailsEntity[]>(
       201,
       "Cotizaciones de habitaciones creadas correctamente",
@@ -135,7 +129,6 @@ export class HotelRoomTripDetailsService {
           gt: startDate,
         },
       },
-   
     });
 
     const updatedManyHotelRoomTripDetails: HotelRoomTripDetails[] = [];
@@ -155,8 +148,6 @@ export class HotelRoomTripDetailsService {
         updatedManyHotelRoomTripDetails.push(updatedHotelRoomTripDetails);
       }
     }
-
-
 
     return new ApiResponse<HotelRoomTripDetailsEntity[]>(
       200,
@@ -241,6 +232,18 @@ export class HotelRoomTripDetailsService {
         start_date: true,
         end_date: true,
         number_of_people: true,
+        hotel_room_trip_details: {
+          select: {
+            id: true,
+            number_of_people: true,
+            date: true,
+            hotel_room: {
+              select: {
+                capacity: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -250,6 +253,28 @@ export class HotelRoomTripDetailsService {
       throw CustomError.badRequest(
         "El número de personas no coincide con la cantidad de personas de la reserva"
       );
+
+    
+      // Filtrar solo las reservas que corresponden al mismo día
+      const reservationsForTheDay = dateRange.hotel_room_trip_details.filter(
+        (hotelRoomTripDetails) =>
+          DateUtils.resetTimeToMidnight(hotelRoomTripDetails.date).getTime() === DateUtils.resetTimeToMidnight(HotelRoomTripDetailsDto.date).getTime()
+      );
+
+      // Calcular la cantidad total de personas para ese día, incluyendo la nueva reserva
+      const totalPeopleForTheDay =
+        reservationsForTheDay.reduce((sum, reservation) => sum + reservation.number_of_people, 0) +
+        HotelRoomTripDetailsDto.numberOfPeople;
+
+        
+        
+      
+      // Verificar si supera la capacidad de la habitación
+      if (totalPeopleForTheDay > dateRange.number_of_people) {
+        throw CustomError.badRequest(
+          "El número de personas no puede ser mayor a la capacidad de la habitación para este día"
+        );
+      }
 
     const currentDate = DateUtils.resetTimeToMidnight(
       HotelRoomTripDetailsDto.date

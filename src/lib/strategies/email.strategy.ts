@@ -20,6 +20,8 @@ export class EmailStrategy implements Strategy {
         data.type || "",
         Number(data.reservationId) || 0
       );
+
+      console.log(data.reservationId)
       
 
       const pdfData = this.generatePDF(data.type || "", queryResult);

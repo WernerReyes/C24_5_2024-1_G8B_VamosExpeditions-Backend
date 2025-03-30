@@ -154,4 +154,22 @@ export class VersionQuotationController extends AppController {
       .then((versionsQuotation) => res.status(200).json(versionsQuotation))
       .catch((error) => this.handleResponseError(res, error));
   };
+
+  public generatePdf = async (req: Request, res: Response) => {
+    const [error, idDto] = VersionQuotationIDDto.create(req.params);
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(this.versionQuotationService.generatePdf(idDto!))
+      .then((pdf) => {
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename=tripDetails.pdf`
+        );
+        pdf.pipe(res);
+        pdf.end();
+      })
+      .catch((error) => this.handleResponseError(res, error));
+  };
 }

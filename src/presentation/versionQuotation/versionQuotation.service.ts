@@ -15,10 +15,14 @@ import { CustomError } from "@/domain/error";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { ApiResponse, PaginatedResponse } from "../response";
 import type { VersionQuotationMapper } from "./versionQuotation.mapper";
+import { PdfService } from "@/lib";
+import { VersionQuotationReport } from "./versionQuotation.report";
 
 export class VersionQuotationService {
   constructor(
-    private readonly versionQuotationMapper: VersionQuotationMapper
+    private readonly versionQuotationMapper: VersionQuotationMapper,
+    private readonly versionQuotationReport: VersionQuotationReport,
+    private readonly pdfService: PdfService
   ) {}
 
   public async updateVersionQuotation(
@@ -583,5 +587,51 @@ export class VersionQuotationService {
       "Versión de cotización duplicada correctamente",
       VersionQuotationEntity.fromObject(newVersionQuotation)
     );
+  }
+
+  public async generatePdf({ versionQuotationId }: VersionQuotationIDDto) {
+    const versionQuotation = await VersionQuotationModel.findUnique({
+      where: {
+        version_number_quotation_id: {
+          version_number: versionQuotationId!.versionNumber,
+          quotation_id: versionQuotationId!.quotationId,
+        },
+        status: {
+          not: VersionQuotationStatus.DRAFT,
+        }
+      },
+      include: {
+        trip_details: {
+          include: {
+            hotel_room_trip_details: {
+              orderBy: {
+                date: "asc",
+              },
+              include: {
+                hotel_room: {
+                  include: {
+                    hotel: true,
+                  },
+                },
+              },
+            },
+            client: true,
+          },
+        },
+        user: true,
+      },
+    });
+    if (!versionQuotation)
+      throw CustomError.badRequest(
+        "Versión de cotización no encontrada o no completado"
+      );
+
+    const pdfGenerated = await this.versionQuotationReport.generateReport({
+      title: "",
+      subTitle: "",
+      dataQuey: versionQuotation,
+    });
+
+    return await this.pdfService.createPdf(pdfGenerated);
   }
 }

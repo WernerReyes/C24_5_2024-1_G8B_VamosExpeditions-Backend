@@ -46,6 +46,9 @@ export class ReservationService {
                 {
                   status: VersionQuotationStatus.COMPLETED,
                 },
+                {
+                  status: VersionQuotationStatus.CANCELATED
+                }
               ],
               //  VersionQuotationStatus.APPROVED
               official: true,
@@ -296,6 +299,7 @@ export class ReservationService {
       orderBy: { reservation_date: "asc" },
     });
 
+ 
     const formattedPricesPerMonth = months.map((month, index) => {
       //* Get all reservations for the given month
       const monthPrices = totalPricesPerMonth.filter(
@@ -314,7 +318,7 @@ export class ReservationService {
         },
         { totalIncome: 0, totalMargin: 0, totalTrips: 0, totalEntries: 0 }
       );
-
+ 
       return {
         month,
         income: totals.totalIncome.toFixed(2),
