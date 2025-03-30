@@ -4,7 +4,7 @@ import {
   ReservationStatus,
   TravelerStyle,
 } from "@/domain/entities";
-import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
+import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
 
 const FROM = "TripDetailsDto";
 export class TripDetailsDto extends VersionQuotationIDDto {

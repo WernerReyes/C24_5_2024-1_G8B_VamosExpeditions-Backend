@@ -1,5 +1,7 @@
 import { Validations } from "@/core/utils";
-import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
+import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
+
+/* import { VersionQuotationIDDto } from "../common/versionQuotationID.dto"; */
 
 export class DuplicateVersionQuotationDto extends VersionQuotationIDDto {
   private constructor(

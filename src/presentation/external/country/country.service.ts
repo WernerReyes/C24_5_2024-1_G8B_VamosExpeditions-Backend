@@ -1,6 +1,6 @@
 import { CacheConst } from "@/core/constants";
 import type { ExternalCountryEntity } from "./country.entity";
-import { CacheAdapter } from "@/core/adapters";
+import { CacheAdapter } from "../../../core/adapters";
 import { CustomError } from "@/domain/error";
 import { ApiResponse } from "../../response";
 

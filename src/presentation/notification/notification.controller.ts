@@ -1,7 +1,7 @@
 import { AppController } from "../controller";
 import { Request, Response } from "express";
 import { NotificationService } from "./notification.service";
-import { JwtAdapter } from "@/core/adapters";
+import { JwtAdapter } from "../../core/adapters";
 import type { RequestAuth } from "../middleware";
 
 export class NotificationController extends AppController {

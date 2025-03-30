@@ -1,6 +1,6 @@
-import { Validations } from "@/core/utils";
-import { CustomError } from "@/domain/error";
+import { CustomError } from "../../../domain/error/custom.error";
 import type { ExternalCountryModel } from "./country.model";
+import { Validations } from "../../../core/utils/validations";
 
 export type Image = {
   svg: string;
@@ -35,8 +35,6 @@ export enum Subregion {
   CentralAsia = "Central Asia",
 }
 
-
-
 export class ExternalCountryEntity {
   constructor(
     public readonly name: string,
@@ -63,7 +61,12 @@ export class ExternalCountryEntity {
 
     if (error) throw CustomError.badRequest(error);
 
-    return new ExternalCountryEntity(name, code, { svg, png }, subregion as Subregion);
+    return new ExternalCountryEntity(
+      name,
+      code,
+      { svg, png },
+      subregion as Subregion
+    );
   }
 
   public static validateEntity(

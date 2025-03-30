@@ -1,4 +1,4 @@
-import { BcryptAdapter, JwtAdapter } from "@/core/adapters";
+import { BcryptAdapter, JwtAdapter } from "../../core/adapters";
 import { UserModel } from "@/data/postgres";
 import { LoginDto } from "@/domain/dtos";
 import { UserEntity } from "@/domain/entities";
@@ -32,6 +32,7 @@ export class AuthService {
       id: user.id_user,
     })) as string;
     if (!token) throw CustomError.internalServer("Error generating token");
+
 
     return new ApiResponse<{
       user: UserEntity;

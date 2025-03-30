@@ -1,5 +1,5 @@
 import { Validations } from "@/core/utils";
-import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
+import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
 
 export class DuplicateMultipleVersionQuotationDto {
   private constructor(

@@ -4,6 +4,7 @@ import { ExternalCountryEntity } from "./presentation/external/country/country.e
 import type { ExternalCountryModel } from "./presentation/external/country/country.model";
 import { AppRoutes } from "./presentation/routes";
 import { Server } from "./presentation/server";
+import "module-alias/register";
 
 const { EXTERNAL_API_COUNTRY_URL } = EnvsConst;
 

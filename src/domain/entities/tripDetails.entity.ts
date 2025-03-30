@@ -1,10 +1,8 @@
-import { Validations } from "@/core/utils";
+
 import type {
-  client,
   trip_details,
   trip_details_has_city,
 } from "@prisma/client";
-import { CustomError } from "../error";
 import { City, CityEntity } from "./city.entity";
 import { Client, ClientEntity } from "./client.entity";
 import {

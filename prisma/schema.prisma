@@ -61,11 +61,11 @@ model user {
   id_user                                   Int                 @id @default(autoincrement())
   fullname                                  String              @db.VarChar(45)
   email                                     String              @db.VarChar(45)
-  password                                  String              @db.VarChar(200)
-  id_role                                   Int
   online                                    Boolean?            @default(false)
+  password                                  String              @db.VarChar(200)
   description                               String?
   phone_number                              String?             @db.VarChar(20)
+  id_role                                   Int
   notification_notification_from_userTouser notification[]      @relation("notification_from_userTouser")
   notification_notification_to_userTouser   notification[]      @relation("notification_to_userTouser")
   role                                      role                @relation(fields: [id_role], references: [id_role], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_role")
@@ -111,12 +111,12 @@ model version_quotation {
   name                  String                   @db.VarChar(100)
   profit_margin         Decimal?                 @db.Decimal(5, 2)
   final_price           Decimal?                 @db.Decimal(10, 2)
+  completion_percentage Int                      @default(0)
   official              Boolean                  @default(false)
   user_id               Int
   created_at            DateTime                 @default(now()) @db.Timestamp(6)
   updated_at            DateTime                 @default(now()) @db.Timestamp(6)
   status                version_quotation_status @default(DRAFT)
-  completion_percentage Int                      @default(0)
   trip_details          trip_details?
   quotation             quotation                @relation(fields: [quotation_id], references: [id_quotation], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_quotation")
   user                  user                     @relation(fields: [user_id], references: [id_user], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_user")
@@ -217,9 +217,9 @@ enum trip_details_traveler_style {
 
 enum version_quotation_status {
   DRAFT
-  APPROVED
   COMPLETED
   CANCELATED
+  APPROVED
 }
 
 enum reservation_status {

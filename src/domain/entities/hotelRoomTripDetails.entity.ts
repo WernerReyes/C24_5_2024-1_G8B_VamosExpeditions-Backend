@@ -1,6 +1,4 @@
-import { Validations } from "@/core/utils";
 import type { hotel_room_trip_details } from "@prisma/client";
-import { CustomError } from "../error";
 import { HotelRoom, HotelRoomEntity } from "./hotelRoom.entity";
 import { TripDetails, TripDetailsEntity } from "./tripDetails.entity";
 

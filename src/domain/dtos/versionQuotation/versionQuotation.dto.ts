@@ -1,6 +1,6 @@
 import { Validations } from "@/core/utils";
 import { VersionQuotationStatus } from "@/domain/entities";
-import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
+import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
 
 export class VersionQuotationDto extends VersionQuotationIDDto {
   private constructor(

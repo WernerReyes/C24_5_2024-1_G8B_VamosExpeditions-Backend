@@ -1,6 +1,5 @@
 import { ReservationStatus } from "@/domain/entities";
 import { PaginationDto } from "../common/pagination.dto";
-import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
 import { ParamsUtils, Validations } from "@/core/utils";
 
 export class GetReservationsDto extends PaginationDto {
