@@ -29,7 +29,7 @@ export class AuthController extends AppController {
       httpOnly: true,
       secure: EnvsConst.NODE_ENV === "production",
       expires: expiresAt,
-      // sameSite: "none",
+      sameSite: "none",
       path: "/",
     });
 
@@ -41,7 +41,7 @@ export class AuthController extends AppController {
         httpOnly: false, // Allow client-side access
         secure: false,
         expires: expiresAt,
-        // sameSite: "none",
+        sameSite: "none",
         path: "/",
       }
     );
@@ -50,7 +50,7 @@ export class AuthController extends AppController {
       httpOnly: true,
       secure: EnvsConst.NODE_ENV === "production",
       expires: expiresAtRefresh,
-      // sameSite: "none",
+      sameSite: "none",
       path: "/",
     });
 
