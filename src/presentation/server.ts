@@ -52,13 +52,15 @@ export class Server {
     this.app.use(cookieParser());
     this.app.use(
       cors({
-        origin: this.clientUrl,
+        origin: [
+          this.clientUrl,
+          "https://c24-5-2024-1-g8b-vamosexpeditions-backend.onrender.com",
+          "http://localhost:8000",
+        ],
         credentials: true,
-        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],  // ✅ Asegura que POST está permitido
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // ✅ Asegura que POST está permitido
         allowedHeaders: ["Content-Type", "Authorization"],
-      }
-      
-    )
+      })
     );
 
     //* Public Folder
