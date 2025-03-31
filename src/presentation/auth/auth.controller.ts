@@ -37,12 +37,13 @@ export class AuthController extends AppController {
       expiresAt.toISOString(),
       {
         httpOnly: false, // Allow client-side access
-        secure: false,
+        secure: EnvsConst.NODE_ENV === "production", // Change from false
         expires: expiresAt,
         sameSite: "none",
         path: "/",
       }
     );
+    
 
     res.cookie(EnvsConst.REFRESH_TOKEN_COOKIE_NAME, token, {
       httpOnly: true,
