@@ -35,7 +35,12 @@ export class Server {
     this.httpServer = http.createServer(this.app);
     this.io = new SocketServer(this.httpServer, {
       cors: {
-        origin: client_url,
+        origin: [
+          client_url,
+          "https://c24-5-2024-1-g8b-vamosexpeditions-backend.onrender.com",
+          "http://localhost:8000",
+          "https://vamosexpeditions.netlify.app",
+        ],
         credentials: true,
       },
       /* pingInterval: 25000,
@@ -56,6 +61,7 @@ export class Server {
           this.clientUrl,
           "https://c24-5-2024-1-g8b-vamosexpeditions-backend.onrender.com",
           "http://localhost:8000",
+          "https://vamosexpeditions.netlify.app",
         ],
         credentials: true,
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // ✅ Asegura que POST está permitido
