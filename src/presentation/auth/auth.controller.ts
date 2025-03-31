@@ -21,9 +21,7 @@ export class AuthController extends AppController {
       Date.now() + expires + 1000 * 60 //* 1 minute
     );
 
-    console.log(EnvsConst.TOKEN_COOKIE_NAME);
-    console.log(EnvsConst.EXPIRATION_TOKEN_COOKIE_NAME);
-    console.log(EnvsConst.REFRESH_TOKEN_COOKIE_NAME);
+    console.log(EnvsConst.NODE_ENV === "production");
 
     res.cookie(EnvsConst.TOKEN_COOKIE_NAME, token, {
       httpOnly: true,
