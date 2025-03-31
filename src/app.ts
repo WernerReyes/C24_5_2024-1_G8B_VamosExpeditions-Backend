@@ -24,6 +24,9 @@ async function main() {
   });
 
   server.start();
+
+  console.log(EnvsConst.NODE_ENV === "production");
+
 }
 
 async function externalCountries() {
