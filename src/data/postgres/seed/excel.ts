@@ -6,20 +6,13 @@ import {
   hotel,
   hotel_room,
 } from "@prisma/client";
-import * as XLSX from "xlsx";
-import { COUNTRIES, ROLES, USERS } from "./data";
 import { Decimal } from "@prisma/client/runtime/library";
+import * as XLSX from "xlsx";
+import { PARNERTS, ROLES, USERS } from "./data";
 
 const prisma = new PrismaClient();
 
-type ExelHotel = {
-  Hoteles: number;
-  __EMPTY: string;
-  __EMPTY_1: string;
-  __EMPTY_2: string;
-  __EMPTY_3: string;
-  __EMPTY_4: string;
-};
+
 
 type ExelCountry = {
   Pais: number;
@@ -58,41 +51,11 @@ type ExelHotelRoom = {
   __EMPTY_6: number | undefined;
 };
 
-// {
-//   Habitaciones: 190,
-//   __EMPTY: 42,
-//   __EMPTY_1: 'EJECUTIVA SIMP/DOB',
-//   __EMPTY_2: 'ALTA',
-//   __EMPTY_3: 103,
-//   __EMPTY_4: 10,
-//   __EMPTY_5: 113.30000000000001
-// }
-
-// {
-//   Hoteles: 96,
-//   __EMPTY: 3,
-//   __EMPTY_1: "HOTEL EL REFUGIO D'ELISE",
-//   __EMPTY_2: 'Fundo Putuco Chivay,',
-//   __EMPTY_3: 13
-// },
-
-// {
-//     Hoteles: 24,
-//     __EMPTY: 'Villa',
-//     __EMPTY_1: 'VILLA BARRANCO by Ananay Hotels',
-//     __EMPTY_2: 'Calle Carlos Zegarra 274',
-//     __EMPTY_3: 'Barranco',
-//     __EMPTY_4: 'Lima'
-//   },
-
-// { Pais: 'id', __EMPTY: 'name', __EMPTY_1: 'code' },
-//   { Pais: 1, __EMPTY: 'Peru', __EMPTY_1: 'PE' },
-//   { Pais: 2, __EMPTY: 'Bolivia', __EMPTY_1: 'BO' }
 
 (async () => {
   await prisma.$connect();
   const rutaArchivo =
-    "C:\\Users\\ROLANDO\\Downloads\\TARIFAS HOTELES Y SERVICIOS 2025.xlsx";
+    "C:\\Users\\HP\\Downloads\\TARIFAS HOTELES Y SERVICIOS 2025.xlsx";
   await cargarDatosDesdeExcel(rutaArchivo);
   await prisma.$disconnect();
 })();
@@ -136,6 +99,7 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
         prisma.hotel_room.deleteMany(),
         prisma.hotel.deleteMany(),
         prisma.user.deleteMany(),
+        prisma.partner.deleteMany(),
         prisma.role.deleteMany(),
         prisma.distrit.deleteMany(),
         prisma.city.deleteMany(),
@@ -158,6 +122,11 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
     //* Insert Users
     await prisma.user.createMany({
       data: USERS,
+    });
+
+    //* Insert Partners
+    await prisma.partner.createMany({
+      data: PARNERTS,
     });
 
     //* Insert Countries
@@ -185,34 +154,14 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
       data: hotelRooms,
     });
 
-    // console.log(districts);
-
-    // console.log(dataWithOutUndefined);
-
-    // // Iterar sobre los datos e insertarlos en la base de datos
-    // for (const fila of datos) {
-    //   await prisma.producto.create({
-    //     data: {
-    //       nombre: fila.Nombre,
-    //       precio: parseFloat(fila.Precio),
-    //       categoria: fila.Categoria,
-    //     },
-    //   });
-    // }
-
     console.log("Datos cargados correctamente");
   } catch (error) {
     console.error("Error al cargar los datos:", error);
   } finally {
-    // await prisma.$disconnect();
+    await prisma.$disconnect();
   }
 }
 
-// // Ruta del archivo Excel
-// const rutaArchivo = './productos.xlsx';
-
-// // Ejecutar la carga
-// cargarDatosDesdeExcel(rutaArchivo);
 
 const getFormattedCountryFromExcel = (book: XLSX.WorkBook): country[] => {
   const countrySheet = book.SheetNames[4];

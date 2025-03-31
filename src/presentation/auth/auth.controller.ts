@@ -27,8 +27,7 @@ export class AuthController extends AppController {
 
     res.cookie(EnvsConst.TOKEN_COOKIE_NAME, token, {
       httpOnly: true,
-      secure: false,
-      // secure: EnvsConst.NODE_ENV === "production",
+      secure: EnvsConst.NODE_ENV === "production",
       expires: expiresAt,
       sameSite: "none",
       path: "/",
@@ -48,8 +47,7 @@ export class AuthController extends AppController {
 
     res.cookie(EnvsConst.REFRESH_TOKEN_COOKIE_NAME, token, {
       httpOnly: true,
-      secure: false,
-      // secure: EnvsConst.NODE_ENV === "production",
+      secure: EnvsConst.NODE_ENV === "production",
       expires: expiresAtRefresh,
       // sameSite: "none",
       path: "/",

@@ -1,15 +1,14 @@
-import { BcryptAdapter } from "../../../core/adapters";
 import { Hotel, HotelCategory } from "@/domain/entities";
 import {
-  role,
-  user,
-  role_type,
-  country,
   city,
+  country,
   distrit,
-  hotel_room,
-  Prisma,
+  partner,
+  role,
+  role_type,
+  user
 } from "@prisma/client";
+import { BcryptAdapter } from "../../../core/adapters";
 
 export const ROLES: role[] = [
   {
@@ -30,8 +29,8 @@ export const USERS: user[] = [
     fullname: "Test 1",
     id_role: 1,
     online: false,
-    description:"description 1",
-    phone_number: "123456789",
+    description: "description 1",
+    phone_number: "+51123456789",
   },
   {
     id_user: 2,
@@ -40,8 +39,8 @@ export const USERS: user[] = [
     fullname: "Test 2",
     id_role: 2,
     online: false,
-    description:"description 2",
-    phone_number: "123456789",
+    description: "description 2",
+    phone_number: "+51123456789",
   },
   {
     id_user: 3,
@@ -50,8 +49,8 @@ export const USERS: user[] = [
     fullname: "Test 3",
     id_role: 1,
     online: false,
-    description:"description 3",
-    phone_number: "123456789",
+    description: "description 3",
+    phone_number: "+51123456789",
   },
   {
     id_user: 4,
@@ -60,8 +59,8 @@ export const USERS: user[] = [
     fullname: "Test 4",
     id_role: 2,
     online: false,
-    description:"description 4",
-    phone_number: "123456789",
+    description: "description 4",
+    phone_number: "+51123456789",
   },
   {
     id_user: 5,
@@ -70,8 +69,8 @@ export const USERS: user[] = [
     fullname: "Test 5",
     id_role: 1,
     online: false,
-    description:"description 5",
-    phone_number: "123456789",
+    description: "description 5",
+    phone_number: "+51123456789",
   },
   {
     id_user: 6,
@@ -80,8 +79,8 @@ export const USERS: user[] = [
     fullname: "Test 6",
     id_role: 2,
     online: false,
-    description:"description 6",
-    phone_number: "123456789",
+    description: "description 6",
+    phone_number: "+51123456789",
   },
 ];
 
@@ -204,6 +203,21 @@ export const HOTELS: Hotel[] = [
     category: HotelCategory.VILLA,
     address: "Calle 5",
     distrit_id: 10,
+  },
+];
+
+
+
+export const PARNERTS: partner[] = [
+  {
+    id: 1,
+    name: "Vamos Expeditions",
+    created_at: new Date(),
+  },
+  {
+    id: 2,
+    name: "Travel Local",
+    created_at: new Date(),
   },
 ];
 
