@@ -25,9 +25,6 @@ export class TripDetailsRoutes {
 
     router.post("", tripDetailsController.upsertTripDetails);
     router.put("/:id", tripDetailsController.upsertTripDetails);
-    
-    // router.get("/:id", tripDetailsController.getTripDetailsById);
-    router.get("/version-quotation",tripDetailsController.getTripDetailsByVersionQuotationId);
     router.get("/pdf/:id", tripDetailsController.getTripDetailsPdf);
     router.get("/report/:id", tripDetailsController.getAllTripDetailsPdf);
     return router;

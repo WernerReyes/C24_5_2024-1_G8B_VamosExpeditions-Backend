@@ -37,22 +37,6 @@ export class TripDetailsController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public getTripDetailsByVersionQuotationId = (req: Request, res: Response) => {
-    const [error, versionQuotationIDDto] = VersionQuotationIDDto.create(
-      req.query
-    );
-    if (error)
-      return this.handleResponseError(res, CustomError.badRequest(error));
-    this.handleError(
-      this.tripDetailsService.getTripDetailsByVersionQuotationId(
-        versionQuotationIDDto!
-      )
-    )
-      .then((tripDetails) => res.status(200).json(tripDetails))
-      .catch((error) => this.handleResponseError(res, error));
-  };
-
-
   public getTripDetailsPdf = (req: Request, res: Response) => {
     const { id } = req.params;
     

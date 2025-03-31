@@ -5,7 +5,6 @@ import {
   TripDetailsModel,
 } from "@/data/postgres";
 import type {
-  GetManyHotelRoomTripDetailsDto,
   HotelRoomTripDetailsDto,
   InsertManyHotelRoomTripDetailsDto,
   UpdateManyHotelRoomTripDetailsByDateDto,
@@ -200,27 +199,6 @@ export class HotelRoomTripDetailsService {
     );
   }
 
-  public async getHotelRoomTripDetails({
-    tripDetailsId,
-  }: GetManyHotelRoomTripDetailsDto) {
-    const hotelRoomsTripDetails = await HotelRoomTripDetailsModel.findMany({
-      where: {
-        trip_details_id: tripDetailsId,
-      },
-      include: this.hotelRoomTripDetailsMapper.toSelectInclude,
-    }).catch((error) => {
-      throw CustomError.internalServer(`${error}`);
-    });
-
-    return new ApiResponse<HotelRoomTripDetailsEntity[]>(
-      200,
-      "Cotizaciones de habitaciones encontradas",
-      hotelRoomsTripDetails.map((hotelRoomTripDetails) =>
-        HotelRoomTripDetailsEntity.fromObject(hotelRoomTripDetails)
-      )
-    );
-  }
-
   private async validateDateRange(
     HotelRoomTripDetailsDto: HotelRoomTripDetailsDto
   ) {
@@ -263,7 +241,7 @@ export class HotelRoomTripDetailsService {
 
       // Calcular la cantidad total de personas para ese día, incluyendo la nueva reserva
       const totalPeopleForTheDay =
-        reservationsForTheDay.reduce((sum, reservation) => sum + reservation.number_of_people, 0) +
+        reservationsForTheDay.reduce((sum, reservation) => sum + (reservation?.number_of_people ?? 0), 0) +
         HotelRoomTripDetailsDto.numberOfPeople;
 
         

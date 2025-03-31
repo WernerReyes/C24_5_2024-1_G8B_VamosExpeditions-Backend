@@ -17,8 +17,7 @@ export class HotelRoomTripDetailsRoutes {
     );
 
     router.use(Middleware.validateToken);
-
-    router.get("/", hotelRoomTripDetailsController.getHotelRoomTripDetails);
+    
     router.post("/", hotelRoomTripDetailsController.createHotelRoomTripDetails);
     router.post(
       "/many",

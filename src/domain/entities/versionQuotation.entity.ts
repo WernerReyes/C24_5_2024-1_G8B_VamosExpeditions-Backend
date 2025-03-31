@@ -1,8 +1,9 @@
-import { version_quotation } from '@prisma/client';
+import { version_quotation, partner } from "@prisma/client";
 import { Quotation } from "./quotation.entity";
 import { TripDetails, TripDetailsEntity } from "./tripDetails.entity";
 import { User, UserEntity } from "./user.entity";
-import { ReservationEntity } from './reservation.entity';
+import { ReservationEntity } from "./reservation.entity";
+import { PartnerEntity } from "./partner.entity";
 
 export enum VersionQuotationStatus {
   DRAFT = "DRAFT",
@@ -15,6 +16,7 @@ export type VersionQuotation = version_quotation & {
   user?: User;
   trip_details?: TripDetails | null;
   quotation?: Quotation;
+  partners?: partner;
 };
 
 export class VersionQuotationEntity {
@@ -32,9 +34,11 @@ export class VersionQuotationEntity {
     public readonly indirectCostMargin?: number,
     public readonly profitMargin?: number,
     public readonly finalPrice?: number,
+    public readonly commission?: number,
     public readonly tripDetails?: TripDetailsEntity,
     public readonly user?: UserEntity,
     public readonly reservation?: ReservationEntity,
+    public readonly partner?: PartnerEntity
   ) {}
 
   public static fromObject(
@@ -52,11 +56,13 @@ export class VersionQuotationEntity {
       indirect_cost_margin,
       profit_margin,
       final_price,
+      commission,
       trip_details,
       user,
       quotation,
+      partners,
     } = versionQuotation;
-    
+
     return new VersionQuotationEntity(
       {
         versionNumber: +version_number,
@@ -71,12 +77,13 @@ export class VersionQuotationEntity {
       indirect_cost_margin ? Number(indirect_cost_margin) : undefined,
       profit_margin ? Number(profit_margin) : undefined,
       final_price ? Number(final_price) : undefined,
+      commission ? Number(commission) : undefined,
       trip_details ? TripDetailsEntity.fromObject(trip_details) : undefined,
       user ? UserEntity.fromObject(user) : undefined,
-      quotation?.reservation ? ReservationEntity.fromObject(quotation.reservation) : undefined,
-      
+      quotation?.reservation
+        ? ReservationEntity.fromObject(quotation.reservation)
+        : undefined,
+      partners ? PartnerEntity.fromObject(partners) : undefined
     );
   }
-
-  
 }

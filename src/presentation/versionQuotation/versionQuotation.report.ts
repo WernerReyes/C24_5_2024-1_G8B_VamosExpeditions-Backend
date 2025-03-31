@@ -1,9 +1,5 @@
 import { StyleDictionary, TDocumentDefinitions } from "pdfmake/interfaces";
-import {
-  HotelRoomTripDetails,
-  TripDetails,
-  VersionQuotation,
-} from "@/domain/entities";
+import type { HotelRoomTripDetails, VersionQuotation } from "@/domain/entities";
 import { footerSection, headerSection } from "@/report";
 
 interface ReportOptions {
@@ -81,16 +77,16 @@ export class VersionQuotationReport {
     );
 
     // Step 3: Fill empty days with placeholders
-Object.keys(groupedData).forEach((dayLabel) => {
-  if (groupedData[dayLabel].length === 0) {
-    groupedData[dayLabel].push([
-      { text: "-", alignment: "left" },
-      { text: "-", alignment: "left" },
-      { text: "-", alignment: "center" },
-      { text: "-", alignment: "center" },
-    ]);
-  }
-});
+    Object.keys(groupedData).forEach((dayLabel) => {
+      if (groupedData[dayLabel].length === 0) {
+        groupedData[dayLabel].push([
+          { text: "-", alignment: "left" },
+          { text: "-", alignment: "left" },
+          { text: "-", alignment: "center" },
+          { text: "-", alignment: "center" },
+        ]);
+      }
+    });
 
     // Construct table body with merged date cells
     const tableBody: any[] = [

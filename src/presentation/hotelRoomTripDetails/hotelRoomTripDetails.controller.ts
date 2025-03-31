@@ -1,8 +1,7 @@
 import {
-  GetManyHotelRoomTripDetailsDto,
   HotelRoomTripDetailsDto,
   InsertManyHotelRoomTripDetailsDto,
-  UpdateManyHotelRoomTripDetailsByDateDto,
+  UpdateManyHotelRoomTripDetailsByDateDto
 } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 import type { Request, Response } from "express";
@@ -103,22 +102,6 @@ export class HotelRoomTripDetailsController extends AppController {
       )
     )
       .then((message) => res.status(200).json(message))
-      .catch((error) => this.handleResponseError(res, error));
-  };
-
-  public getHotelRoomTripDetails = async (req: Request, res: Response) => {
-    const [error, getManyHotelRoomTripDetailsDto] =
-      GetManyHotelRoomTripDetailsDto.create(req.query);
-    if (error)
-      return this.handleResponseError(res, CustomError.badRequest(error));
-    this.handleError(
-      this.hotelRoomTripDetailsService.getHotelRoomTripDetails(
-        getManyHotelRoomTripDetailsDto!
-      )
-    )
-      .then((hotelRoomTripDetails) =>
-        res.status(200).json(hotelRoomTripDetails)
-      )
       .catch((error) => this.handleResponseError(res, error));
   };
 }

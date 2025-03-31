@@ -53,6 +53,8 @@ export class VersionQuotationMapper {
   public get toUpdate(): Prisma.version_quotationUncheckedUpdateInput {
     this.validateModelInstance(this.dto, "toUpdate");
     const dto = this.dto as VersionQuotationDto;
+
+    console.log("dto", dto);
     const defaultName =
       "Q-" +
       new Date().getFullYear() +
@@ -69,6 +71,8 @@ export class VersionQuotationMapper {
       final_price: dto.finalPrice,
       completion_percentage: dto.completionPercentage,
       status: dto.status,
+      commission: dto.commission === 0 ? null : dto.commission,
+      partner_id: dto.partnerId,
       updated_at: new Date(),
     };
   }
@@ -244,6 +248,9 @@ export class VersionQuotationMapper {
           },
         },
       },
+
+      partners: true
+    
     };
   }
 

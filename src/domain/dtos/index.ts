@@ -1,3 +1,4 @@
+import "module-alias/register";
 //* AUTH
 export * from './auth/login.dto';
 
@@ -23,7 +24,6 @@ export * from './versionQuotation/getVersionQuotations.dto';
 
 //* HOTEL ROOM TRIP DETAILS
 export * from './hotelRoomTripDetails/hotelRoomTripDetails.dto';
-export * from './hotelRoomTripDetails/getManyHotelRoomTripDetails.dto';
 export * from './hotelRoomTripDetails/updateManyHotelRoomTripDetailsByDate.dto';
 export * from './hotelRoomTripDetails/insertManyRoomTripDetails.dto';
 
@@ -35,5 +35,5 @@ export * from './report/report.dto';
 
 
 //* COMMON
-export * from './common/VersionQuotationID.dto';
+export * from './common/versionQuotationID.dto';
 export * from './common/pagination.dto';

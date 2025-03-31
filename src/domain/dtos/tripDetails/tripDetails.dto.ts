@@ -1,10 +1,9 @@
 import { Validations } from "@/core/utils";
 import {
   OrderType,
-  ReservationStatus,
-  TravelerStyle,
+  TravelerStyle
 } from "@/domain/entities";
-import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
+import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
 
 const FROM = "TripDetailsDto";
 export class TripDetailsDto extends VersionQuotationIDDto {

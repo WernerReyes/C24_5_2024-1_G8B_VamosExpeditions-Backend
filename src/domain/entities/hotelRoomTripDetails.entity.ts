@@ -10,7 +10,7 @@ export type HotelRoomTripDetails = hotel_room_trip_details & {
 export class HotelRoomTripDetailsEntity {
   constructor(
     public readonly id: number,
-    public readonly numberOfPeople: number,
+    public readonly numberOfPeople: number | null,
     public readonly date: Date,
     public readonly hotelRoom?: HotelRoomEntity,
     public readonly tripDetails?: TripDetailsEntity

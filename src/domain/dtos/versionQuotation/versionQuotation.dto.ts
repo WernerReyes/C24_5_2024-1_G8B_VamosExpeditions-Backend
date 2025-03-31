@@ -1,6 +1,6 @@
 import { Validations } from "@/core/utils";
 import { VersionQuotationStatus } from "@/domain/entities";
-import { VersionQuotationIDDto } from "../common/VersionQuotationID.dto";
+import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
 
 export class VersionQuotationDto extends VersionQuotationIDDto {
   private constructor(
@@ -13,6 +13,8 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
     }`, // Q-2025-1
     public readonly status: VersionQuotationStatus = VersionQuotationStatus.DRAFT,
     public readonly completionPercentage: number,
+    public readonly partnerId: number = 1,
+    public readonly commission?: number,
     public readonly indirectCostMargin?: number,
     public readonly profitMargin?: number,
     public readonly finalPrice?: number
@@ -29,7 +31,9 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
       profitMargin,
       finalPrice,
       name,
+      partnerId,
       completionPercentage,
+      commission,
       id,
     } = props;
 
@@ -42,7 +46,6 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
     );
     if (statusError) return [statusError, undefined];
 
-    
     if (indirectCostMargin) {
       const indirectCostMarginError = Validations.validateNumberFields({
         indirectCostMargin,
@@ -57,18 +60,26 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
       if (profitMarginError) return [profitMarginError, undefined];
     }
 
-
     if (finalPrice) {
       const finalPriceError = Validations.validateNumberFields({ finalPrice });
       if (finalPriceError) return [finalPriceError, undefined];
     }
 
+    if (commission) {
+      const commissionError = Validations.validateNumberFields({ commission });
+      if (commissionError) return [commissionError, undefined];
+      if (commission < 3 || commission > 20)
+        return ["La comisión no puede ser menor a 3% o mayor a 20%", undefined];
+    }
 
     if ([0, 25, 50, 75, 100].indexOf(+completionPercentage) === -1)
       return [
         "El porcentaje de completitud debe ser 0, 25, 50 o 100",
         undefined,
       ];
+
+    const parnerIdError = Validations.validateNumberFields({ partnerId });
+    if (parnerIdError) return [parnerIdError, undefined];
 
     return [
       undefined,
@@ -77,6 +88,8 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
         name,
         status,
         +completionPercentage,
+        +partnerId,
+        +commission,
         +indirectCostMargin,
         +profitMargin,
         +finalPrice

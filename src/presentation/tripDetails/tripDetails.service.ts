@@ -76,29 +76,6 @@ export class TripDetailsService {
     );
   }
 
-  public async getTripDetailsByVersionQuotationId(
-    versionQuotationIDDto: VersionQuotationIDDto
-  ) {
-    const tripDetails = await TripDetailsModel.findUnique({
-      where: {
-        version_number_quotation_id: {
-          version_number:
-            versionQuotationIDDto.versionQuotationId!.versionNumber,
-          quotation_id: versionQuotationIDDto.versionQuotationId!.quotationId,
-        },
-      },
-      include: this.tripDetailsMapper.toSelectInclude,
-    });
-    if (!tripDetails) throw CustomError.notFound("Trip details not found");
-    return new ApiResponse<TripDetailsEntity>(
-      200,
-      "Detalles del viaje encontrados",
-      TripDetailsEntity.fromObject(tripDetails)
-    );
-  }
-
- 
-
   public async generatePdf(id: number) {
     const TripDetailsQuery = await TripDetailsModel.findMany({
       where: { id: id},
