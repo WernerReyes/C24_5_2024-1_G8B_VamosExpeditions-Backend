@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsnd --respawn --clear -r tsconfig-paths/register src/app.ts",
     "build": "rimraf ./dist && tsc",
-    "start": "pnpm run build && node dist/app.js",
+    "start": "node app.js",
     "seed": "tsnd --respawn --clear -r tsconfig-paths/register src/data/postgres/seed/seed.ts",
     "seed:excel": "tsnd --respawn --clear -r tsconfig-paths/register src/data/postgres/seed/excel.ts"
   },
