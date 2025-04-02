@@ -8,6 +8,7 @@ import {
 } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import * as XLSX from "xlsx";
+import * as path from 'path';
 import { PARNERTS, ROLES, USERS } from "./data";
 
 const prisma = new PrismaClient();
@@ -54,8 +55,7 @@ type ExelHotelRoom = {
 
 (async () => {
   await prisma.$connect();
-  const rutaArchivo =
-    "C:\\Users\\HP\\Downloads\\TARIFAS HOTELES Y SERVICIOS 2025.xlsx";
+  const rutaArchivo = path.resolve(__dirname, 'TARIFAS HOTELES Y SERVICIOS 2025.xlsx');
   await cargarDatosDesdeExcel(rutaArchivo);
   await prisma.$disconnect();
 })();
