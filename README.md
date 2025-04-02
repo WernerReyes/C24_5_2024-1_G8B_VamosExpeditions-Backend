@@ -13,6 +13,10 @@ Cada paso de su configuración ya se ha realizado previamente en el curso, por l
 4. Ejecutar ` npx prisma generate ` para generar los modelos de prisma
 5. Ejecutar ` pnpm run dev ` para levantar el proyecto en modo desarrollo
 
+## Docker
+1. Ejecutar  ` docker-compose up -d --build `
+2. Desde table plus  connectarte a la base de datos  de docker y creer las tablas Puerto 5434
+3. En el contenedor  vamosexpeditions-backend-app  Hecer el  `docker exec -it vamosexpeditions-backend-app pnpm seed` 
 
 
 ## Llenado de datos en la db

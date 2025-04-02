@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+coverage/
+
+Dockerfile
+.dockerignore
+.git
+LICENSE
+docker-compose.yml
+postgres
+.vscode
+
+
+Dockerfile  
+LICENSE  
+docker-compose.yml

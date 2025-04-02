@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      target: dev
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
+    container_name: vamosexpeditions-backend-app
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
+      - COOKIE_EXPIRATION=${COOKIE_EXPIRATION}
+      - TOKEN_COOKIE_NAME=${TOKEN_COOKIE_NAME}
+      - REFRESH_TOKEN_COOKIE_NAME=${REFRESH_TOKEN_COOKIE_NAME}
+      - EXPIRATION_TOKEN_COOKIE_NAME=${EXPIRATION_TOKEN_COOKIE_NAME}
+      - CLIENT_URL=${CLIENT_URL}
+      - JWT_DURATION=${JWT_DURATION}
+      - JWT_SEED=${JWT_SEED}
+      - POSTGRES_URL=postgres://postgres:root123@db:5432/vamos_expeditions?schema=public  # Actualicé el puerto a 5432
+      - EXTERNAL_API_COUNTRY_URL=${EXTERNAL_API_COUNTRY_URL}
+      - MAILER_SERVICE=${MAILER_SERVICE}
+      - MAILER_EMAIL=${MAILER_EMAIL}
+      - MAILER_SECRET_KEY=${MAILER_SECRET_KEY}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - CLOUDINARY_FOLDER=${CLOUDINARY_FOLDER}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    depends_on:
+      - db
+    command: ["sh", "-c", "sleep 10 && pnpm run dev"]  # Esto da tiempo para que la base de datos se inicie completamente
+
+  db:
+    container_name: vamosexpeditions-backend-db
+    image: postgres:17.2
+    restart: always
+    ports:
+      - "5434:5432"  # Sigue exponiendo el puerto 5434 para tu máquina local
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root123
+      - POSTGRES_DB=vamos_expeditions
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+
+volumes:
+  postgres-db:
+    external: false
