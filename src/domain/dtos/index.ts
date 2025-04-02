@@ -1,4 +1,4 @@
-// import "module-alias/register";
+import "module-alias/register";
 //* AUTH
 export * from './auth/login.dto';
 

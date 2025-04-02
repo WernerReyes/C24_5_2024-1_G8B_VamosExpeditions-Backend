@@ -22,7 +22,7 @@ services:
       - CLIENT_URL=${CLIENT_URL}
       - JWT_DURATION=${JWT_DURATION}
       - JWT_SEED=${JWT_SEED}
-      - POSTGRES_URL=postgres://postgres:root123@db:5432/vamos_expeditions?schema=public  # Actualicé el puerto a 5432
+      - POSTGRES_URL=${POSTGRES_URL} # Actualicé el puerto a 5432
       - EXTERNAL_API_COUNTRY_URL=${EXTERNAL_API_COUNTRY_URL}
       - MAILER_SERVICE=${MAILER_SERVICE}
       - MAILER_EMAIL=${MAILER_EMAIL}
