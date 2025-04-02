@@ -83,8 +83,7 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
     const missingTypeRooms = hotelRooms.filter(
       (hotelRoom) => !hotelRoom.room_type
     );
-    console.log(missingTypeRooms);
-
+   
     //* Delete all data
     let deletedData = false;
     await prisma
@@ -206,7 +205,6 @@ const getFormattedHotelFromExcel = (book: XLSX.WorkBook): hotel[] => {
   const hotelSheet = book.SheetNames[1];
   const sheet = book.Sheets[hotelSheet];
   const hotels: ExelHotels[] = XLSX.utils.sheet_to_json(sheet);
-  // console.log(hotels);
   return hotels
     .filter((_, index) => index > 0)
     .map((hotel) => ({

@@ -1,4 +1,4 @@
-import "module-alias/register";
+// import "module-alias/register";
 //* AUTH
 export * from './auth/login.dto';
 
@@ -23,7 +23,6 @@ export * from './versionQuotation/duplicateMultipleVersionQuotation.dto';
 export * from './versionQuotation/getVersionQuotations.dto';
 
 //* HOTEL ROOM TRIP DETAILS
-export * from './hotelRoomTripDetails/hotelRoomTripDetails.dto';
 export * from './hotelRoomTripDetails/updateManyHotelRoomTripDetailsByDate.dto';
 export * from './hotelRoomTripDetails/insertManyRoomTripDetails.dto';
 

@@ -1,4 +1,4 @@
-import { Validations } from "@/core/utils";
+import { DateUtils, Validations } from "@/core/utils";
 
 export class InsertManyHotelRoomTripDetailsDto {
   private constructor(
@@ -12,16 +12,20 @@ export class InsertManyHotelRoomTripDetailsDto {
   public static create(props: {
     [key: string]: any;
   }): [string?, InsertManyHotelRoomTripDetailsDto?] {
-    const { hotelRoomId, tripDetailsId, dateRange, countPerDay, numberOfPeople } =
-      props as InsertManyHotelRoomTripDetailsDto;
+    const {
+      hotelRoomId,
+      tripDetailsId,
+      dateRange,
+      countPerDay,
+      numberOfPeople,
+    } = props as InsertManyHotelRoomTripDetailsDto;
 
-      
-      const emptyFieldsError = Validations.validateEmptyFields(
-        { hotelRoomId, numberOfPeople, dateRange, tripDetailsId, countPerDay },
+    const emptyFieldsError = Validations.validateEmptyFields(
+      { hotelRoomId, numberOfPeople, dateRange, tripDetailsId, countPerDay },
       "InsertManyHotelRoomTripDetailsDto"
     );
     if (emptyFieldsError) return [emptyFieldsError, undefined];
-    
+
     const numberError = Validations.validateNumberFields({
       hotelRoomId,
       numberOfPeople,
@@ -29,7 +33,7 @@ export class InsertManyHotelRoomTripDetailsDto {
       countPerDay,
     });
     if (numberError) return [numberError, undefined];
-    
+
     const greaterThanZeroError = Validations.validateGreaterThanValueFields(
       {
         hotelRoomId,
@@ -39,14 +43,15 @@ export class InsertManyHotelRoomTripDetailsDto {
       0
     );
     if (greaterThanZeroError) return [greaterThanZeroError, undefined];
-    console.log(props);
+   
+    console.log( [DateUtils.parseISO(dateRange[0]), DateUtils.parseISO(dateRange[1])])
 
     return [
       undefined,
       new InsertManyHotelRoomTripDetailsDto(
         +hotelRoomId,
         +tripDetailsId,
-        [new Date(dateRange[0]), new Date(dateRange[1])],
+        [DateUtils.parseISO(dateRange[0]), DateUtils.parseISO(dateRange[1])],
         +countPerDay < 1 ? 1 : +countPerDay,
         +numberOfPeople
       ),

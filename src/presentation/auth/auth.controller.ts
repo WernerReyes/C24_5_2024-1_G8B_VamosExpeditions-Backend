@@ -21,13 +21,11 @@ export class AuthController extends AppController {
       Date.now() + expires + 1000 * 60 //* 1 minute
     );
 
-    console.log(EnvsConst.NODE_ENV === "production");
-
     res.cookie(EnvsConst.TOKEN_COOKIE_NAME, token, {
       httpOnly: true,
       secure: EnvsConst.NODE_ENV === "production",
       expires: expiresAt,
-      sameSite: "none",
+      sameSite: EnvsConst.NODE_ENV === "production" ? "none" : undefined,
       path: "/",
     });
 
@@ -39,20 +37,18 @@ export class AuthController extends AppController {
         httpOnly: false, // Allow client-side access
         secure: EnvsConst.NODE_ENV === "production", // Change from false
         expires: expiresAt,
-        sameSite: "none",
+        sameSite: EnvsConst.NODE_ENV === "production" ? "none" : undefined,
         path: "/",
       }
     );
-    
 
     res.cookie(EnvsConst.REFRESH_TOKEN_COOKIE_NAME, token, {
       httpOnly: true,
       secure: EnvsConst.NODE_ENV === "production",
       expires: expiresAtRefresh,
-      sameSite: "none",
+      sameSite: EnvsConst.NODE_ENV === "production" ? "none" : undefined,
       path: "/",
     });
-
 
     return {
       expiresAt: expiresAt.toISOString(),
@@ -67,7 +63,7 @@ export class AuthController extends AppController {
     this.handleError(this.authService.login(loginDto!))
       .then((response) => {
         const { expiresAt } = this.setCookie(res, response.data.token);
-        
+
         return res.status(200).json({
           message: response.message,
           status: response.status,
@@ -84,7 +80,7 @@ export class AuthController extends AppController {
     this.handleError(this.authService.reLogin(req.user))
       .then((response) => {
         const { expiresAt } = this.setCookie(res, response.data.token);
-     
+
         return res.status(200).json({
           message: response.message,
           status: response.status,

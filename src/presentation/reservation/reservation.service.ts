@@ -122,11 +122,6 @@ export class ReservationService {
       };
     });
 
-    console.log(
-      ReservationEntity.fromObject(reservationUpserted),
-      reservationUpserted
-    );
-
     return new ApiResponse<ReservationEntity>(
       200,
       (reservationDto.id === 0

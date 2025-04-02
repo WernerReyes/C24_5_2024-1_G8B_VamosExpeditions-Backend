@@ -5,17 +5,14 @@ import {
   TripDetailsModel,
 } from "@/data/postgres";
 import type {
-  GetReservationsDto,
-  TripDetailsDto,
-  VersionQuotationIDDto,
+  TripDetailsDto
 } from "@/domain/dtos";
+import { TripDetailsEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
 import { PdfService, ReservationType } from "@/lib";
-import { getTravelItineraryReport } from "@/report";
-import { TripDetailsMapper } from "./tripDetails.mapper";
-import { ApiResponse } from "../response";
-import { TripDetailsEntity } from "@/domain/entities";
 import { HotelReportPDF } from "@/report/pdf-reports/report.hotel.pdf";
+import { ApiResponse } from "../response";
+import { TripDetailsMapper } from "./tripDetails.mapper";
 
 export class TripDetailsService {
   constructor(

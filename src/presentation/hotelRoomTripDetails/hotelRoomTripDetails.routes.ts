@@ -7,7 +7,6 @@ import { Middleware } from "../middleware";
 export class HotelRoomTripDetailsRoutes {
   public static get getRoutes(): Router {
     const router = Router();
-
     const hotelRoomTripDetailsMapper = new HotelRoomTripDetailsMapper();
     const hotelRoomTripDetailsService = new HotelRoomTripDetailsService(
       hotelRoomTripDetailsMapper,
@@ -18,7 +17,6 @@ export class HotelRoomTripDetailsRoutes {
 
     router.use(Middleware.validateToken);
     
-    router.post("/", hotelRoomTripDetailsController.createHotelRoomTripDetails);
     router.post(
       "/many",
       hotelRoomTripDetailsController.insertManyHotelRoomTripDetails

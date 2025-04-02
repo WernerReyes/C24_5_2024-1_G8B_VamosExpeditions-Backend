@@ -44,7 +44,6 @@ export class AuthService {
   }
 
   public async reLogin(user: UserEntity) {
-    console.log(user);
     //* Generate token
     const token = (await JwtAdapter.generateToken({
       id: user.id,

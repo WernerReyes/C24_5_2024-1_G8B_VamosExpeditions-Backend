@@ -11,6 +11,14 @@ interface ReportOptions {
 export class VersionQuotationReport {
   constructor() {}
 
+  private static _instance: VersionQuotationReport | null = null;
+  public static getInstance(): VersionQuotationReport {
+    if (!this._instance) {
+      this._instance = new VersionQuotationReport();
+    }
+    return this._instance;
+  }
+  
   private formatDateWithoutDay(dateString: string | Date): string {
     const date = new Date(dateString);
     const options: Intl.DateTimeFormatOptions = {
@@ -39,8 +47,6 @@ export class VersionQuotationReport {
           ) + 1
         : 0;
 
-    console.log("diffDays", diffDays);
-
     // **Step 1: Pre-fill all dates, even if empty**
     for (let i = 0; i < diffDays; i++) {
       const currentDate = new Date(trip_details!.start_date);
@@ -50,14 +56,10 @@ export class VersionQuotationReport {
       groupedData[dayLabel] = []; // Initialize empty array for each date
     }
 
-    // console.log(groupedData);
-
     // **Step 2: Add hotel room details to correct date**
     trip_details?.hotel_room_trip_details?.forEach(
       (db: HotelRoomTripDetails) => {
         const dayLabel = this.formatDateWithoutDay(db.date);
-
-        console.log("dayLabel", dayLabel);
 
         groupedData[dayLabel]?.push([
           { text: db?.hotel_room?.hotel?.name || "-", alignment: "left" },
@@ -120,7 +122,6 @@ export class VersionQuotationReport {
     ];
 
     Object.entries(groupedData).forEach(([dayLabel, hotels], index) => {
-      console.log("hotels", hotels[0], index);
       tableBody.push([
         {
           text: `Day ${index + 1} (${dayLabel})`,

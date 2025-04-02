@@ -10,7 +10,14 @@ export class DateUtils {
     );
   }
 
+  static parseISO(dateString: string | Date): Date {
+    const date = new Date(dateString);
+    return this.resetTimeToMidnight(date);
+  }
+
   static getDDMMMMYYYY(date: Date): string {
     return this.formatter.format(date);
   }
 }
+
+

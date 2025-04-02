@@ -97,7 +97,6 @@ export class NotificationService {
       const data = await NotificationModel.deleteMany({
         where: { id: { in: notificationIds } },
       });
-      console.log(data);
 
       return {
         message: `Notificaciones eliminadas correctamente`,
@@ -108,7 +107,6 @@ export class NotificationService {
   }
 
   public async markNotificationsAsRead(notificationIds: number[]) {
-    console.log(notificationIds);
     try {
       if (!notificationIds || notificationIds.length === 0) {
         return {

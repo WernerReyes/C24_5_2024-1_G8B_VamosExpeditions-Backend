@@ -40,6 +40,7 @@ export class Server {
           "https://c24-5-2024-1-g8b-vamosexpeditions-backend.onrender.com",
           "http://localhost:8000",
           "https://vamosexpeditions.netlify.app",
+          "http://192.168.100.130:5173"
         ],
         credentials: true,
       },
@@ -62,6 +63,7 @@ export class Server {
           "https://c24-5-2024-1-g8b-vamosexpeditions-backend.onrender.com",
           "http://localhost:8000",
           "https://vamosexpeditions.netlify.app",
+          "http://192.168.100.130:5173"
         ],
         credentials: true,
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // ✅ Asegura que POST está permitido

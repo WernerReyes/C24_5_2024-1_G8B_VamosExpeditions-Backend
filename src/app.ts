@@ -4,7 +4,7 @@ import { ExternalCountryEntity } from "./presentation/external/country/country.e
 import type { ExternalCountryModel } from "./presentation/external/country/country.model";
 import { AppRoutes } from "./presentation/routes";
 import { Server } from "./presentation/server";
-import "module-alias/register";
+// import "module-alias/register";
 
 const { EXTERNAL_API_COUNTRY_URL } = EnvsConst;
 
@@ -25,8 +25,7 @@ async function main() {
 
   server.start();
 
-  console.log(EnvsConst.NODE_ENV === "production");
-
+ 
 }
 
 async function externalCountries() {
@@ -42,58 +41,4 @@ async function externalCountries() {
       data.map((c: ExternalCountryModel) => ExternalCountryEntity.fromObject(c))
     );
   }
-
-  /* 
-  const data = await TripDetailsModel.findMany({
-    where: { id: 10 },
-    omit: {
-      client_id: true,
-    },
-    include: {
-      client: {
-        omit: {
-          createdAt: true,
-          updatedAt: true,
-        },
-      },
-      hotel_room_trip_details: {
-        orderBy: {
-          date: "asc",
-        },
-        include: {
-          hotel_room: {
-            include: {
-              hotel: {},
-            },
-          },
-        },
-      },
-      version_quotation: {
-        omit: {
-          created_at: true,
-          updated_at: true,
-        },
-        include: {
-          quotation: {
-            omit: {
-              created_at: true,
-              updated_at: true,
-            },
-          },
-          user: {
-            omit: {
-              id_role: true,
-              password: true,
-              online: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  
-  
-
-  console.log(util.inspect(data, { showHidden: false, depth: null , colors:true}));
- */
 }

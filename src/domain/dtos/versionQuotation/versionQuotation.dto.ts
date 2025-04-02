@@ -13,7 +13,7 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
     }`, // Q-2025-1
     public readonly status: VersionQuotationStatus = VersionQuotationStatus.DRAFT,
     public readonly completionPercentage: number,
-    public readonly partnerId: number = 1,
+    public readonly partnerId?: number,
     public readonly commission?: number,
     public readonly indirectCostMargin?: number,
     public readonly profitMargin?: number,
@@ -78,8 +78,10 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
         undefined,
       ];
 
-    const parnerIdError = Validations.validateNumberFields({ partnerId });
-    if (parnerIdError) return [parnerIdError, undefined];
+    if (partnerId) {
+      const parnerIdError = Validations.validateNumberFields({ partnerId });
+      if (parnerIdError) return [parnerIdError, undefined];
+    }
 
     return [
       undefined,
@@ -88,11 +90,11 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
         name,
         status,
         +completionPercentage,
-        +partnerId,
-        +commission,
-        +indirectCostMargin,
-        +profitMargin,
-        +finalPrice
+        partnerId ? +partnerId : undefined,
+        commission ? +commission : undefined,
+        indirectCostMargin ? +indirectCostMargin : undefined,
+        profitMargin ? +profitMargin : undefined,
+        finalPrice ? +finalPrice : undefined
       ),
     ];
   }

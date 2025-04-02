@@ -1,7 +1,7 @@
-import { version_quotation, partner } from "@prisma/client";
-import { Quotation } from "./quotation.entity";
+import { type version_quotation, type partner } from "@prisma/client";
+import { type Quotation } from "./quotation.entity";
 import { TripDetails, TripDetailsEntity } from "./tripDetails.entity";
-import { User, UserEntity } from "./user.entity";
+import { type User, UserEntity } from "./user.entity";
 import { ReservationEntity } from "./reservation.entity";
 import { PartnerEntity } from "./partner.entity";
 

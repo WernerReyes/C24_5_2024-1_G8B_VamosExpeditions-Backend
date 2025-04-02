@@ -1,5 +1,4 @@
 import {
-  HotelRoomTripDetailsDto,
   InsertManyHotelRoomTripDetailsDto,
   UpdateManyHotelRoomTripDetailsByDateDto
 } from "@/domain/dtos";
@@ -14,24 +13,6 @@ export class HotelRoomTripDetailsController extends AppController {
   ) {
     super();
   }
-
-  public createHotelRoomTripDetails = async (req: Request, res: Response) => {
-    const [error, hotelRoomTripDetailsDto] = HotelRoomTripDetailsDto.create(
-      req.body
-    );
-    if (error)
-      return this.handleResponseError(res, CustomError.badRequest(error));
-
-    this.handleError(
-      this.hotelRoomTripDetailsService.createHotelRoomTripDetails(
-        hotelRoomTripDetailsDto!
-      )
-    )
-      .then((hotelRoomTripDetails) =>
-        res.status(201).json(hotelRoomTripDetails)
-      )
-      .catch((error) => this.handleResponseError(res, error));
-  };
 
   public insertManyHotelRoomTripDetails = async (
     req: Request,

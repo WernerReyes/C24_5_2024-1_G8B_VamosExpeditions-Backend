@@ -279,7 +279,7 @@ export class VersionQuotationService {
 
     if (!versionsQuotation)
       throw CustomError.notFound("Versión de cotización no encontrada");
-
+    
     return new ApiResponse<VersionQuotationEntity>(
       200,
       "Versión de cotización encontrada",
