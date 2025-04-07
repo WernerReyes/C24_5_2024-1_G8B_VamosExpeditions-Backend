@@ -7,7 +7,6 @@ import { Server } from "./presentation/server";
 import { AppSocket } from "./presentation/socket";
 import "module-alias/register";
 
-
 (async () => {
   await main();
 })();
