@@ -50,7 +50,7 @@ export class ExternalCountryEntity {
       flags: { svg, png },
       subregion,
     } = object;
-  
+
     return new ExternalCountryEntity(
       name,
       code,
@@ -58,5 +58,4 @@ export class ExternalCountryEntity {
       subregion as Subregion
     );
   }
-
 }

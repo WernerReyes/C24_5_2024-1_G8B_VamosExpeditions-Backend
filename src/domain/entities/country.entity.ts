@@ -1,21 +1,15 @@
-import { CacheAdapter } from "../../core/adapters";
-import { CacheConst } from "@/core/constants";
-import type {
-  ExternalCountryEntity,
+import {
   Image,
 } from "@/presentation/external/country/country.entity";
-import { CityEntity } from "./city.entity";
 import type { city, country } from "@prisma/client";
+import { CityEntity } from "./city.entity";
+import { ExternalCountryContext } from "@/presentation/external/country/country.context";
 
 type Country = country & {
   city?: city[];
 };
 
 export class CountryEntity {
-  private static get cache(): CacheAdapter {
-    return CacheAdapter.getInstance();
-  }
-
   private constructor(
     public readonly id: number,
     public readonly name: string,
@@ -31,23 +25,10 @@ export class CountryEntity {
       id_country,
       name,
       code,
-      await this.getCountryImage(code),
+      ExternalCountryContext.getCountryByCode(code)?.image,
       city
         ? await Promise.all(city.map((city) => CityEntity.fromObject(city)))
         : undefined
     );
-  }
-
-  private static async getCountryImage(
-    code: string
-  ): Promise<Image | undefined> {
-    try {
-      const cachedCountries =
-        (await this.cache.get<ExternalCountryEntity[]>(CacheConst.COUNTRIES)) ||
-        [];
-      return cachedCountries.find((country) => country.code === code)?.image;
-    } catch (e) {
-      return undefined;
-    }
   }
 }

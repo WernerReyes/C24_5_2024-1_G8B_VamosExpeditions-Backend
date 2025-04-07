@@ -2,15 +2,12 @@ import type { role, user } from "@prisma/client";
 import { RoleEntity } from "./role.entity";
 import { CacheAdapter } from "@/core/adapters";
 import { CacheConst } from "@/core/constants";
+import { UserContext } from "@/presentation/user/user.context";
 
 export interface User extends Omit<user, "password" | "id_role"> {
   role?: role;
 }
 export class UserEntity {
-  private static get cache(): CacheAdapter {
-    return CacheAdapter.getInstance();
-  }
-
   private constructor(
     public readonly id: number,
     public readonly fullname: string,
@@ -35,21 +32,11 @@ export class UserEntity {
       id_user,
       fullname,
       email,
-      await this.getUserOnline(id_user),
+      UserContext.isOnline(id_user),
       role ? RoleEntity.fromObject(role) : undefined,
       description ?? undefined,
       phone_number ?? undefined
     );
   }
 
-  private static async getUserOnline(id: number): Promise<boolean> {
-    try {
-      const cachedUser = await this.cache.sMembers<UserEntity["id"]>(
-        CacheConst.ONLINE_USERS
-      );
-      return cachedUser.includes(id);
-    } catch (e) {
-      return false;
-    }
-  }
 }

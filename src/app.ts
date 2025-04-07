@@ -1,11 +1,18 @@
 import { createServer } from "http";
 import { EnvsConst } from "./core/constants";
 import { SocketService } from "./lib";
-import { AppCache } from "./presentation/cache";
 import { AppRoutes } from "./presentation/routes";
 import { Server } from "./presentation/server";
 import { AppSocket } from "./presentation/socket";
-import "module-alias/register";
+import { AppCacheContext } from "./presentation/context";
+
+const ORIGINS = [
+  EnvsConst.CLIENT_URL,
+  "https://c24-5-2024-1-g8b-vamosexpeditions-backend.onrender.com",
+  "http://localhost:8000",
+  "https://vamosexpeditions.netlify.app",
+  "http://192.168.100.130:5173",
+];
 
 (async () => {
   await main();
@@ -13,21 +20,19 @@ import "module-alias/register";
 
 async function main() {
   try {
-    const cache = new AppCache();
-    await cache.initialize();
-    await cache.externalCountries();
+    await AppCacheContext.initialize();
   } catch (error) {
     console.error("Error initializing cache:", error);
   }
 
   const server = new Server({
     routes: AppRoutes.routes,
-    client_url: EnvsConst.CLIENT_URL,
+    origins: ORIGINS,
   });
 
   const httpServer = createServer(server.app);
 
-  const socketService = new SocketService(httpServer, new AppSocket());
+  const socketService = new SocketService(httpServer, new AppSocket(), ORIGINS);
   socketService.initEvents();
 
   httpServer.listen(EnvsConst.PORT, () => {

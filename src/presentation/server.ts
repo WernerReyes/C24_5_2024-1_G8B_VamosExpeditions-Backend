@@ -4,7 +4,7 @@ import express, { Router } from "express";
 import path from "path";
 
 interface Options {
-  client_url: string;
+  origins: string[];
   routes: Router;
   public_path?: string;
 }
@@ -12,15 +12,15 @@ interface Options {
 export class Server {
   public readonly app = express();
   private readonly publicPath: string;
-  private readonly clientUrl: string;
+  private readonly origins: string[];
   private readonly routes: Router;
 
   constructor(options: Options) {
-    const { routes, public_path = "public", client_url } = options;
+    const { routes, public_path = "public", origins } = options;
 
     this.publicPath = public_path;
     this.routes = routes;
-    this.clientUrl = client_url;
+    this.origins = origins;
 
     this.configure();
   }
@@ -31,13 +31,7 @@ export class Server {
     this.app.use(cookieParser());
     this.app.use(
       cors({
-        origin: [
-          this.clientUrl,
-          "https://c24-5-2024-1-g8b-vamosexpeditions-backend.onrender.com",
-          "http://localhost:8000",
-          "https://vamosexpeditions.netlify.app",
-          "http://192.168.100.130:5173",
-        ],
+        origin: this.origins,
         credentials: true,
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // ✅ Asegura que POST está permitido
         allowedHeaders: ["Content-Type", "Authorization"],
