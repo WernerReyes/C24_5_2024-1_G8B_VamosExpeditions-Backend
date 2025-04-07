@@ -51,6 +51,14 @@ services:
     volumes:
       - postgres-db:/var/lib/postgresql/data
 
+  redis:
+    container_name: vamosexpeditions-backend-redis
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"  # Puerto de Redis expuesto para tu máquina local
+    
+
 volumes:
   postgres-db:
     external: false

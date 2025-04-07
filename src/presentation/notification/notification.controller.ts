@@ -9,14 +9,7 @@ export class NotificationController extends AppController {
     super();
   }
 
-  public getAllUserConected = async (req: Request, res: Response) => {
-     
-    const userId = (req as RequestAuth).user.id;
   
-    this.handleError(this.notificationService.getAllUserConected(userId))
-      .then((users) => res.status(200).json(users))
-      .catch((error) => this.handleResponseError(res, error));
-  };
 
   public listUserNotifications = async (req: RequestAuth, res: Response) => {
     /* const  cookieToken = req.cookies?.token; 

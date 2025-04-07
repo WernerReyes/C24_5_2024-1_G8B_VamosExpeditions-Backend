@@ -16,7 +16,7 @@ export type VersionQuotation = version_quotation & {
   user?: User;
   trip_details?: TripDetails | null;
   quotation?: Quotation;
-  partners?: partner;
+  partners?: partner | null;
 };
 
 export class VersionQuotationEntity {
@@ -41,9 +41,9 @@ export class VersionQuotationEntity {
     public readonly partner?: PartnerEntity
   ) {}
 
-  public static fromObject(
+  public static async fromObject(
     versionQuotation: VersionQuotation
-  ): VersionQuotationEntity {
+  ): Promise<VersionQuotationEntity> {
     const {
       version_number,
       name,
@@ -78,10 +78,10 @@ export class VersionQuotationEntity {
       profit_margin ? Number(profit_margin) : undefined,
       final_price ? Number(final_price) : undefined,
       commission ? Number(commission) : undefined,
-      trip_details ? TripDetailsEntity.fromObject(trip_details) : undefined,
-      user ? UserEntity.fromObject(user) : undefined,
+      trip_details ? await TripDetailsEntity.fromObject(trip_details) : undefined,
+      user ? await UserEntity.fromObject(user) : undefined,
       quotation?.reservation
-        ? ReservationEntity.fromObject(quotation.reservation)
+        ? await ReservationEntity.fromObject(quotation.reservation)
         : undefined,
       partners ? PartnerEntity.fromObject(partners) : undefined
     );

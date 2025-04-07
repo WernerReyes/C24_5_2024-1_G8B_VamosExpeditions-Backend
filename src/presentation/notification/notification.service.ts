@@ -8,62 +8,26 @@ interface NotificationMessage {
 }
 
 export class NotificationService {
-  public async getAllUserConected(userId: number) {
-    try {
-      const users = await UserModel.findMany({
-        include: {
-          role: true,
-        },
-        omit: {
-          password: true,
-          id_role: true,
-        },
-        where: {
-          id_user: { not: userId },
-         
-        },
-        orderBy: {
-          online: "desc",
-        },
-      });
 
-     
-      return users.map((user) => UserEntity.fromObject(user));
-     
-      
-    } catch (error) {
-      console.error(error);
+  private static instance: NotificationService;
+
+  constructor() {
+    NotificationService.instance = this;
+  }
+
+  
+  static getInstance(): NotificationService {
+    if (!NotificationService.instance) {
+     throw new Error("NotificationService not initialized. Call initialize() first.");
     }
+    return NotificationService.instance;
   }
+ 
 
-  private async updateUserStatus(
-    userId: number,
-    online: boolean
-  ): Promise<UserEntity> {
-    if (!userId) throw new Error("El ID del usuario no puede ser nulo.");
+ 
+  
 
-    try {
-      const user = await UserModel.update({
-        where: { id_user: userId },
-        data: { online },
-        omit: { id_role: true, password: true },
-        include: { role: true },
-      });
-
-      return UserEntity.fromObject(user);
-    } catch (error) {
-      throw new Error(`Error actualizando estado del usuario: ${error}`);
-    }
-  }
-
-  public connectUserSocket(userId: number): Promise<UserEntity> {
-    return this.updateUserStatus(userId, true);
-  }
-
-  public disconnectUserSocket(userId: number): Promise<UserEntity> {
-    return this.updateUserStatus(userId, false);
-  }
-
+  
   public async getUserNotifications(userId: number) {
     const MessageUser = await NotificationModel.findMany({
       include: {
@@ -81,8 +45,10 @@ export class NotificationService {
       },
     });
 
-    return MessageUser.map((message) =>
-      NotificationMessageEntity.fromObject(message)
+    return await Promise.all(
+      MessageUser.map((message) =>
+        NotificationMessageEntity.fromObject(message)
+      )
     );
   }
 
@@ -148,12 +114,13 @@ export class NotificationService {
           },
         },
       });
-      return notificationUsers.map((notification) => NotificationMessageEntity.fromObject(notification));
+      return await Promise.all(
+        notificationUsers.map((notification) =>
+          NotificationMessageEntity.fromObject(notification)
+        )
+      );
     } catch (e) {
       console.log(e);
     }
   }
-
-
-
 }

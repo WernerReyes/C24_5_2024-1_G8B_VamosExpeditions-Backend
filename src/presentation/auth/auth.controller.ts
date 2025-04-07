@@ -93,12 +93,12 @@ export class AuthController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public logout = async (req: Request, res: Response) => {
+  public logout = async (req: RequestAuth, res: Response) => {
     res.clearCookie(EnvsConst.TOKEN_COOKIE_NAME);
     res.clearCookie(EnvsConst.EXPIRATION_TOKEN_COOKIE_NAME);
     res.clearCookie(EnvsConst.REFRESH_TOKEN_COOKIE_NAME);
     this.authService
-      .logout()
+      .logout(req.user.id)
       .then((response) => res.status(200).json(response))
       .catch((error) => this.handleResponseError(res, error));
   };

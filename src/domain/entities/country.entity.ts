@@ -5,9 +5,16 @@ import type {
   Image,
 } from "@/presentation/external/country/country.entity";
 import { CityEntity } from "./city.entity";
+import type { city, country } from "@prisma/client";
+
+type Country = country & {
+  city?: city[];
+};
 
 export class CountryEntity {
-  private static cache: CacheAdapter = CacheAdapter.getInstance();
+  private static get cache(): CacheAdapter {
+    return CacheAdapter.getInstance();
+  }
 
   private constructor(
     public readonly id: number,
@@ -17,22 +24,27 @@ export class CountryEntity {
     public readonly cities?: CityEntity[]
   ) {}
 
-  public static fromObject(object: any): CountryEntity {
+  public static async fromObject(object: Country): Promise<CountryEntity> {
     const { id_country, name, code, city } = object;
 
     return new CountryEntity(
       id_country,
       name,
       code,
-      this.getCountriImage(code),
-      city ? city.map(CityEntity.fromObject) : undefined
+      await this.getCountryImage(code),
+      city
+        ? await Promise.all(city.map((city) => CityEntity.fromObject(city)))
+        : undefined
     );
   }
 
-  private static getCountriImage(code: string): Image | undefined {
+  private static async getCountryImage(
+    code: string
+  ): Promise<Image | undefined> {
     try {
       const cachedCountries =
-        this.cache.get<ExternalCountryEntity[]>(CacheConst.COUNTRIES) || [];
+        (await this.cache.get<ExternalCountryEntity[]>(CacheConst.COUNTRIES)) ||
+        [];
       return cachedCountries.find((country) => country.code === code)?.image;
     } catch (e) {
       return undefined;

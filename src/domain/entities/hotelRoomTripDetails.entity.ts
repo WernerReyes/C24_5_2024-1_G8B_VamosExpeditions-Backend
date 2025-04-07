@@ -10,24 +10,24 @@ export type HotelRoomTripDetails = hotel_room_trip_details & {
 export class HotelRoomTripDetailsEntity {
   constructor(
     public readonly id: number,
-    public readonly numberOfPeople: number | null,
+    public readonly costPerson: number,
     public readonly date: Date,
     public readonly hotelRoom?: HotelRoomEntity,
     public readonly tripDetails?: TripDetailsEntity
   ) {}
 
-  public static fromObject(
+  public static async fromObject(
     HotelRoomTripDetails: HotelRoomTripDetails
-  ): HotelRoomTripDetailsEntity {
-    const { id, date, number_of_people, hotel_room, trip_details } =
+  ): Promise<HotelRoomTripDetailsEntity> {
+    const { id, date, cost_person, hotel_room, trip_details } =
       HotelRoomTripDetails;
 
     return new HotelRoomTripDetailsEntity(
       id,
-      number_of_people,
+      Number(cost_person),
       date,
-      hotel_room ? HotelRoomEntity.fromObject(hotel_room) : undefined,
-      trip_details ? TripDetailsEntity.fromObject(trip_details) : undefined
+      hotel_room ? await HotelRoomEntity.fromObject(hotel_room) : undefined,
+      trip_details ? await TripDetailsEntity.fromObject(trip_details) : undefined
     );
   }
 }

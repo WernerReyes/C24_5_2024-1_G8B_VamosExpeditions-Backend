@@ -26,7 +26,7 @@ export class HotelEntity {
     public distrit?: DistritEntity
   ) {}
 
-  public static fromObject(hotel: Hotel): HotelEntity {
+  public static async fromObject(hotel: Hotel): Promise<HotelEntity> {
     const { id_hotel, name, category, distrit, address, hotel_room } = hotel;
 
     return new HotelEntity(
@@ -34,8 +34,8 @@ export class HotelEntity {
       name,
       category as HotelCategory,
       address ?? undefined,
-      hotel_room ? hotel_room.map(HotelRoomEntity.fromObject) : undefined,
-      distrit ? DistritEntity.fromObject(distrit) : undefined
+      hotel_room ? await Promise.all(hotel_room.map(HotelRoomEntity.fromObject)) : undefined,
+      distrit ? await DistritEntity.fromObject(distrit) : undefined
     );
   }
 }

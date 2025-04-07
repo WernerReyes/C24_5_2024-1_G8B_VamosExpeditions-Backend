@@ -1,6 +1,6 @@
 import { BcryptAdapter } from "../../core/adapters";
-import { UserDto } from "@/domain/dtos";
-import { Prisma } from "@prisma/client";
+import type { UserDto } from "@/domain/dtos";
+import type { Prisma } from "@prisma/client";
 
 type Dto = UserDto;
 export class UserMapper {
@@ -22,6 +22,8 @@ export class UserMapper {
       email: this.dto.email,
       password: BcryptAdapter.hash(this.dto.password!),
       id_role: this.dto.roleId!,
+      phone_number: this.dto.phoneNumber,
+      description: this.dto.description,
     };
   }
 
@@ -31,6 +33,8 @@ export class UserMapper {
       id_user: this.dto.id,
       fullname: this.dto.fullname,
       email: this.dto.email,
+      phone_number: this.dto.phoneNumber,
+      description: this.dto.description,
     };
   }
 

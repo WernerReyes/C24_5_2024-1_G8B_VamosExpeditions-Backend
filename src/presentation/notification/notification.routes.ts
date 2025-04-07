@@ -11,7 +11,7 @@ export class NotificationRoutes {
       new NotificationService()
     );
     router.use(Middleware.validateToken);
-    router.get("/user", notificationController.getAllUserConected);
+    
     router.get("/messages", (req, res) => 
       notificationController.listUserNotifications(req as RequestAuth, res)
     );

@@ -1,12 +1,12 @@
-import { CacheAdapter } from "./core/adapters";
-import { CacheConst, EnvsConst } from "./core/constants";
-import { ExternalCountryEntity } from "./presentation/external/country/country.entity";
-import type { ExternalCountryModel } from "./presentation/external/country/country.model";
+import { createServer } from "http";
+import { EnvsConst } from "./core/constants";
+import { SocketService } from "./lib";
+import { AppCache } from "./presentation/cache";
 import { AppRoutes } from "./presentation/routes";
 import { Server } from "./presentation/server";
+import { AppSocket } from "./presentation/socket";
 import "module-alias/register";
 
-const { EXTERNAL_API_COUNTRY_URL } = EnvsConst;
 
 (async () => {
   await main();
@@ -14,31 +14,26 @@ const { EXTERNAL_API_COUNTRY_URL } = EnvsConst;
 
 async function main() {
   try {
-    // await externalCountries();
-  } catch (error) {}
+    const cache = new AppCache();
+    await cache.initialize();
+    await cache.externalCountries();
+  } catch (error) {
+    console.error("Error initializing cache:", error);
+  }
 
   const server = new Server({
-    port: EnvsConst.PORT,
     routes: AppRoutes.routes,
     client_url: EnvsConst.CLIENT_URL,
   });
 
-  server.start();
+  const httpServer = createServer(server.app);
 
- 
-}
+  const socketService = new SocketService(httpServer, new AppSocket());
+  socketService.initEvents();
 
-async function externalCountries() {
-  const cache = CacheAdapter.getInstance();
-  const cachedCountryList = cache.get<ExternalCountryEntity[]>(
-    CacheConst.COUNTRIES
-  );
-  if (!cachedCountryList) {
-    const response = await fetch(EXTERNAL_API_COUNTRY_URL + "/countries");
-    const data = await response.json();
-    cache.set(
-      CacheConst.COUNTRIES,
-      data.map((c: ExternalCountryModel) => ExternalCountryEntity.fromObject(c))
-    );
-  }
+  httpServer.listen(EnvsConst.PORT, () => {
+    console.log(`Server listening on port ${EnvsConst.PORT}`);
+  });
+
+  // server.start();
 }

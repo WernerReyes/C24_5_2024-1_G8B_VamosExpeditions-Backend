@@ -104,7 +104,7 @@ export class EmailStrategy implements Strategy {
                   omit: {
                     id_role: true,
                     password: true,
-                    online: true,
+                   
                   },
                 },
               },

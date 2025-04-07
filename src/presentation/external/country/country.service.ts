@@ -9,7 +9,7 @@ export class ExternalCountryService {
   private cache: CacheAdapter = CacheAdapter.getInstance();
 
 public async getCountryList(): Promise<ApiResponse<ExternalCountryEntity[]>> {
-    const cachedCountryList = this.cache.get<ExternalCountryEntity[]>(
+    const cachedCountryList = await this.cache.get<ExternalCountryEntity[]>(
       CacheConst.COUNTRIES
     );
     if (!cachedCountryList) {

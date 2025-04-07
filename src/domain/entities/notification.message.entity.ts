@@ -17,9 +17,9 @@ export class NotificationMessageEntity {
     public readonly user?: UserEntity
   ) {}
 
-  public static fromObject(
+  public static async fromObject(
     notification: NotificationMessage
-  ): NotificationMessageEntity {
+  ): Promise<NotificationMessageEntity> {
     const {
       id,
       from_user,
@@ -49,7 +49,7 @@ export class NotificationMessageEntity {
       is_read ?? false,
       created_at as Date,
       user_notification_from_userTouser
-        ? UserEntity.fromObject(user_notification_from_userTouser)
+        ? await UserEntity.fromObject(user_notification_from_userTouser)
         : undefined
     );
   }

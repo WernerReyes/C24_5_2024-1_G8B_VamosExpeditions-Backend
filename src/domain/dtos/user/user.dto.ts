@@ -5,12 +5,14 @@ export class UserDto {
     public readonly id: number,
     public readonly fullname: string,
     public readonly email: string,
+    public readonly phoneNumber?: string,
+    public readonly description?: string,
     public readonly password?: string,
     public readonly roleId?: number
   ) {}
 
   public static create(props: { [key: string]: any }): [string?, UserDto?] {
-    const { id = 0, fullname, email, password, roleId } = props;
+    const { id = 0, fullname, email, phoneNumber, description, roleId, password } = props;
 
     const emptyError = Validations.validateEmptyFields({ fullname, email });
     if (emptyError) return [emptyError, undefined];
@@ -27,21 +29,32 @@ export class UserDto {
         0
       );
       if (greaterThanError) return [greaterThanError, undefined];
-    } else {
-      const passwordError = Validations.validateEmptyFields({
-        password,
-        roleId,
-      });
-      if (passwordError) return [passwordError, undefined];
+    }
 
-      const roleError = Validations.validateGreaterThanValueFields(
+    if (roleId) {
+      const idError = Validations.validateNumberFields({ roleId });
+      if (idError) return [idError, undefined];
+
+      const greaterThanError = Validations.validateGreaterThanValueFields(
         { roleId },
         0
       );
-
-      if (roleError) return [roleError, undefined];
+      if (greaterThanError) return [greaterThanError, undefined];
     }
 
-    return [undefined, new UserDto(+id, fullname, email, password, roleId)];
+    if (description) {
+      const stringError = Validations.validateStringFields({ description });
+      if (stringError) return [stringError, undefined];
+    }
+
+    if (phoneNumber) {
+      const stringError = Validations.validateStringFields({ phoneNumber });
+      if (stringError) return [stringError, undefined];
+    }
+
+    return [
+      undefined,
+      new UserDto(+id, fullname, email, phoneNumber, description, password, roleId),
+    ];
   }
 }

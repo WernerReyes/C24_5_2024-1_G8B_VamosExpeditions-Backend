@@ -33,12 +33,14 @@ export class AuthService {
     })) as string;
     if (!token) throw CustomError.internalServer("Error generating token");
 
+    
 
+  
     return new ApiResponse<{
       user: UserEntity;
       token: string;
     }>(200, "Usuario autenticado", {
-      user: UserEntity.fromObject(user),
+      user: await UserEntity.fromObject(user),
       token,
     });
   }
@@ -59,7 +61,8 @@ export class AuthService {
     });
   }
 
-  public async logout() {
+  public async logout(userId: number) {
+    
     return new ApiResponse<null>(
       200,
       "Usuario deslogueado correctamente",

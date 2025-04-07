@@ -56,7 +56,7 @@ export class TripDetailsService {
       (tripDetailsDto.id === 0
         ? "Detalles del viaje creados"
         : "Detalles del viaje actualizados") + " correctamente",
-      TripDetailsEntity.fromObject(tripDetails)
+      await TripDetailsEntity.fromObject(tripDetails)
     );
   }
 
@@ -69,7 +69,7 @@ export class TripDetailsService {
     return new ApiResponse<TripDetailsEntity>(
       200,
       "Detalles del viaje encontrados",
-      TripDetailsEntity.fromObject(tripDetails)
+      await TripDetailsEntity.fromObject(tripDetails)
     );
   }
 
@@ -114,7 +114,7 @@ export class TripDetailsService {
               omit: {
                 id_role: true,
                 password: true,
-                online: true,
+                
               },
             },
           },
@@ -165,7 +165,7 @@ export class TripDetailsService {
         hotel_room_trip_details: {
           select: {
             id: true,
-            number_of_people: true,
+            cost_person: true,
             date: true,
             hotel_room: {
               select: {

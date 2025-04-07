@@ -5,6 +5,7 @@ import type {
   version_quotation_status,
 } from "@prisma/client";
 import type {
+  DuplicateMultipleVersionQuotationDto,
   DuplicateVersionQuotationDto,
   GetVersionQuotationsDto,
   VersionQuotationDto,
@@ -14,25 +15,28 @@ import { Validations } from "@/core/utils";
 
 type Dto =
   | DuplicateVersionQuotationDto
+  | DuplicateMultipleVersionQuotationDto
   | VersionQuotationDto
   | GetVersionQuotationsDto;
+
+type Model = Partial<VersionQuotation> | Partial<VersionQuotation>[];
 
 const FROM = "VersionQuotationMapper";
 
 export class VersionQuotationMapper {
   private dto: Dto;
-  private versionQuotation: VersionQuotation;
+  private versionQuotation: Model;
 
   constructor() {
     this.dto = {} as Dto;
-    this.versionQuotation = {} as VersionQuotation;
+    this.versionQuotation = {} as Model;
   }
 
   public set setDto(dto: Dto) {
     this.dto = dto;
   }
 
-  public set setVersionQuotation(versionQuotation: VersionQuotation) {
+  public set setVersionQuotation(versionQuotation: Model) {
     this.versionQuotation = versionQuotation;
   }
 
@@ -53,12 +57,15 @@ export class VersionQuotationMapper {
   public get toUpdate(): Prisma.version_quotationUncheckedUpdateInput {
     this.validateModelInstance(this.dto, "toUpdate");
     const dto = this.dto as VersionQuotationDto;
-    
+
     const defaultName =
       "Q-" +
       new Date().getFullYear() +
       "-" +
       dto.versionQuotationId?.quotationId;
+
+      console.log(dto)
+
 
     return {
       name:
@@ -70,8 +77,8 @@ export class VersionQuotationMapper {
       final_price: dto.finalPrice,
       completion_percentage: dto.completionPercentage,
       status: dto.status,
-      commission: dto.commission === 0 ? null : dto.commission,
-      partner_id: dto.partnerId,
+      commission: dto.commission,
+      partner_id: dto.partnerId ? dto.partnerId : null,
       updated_at: new Date(),
     };
   }
@@ -84,7 +91,8 @@ export class VersionQuotationMapper {
 
     const dto = this.dto as DuplicateVersionQuotationDto;
 
-    const { quotation, trip_details, user, ...rest } = this.versionQuotation;
+    const { quotation, trip_details, user, status, ...rest } = this
+      .versionQuotation as VersionQuotation;
 
     const maxVersion = quotation?.version_quotation?.reduce((prev, current) =>
       prev.version_number > current.version_number ? prev : current
@@ -93,10 +101,11 @@ export class VersionQuotationMapper {
     return {
       ...rest,
       user_id: dto.userId,
-      status: this.versionQuotation.status,
+      status: status,
       version_number: maxVersion! + 1,
       official: false,
       updated_at: new Date(),
+      created_at: new Date(),
       trip_details: trip_details
         ? {
             create: {
@@ -118,7 +127,7 @@ export class VersionQuotationMapper {
                   (hotel: hotel_room_trip_details) => ({
                     hotel_room_id: hotel.hotel_room_id,
                     date: hotel.date,
-                    number_of_people: hotel.number_of_people,
+                    cost_person: hotel.cost_person,
                   })
                 ),
               },
@@ -153,6 +162,8 @@ export class VersionQuotationMapper {
       user_id: this.dto.representativesIds
         ? { in: this.dto.representativesIds }
         : undefined,
+      created_at: this.dto.createdAt ? { gte: this.dto.createdAt } : undefined,
+      updated_at: this.dto.updatedAt ? { gte: this.dto.updatedAt } : undefined,
     };
   }
 
@@ -248,8 +259,7 @@ export class VersionQuotationMapper {
         },
       },
 
-      partners: true
-    
+      partners: true,
     };
   }
 

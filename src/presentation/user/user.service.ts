@@ -12,7 +12,7 @@ export class UserService {
     return new ApiResponse<UserEntity[]>(
       200,
       "Usuarios encontrados",
-      users.map(UserEntity.fromObject)
+      await Promise.all(users.map((user) => UserEntity.fromObject(user)))
     );
   }
 
@@ -43,7 +43,7 @@ export class UserService {
     return new ApiResponse<UserEntity>(
       200,
       "Usuario guardado correctamente",
-      UserEntity.fromObject(user)
+      await UserEntity.fromObject(user)
     );
   }
 }
