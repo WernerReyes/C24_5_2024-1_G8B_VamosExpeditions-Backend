@@ -21,12 +21,11 @@ export class QuotationService {
         });
 
         const version = await tx.version_quotation.create({
-          data: {
-            ...this.quotationMapper.toCreateVersion(
-              quotation.id_quotation,
-              userId
-            ),
-          },
+          data: this.quotationMapper.toCreateVersion(
+            quotation.id_quotation,
+            userId
+          ),
+
           include: {
             user: true,
           },
@@ -68,7 +67,7 @@ export class QuotationService {
       type: reportdto.resources as ReservationType,
       htmlBody: reportdto.description,
       reservationId: reportdto.reservationId,
-      
+      from: reportdto.from,
     });
 
     if (!resultSend) {

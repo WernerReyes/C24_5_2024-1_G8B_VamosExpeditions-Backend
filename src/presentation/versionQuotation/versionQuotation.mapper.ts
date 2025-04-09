@@ -64,9 +64,6 @@ export class VersionQuotationMapper {
       "-" +
       dto.versionQuotationId?.quotationId;
 
-      console.log(dto)
-
-
     return {
       name:
         dto.name.trim().length > 0

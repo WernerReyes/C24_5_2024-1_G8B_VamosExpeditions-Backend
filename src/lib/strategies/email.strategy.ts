@@ -3,7 +3,7 @@ import { CloudinaryService } from "../cloudinary/cloudinary.service";
 import { EmailService, SendMailOptions } from "../nodemailer/email.service";
 import { PdfService } from "../pdfmake/pdf.service";
 import { Strategy } from "./context.strategy";
-import { reportTransport, reportHotel } from "@/report";
+import { reportTransport } from "@/report";
 import { TripDetailsModel } from "@/data/postgres";
 import { HotelReportPDF } from "@/report/pdf-reports/report.hotel.pdf";
 
@@ -37,6 +37,7 @@ export class EmailStrategy implements Strategy {
       await this.emailService.sendEmail({
         to: data.to,
         subject: data.subject,
+        from: data.from,
         htmlBody: `
             
             <p>${data.htmlBody}</p>

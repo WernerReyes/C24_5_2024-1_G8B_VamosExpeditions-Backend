@@ -114,16 +114,6 @@ export class HotelRoomTripDetailsService {
     const startDate = DateUtils.resetTimeToMidnight(tripDetails.start_date);
     const endDate = DateUtils.resetTimeToMidnight(tripDetails.end_date);
 
-    console.log(
-      "startDate",
-      startDate,
-      "endDate",
-      endDate,
-      "currentStartDate",
-      currentStartDate,
-      "currentEndDate",
-      currentEndDate
-    );
 
     if (
       currentStartDate.getTime() < startDate.getTime() ||

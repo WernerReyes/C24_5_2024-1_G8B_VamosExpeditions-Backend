@@ -9,8 +9,8 @@ export class SocketService {
   public io: SocketServer;
 
   constructor(
-    private server: Server,
-    private appSocket: AppSocket,
+    private readonly server: Server,
+    private readonly appSocket: AppSocket,
     private readonly origins: string[]
   ) {
     this.io = new SocketServer(this.server, {
@@ -25,7 +25,7 @@ export class SocketService {
       SocketService._instance = this;
     }
 
-    console.log("SocketService instance created.");
+    console.log("Socket connected");
   }
 
   static get instance(): SocketService {

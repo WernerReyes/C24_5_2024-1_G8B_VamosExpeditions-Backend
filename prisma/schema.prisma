@@ -124,8 +124,12 @@ model version_quotation {
   user                  user                     @relation(fields: [user_id], references: [id_user], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_user")
 
   @@id([version_number, quotation_id])
-  @@index([quotation_id], map: "idx_quotation_id")
-  @@index([version_number], map: "idx_version_number")
+  @@index([created_at], map: "idx_created_at")
+  @@index([quotation_id, official], map: "idx_quotation_id_official")
+  @@index([status], map: "idx_status")
+  @@index([updated_at], map: "idx_updated_at")
+  @@index([user_id], map: "idx_user_id")
+  @@index([name(ops: raw("gin_trgm_ops"))], map: "idx_name_trgm", type: Gin)
 }
 
 model hotel_room_trip_details {
@@ -156,6 +160,9 @@ model trip_details {
   trip_details_has_city     trip_details_has_city[]
 
   @@unique([version_number, quotation_id], map: "unique_version_id")
+  @@index([client_id], map: "idx_client_id")
+  @@index([end_date], map: "idx_enddate")
+  @@index([start_date], map: "idx_startdate")
 }
 
 model trip_details_has_city {
@@ -174,6 +181,10 @@ model reservation {
   created_at   DateTime           @default(now()) @db.Timestamp(6)
   updated_at   DateTime           @default(now()) @db.Timestamp(6)
   quotation    quotation          @relation(fields: [quotation_id], references: [id_quotation], onDelete: Cascade, onUpdate: NoAction, map: "fk_reservation_quotation")
+
+  @@index([created_at], map: "idx_created_at_r")
+  @@index([status], map: "idx_status_r")
+  @@index([updated_at], map: "idx_updated_at_r")
 }
 
 model notification {
