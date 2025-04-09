@@ -4,7 +4,8 @@ import { ExternalCountryEntity } from "./presentation/external/country/country.e
 import type { ExternalCountryModel } from "./presentation/external/country/country.model";
 import { AppRoutes } from "./presentation/routes";
 import { Server } from "./presentation/server";
-import "module-alias/register";
+/* import "module-alias/register"; */
+/* import * as XLSX from 'xlsx'; */
 
 const { EXTERNAL_API_COUNTRY_URL } = EnvsConst;
 
@@ -24,7 +25,10 @@ async function main() {
   });
 
   server.start();
-
+  // data(req, res); // Removed as req and res are not defined in this context
+  
+   
+  
  
 }
 
@@ -42,3 +46,5 @@ async function externalCountries() {
     );
   }
 }
+
+

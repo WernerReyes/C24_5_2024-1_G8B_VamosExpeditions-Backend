@@ -16,6 +16,7 @@ export * from './reservation/getStadistics.dto';
 //* HOTEL
 export * from './hotel/getHotels.dto';
 
+
 //* VERSION QUOTATION
 export * from './versionQuotation/versionQuotation.dto';
 export * from './versionQuotation/duplicateVersionQuotation.dto';

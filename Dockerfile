@@ -18,4 +18,4 @@ RUN npx prisma generate
 
 EXPOSE 8000
 
-CMD ["pnpm", "dev"]
+CMD ["pnpm", " run dev"]

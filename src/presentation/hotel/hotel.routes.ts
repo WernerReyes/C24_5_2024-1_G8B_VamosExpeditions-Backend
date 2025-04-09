@@ -1,8 +1,17 @@
+import fs from "fs";
+import path from "path";
+import multer from "multer";
 import { Router } from "express";
 import { Middleware } from "../middleware";
 import { HotelController } from "./hotel.controller";
 import { HotelService } from "./hotel.service";
 import { HotelMapper } from "./hotel.mapper";
+
+
+// Configuración de Multer
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage, limits: { fileSize: 10 * 1024 * 1024 } }); 
+
 
 export class HotelRoutes {
   static get routes(): Router {
@@ -12,9 +21,12 @@ export class HotelRoutes {
     const hotelService = new HotelService(hotelMapper);
     const hotelController = new HotelController(hotelService);
 
-    router.use(Middleware.validateToken);
+    /* router.use(Middleware.validateToken); */
 
     router.get("/", hotelController.getAll);
+    router.post("/upload-excel",upload.single("file"), hotelController.uploadExcel);
+
+
     // router.get("/search/:country/:city", hotelController.countryAndCity);
     // router.get("/:id", HotelController.getById);
     // router.post("/", HotelController.create);

@@ -8,6 +8,7 @@ import { Server as SocketServer } from "socket.io";
 
 import { SocketService } from "@/lib";
 import { NotificationService } from "./notification/notification.service";
+
 interface Options {
   port: number;
   client_url: string;
@@ -66,7 +67,7 @@ export class Server {
           "http://192.168.100.130:5173"
         ],
         credentials: true,
-        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // ✅ Asegura que POST está permitido
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
       })
     );
@@ -79,6 +80,7 @@ export class Server {
 
     //* SPA /^\/(?!api).*/  <== Únicamente si no empieza con la palabra api
     this.app.get("*", (req, res) => {
+      
       const indexPath = path.join(
         __dirname + `../../../${this.publicPath}/index.html`
       );

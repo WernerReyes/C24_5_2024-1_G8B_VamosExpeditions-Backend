@@ -165,6 +165,7 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
 const getFormattedCountryFromExcel = (book: XLSX.WorkBook): country[] => {
   const countrySheet = book.SheetNames[4];
   const sheet = book.Sheets[countrySheet];
+  
   const countries: ExelCountry[] = XLSX.utils.sheet_to_json(sheet);
   return countries
     .filter((_, index) => index > 0)
