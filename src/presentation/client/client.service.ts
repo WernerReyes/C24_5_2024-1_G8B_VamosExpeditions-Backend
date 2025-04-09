@@ -29,7 +29,7 @@ export class ClientService {
       !clientDto.id || clientDto.id === 0
         ? "Cliente creado correctamente"
         : "Cliente actualizado correctamente",
-      ClientEntity.fromObject(newClient)
+      await ClientEntity.fromObject(newClient)
     );
   }
 
@@ -38,7 +38,7 @@ export class ClientService {
     return new ApiResponse<ClientEntity[]>(
       200,
       "lista de clientes",
-      clients.map((client) => ClientEntity.fromObject(client))
+      await Promise.all(clients.map((client) => ClientEntity.fromObject(client)))
     );
   }
 }

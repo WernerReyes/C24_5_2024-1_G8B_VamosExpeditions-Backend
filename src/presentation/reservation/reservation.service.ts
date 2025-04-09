@@ -127,7 +127,7 @@ export class ReservationService {
       (reservationDto.id === 0
         ? "Reservación creada"
         : "Reservación actualizada") + " correctamente",
-      ReservationEntity.fromObject(reservationUpserted)
+      await ReservationEntity.fromObject(reservationUpserted)
     );
   }
 
@@ -179,7 +179,7 @@ export class ReservationService {
     return new ApiResponse<ReservationEntity>(
       200,
       "Reservación cancelada correctamente",
-      ReservationEntity.fromObject(reservationCanceled)
+      await ReservationEntity.fromObject(reservationCanceled)
     );
   }
 
@@ -207,7 +207,7 @@ export class ReservationService {
       200,
       "Reservaciones encontradas",
       new PaginatedResponse(
-        reservations.map(ReservationEntity.fromObject),
+        await Promise.all(reservations.map(ReservationEntity.fromObject)),
         page,
         Math.ceil(totalReservations / limit),
         totalReservations,
@@ -256,7 +256,7 @@ export class ReservationService {
       `${
         reservations.length === 1 ? "Reservación" : "Reservaciones"
       } eliminada${reservations.length === 1 ? "" : "s"} correctamente`,
-      reservations.map(ReservationEntity.fromObject)
+      await Promise.all(reservations.map(ReservationEntity.fromObject))
     );
   }
 

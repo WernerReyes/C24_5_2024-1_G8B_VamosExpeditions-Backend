@@ -9,8 +9,9 @@ import type { client } from "@prisma/client";
 export type Client = client & {};
 
 export class ClientEntity {
-  private static cache: CacheAdapter = CacheAdapter.getInstance();
-
+  private static get cache(): CacheAdapter {
+    return CacheAdapter.getInstance();
+  }
   private constructor(
     public readonly id: number,
     public readonly fullName: string,
@@ -25,7 +26,7 @@ export class ClientEntity {
     public readonly updatedAt: Date
   ) {}
 
-  public static fromObject(client: Client): ClientEntity {
+  public static async fromObject(client: Client): Promise<ClientEntity> {
     const {
       id,
       fullName,
@@ -38,7 +39,8 @@ export class ClientEntity {
     } = client;
 
     const cachedCountries =
-      this.cache.get<ExternalCountryEntity[]>(CacheConst.COUNTRIES) || [];
+      (await this.cache.get<ExternalCountryEntity[]>(CacheConst.COUNTRIES)) ||
+      [];
 
     return new ClientEntity(
       id,

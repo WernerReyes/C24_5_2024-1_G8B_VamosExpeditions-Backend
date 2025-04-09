@@ -20,7 +20,7 @@ export class QuotationEntity {
     public readonly reservation?: ReservationEntity
   ) {}
 
-  public static fromObject(quotation: Quotation): QuotationEntity {
+  public static async fromObject(quotation: Quotation): Promise<QuotationEntity> {
     const {
       id_quotation,
       created_at,
@@ -34,9 +34,9 @@ export class QuotationEntity {
       created_at,
       updated_at,
       version_quotation
-        ? version_quotation.map(VersionQuotationEntity.fromObject)
+        ? await Promise.all(version_quotation.map(VersionQuotationEntity.fromObject))
         : undefined,
-      reservation ? ReservationEntity.fromObject(reservation) : undefined
+      reservation ? await ReservationEntity.fromObject(reservation) : undefined
     );
   }
 }

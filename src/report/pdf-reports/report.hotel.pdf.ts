@@ -36,7 +36,7 @@ export class HotelReportPDF {
         groupedData[dayLabel].push([
           { text: db.hotel_room?.hotel?.name || "-", alignment: "left" },
           { text: db.hotel_room?.room_type || "-", alignment: "left" },
-          { text: db.number_of_people?.toString() || "-", alignment: "center" },
+          { text: db.cost_person?.toString() || "-", alignment: "center" },
           { text: db.hotel_room?.rate_usd ? `$ ${db.hotel_room.rate_usd.toFixed(2)}` : "-", alignment: "center" },
         ]);
       });

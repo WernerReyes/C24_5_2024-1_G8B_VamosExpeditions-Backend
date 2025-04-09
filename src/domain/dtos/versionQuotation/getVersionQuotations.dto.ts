@@ -13,7 +13,9 @@ export class GetVersionQuotationsDto extends PaginationDto {
     public readonly status?: VersionQuotationStatus[],
     public readonly representativesIds?: number[],
     public readonly quotationId?: number,
-    public readonly official?: boolean
+    public readonly official?: boolean,
+    public readonly createdAt?: Date,
+    public readonly updatedAt?: Date
   ) {
     super(page, limit);
   }
@@ -32,6 +34,8 @@ export class GetVersionQuotationsDto extends PaginationDto {
       representativesIds,
       quotationId,
       official,
+      createdAt,
+      updatedAt,
     } = props;
 
     const [error, paginationDto] = PaginationDto.create({ page, limit });
@@ -64,6 +68,16 @@ export class GetVersionQuotationsDto extends PaginationDto {
       if (booleanError) return [booleanError];
     }
 
+    if (createdAt) {
+      const dateError = Validations.validateDateFields({ createdAt });
+      if (dateError) return [dateError];
+    }
+
+    if (updatedAt) {
+      const dateError = Validations.validateDateFields({ updatedAt });
+      if (dateError) return [dateError];
+    }
+
     
 
     return [
@@ -84,7 +98,9 @@ export class GetVersionQuotationsDto extends PaginationDto {
           ? official === "true"
             ? true
             : false
-          : undefined
+          : undefined,
+        createdAt ? new Date(createdAt) : undefined,
+        updatedAt ? new Date(updatedAt) : undefined
       ),
     ];
   }

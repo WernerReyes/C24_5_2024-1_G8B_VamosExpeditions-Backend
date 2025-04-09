@@ -73,7 +73,7 @@ export class HotelService {
     return new ApiResponse<HotelEntity[]>(
       200,
       "Lista de hoteles",
-      accommodationRooms.map((hotel) => HotelEntity.fromObject(hotel))
+      await Promise.all(accommodationRooms.map((hotel) => HotelEntity.fromObject(hotel)))
     );
   }
 

@@ -1,5 +1,5 @@
 import { prisma, QuotationModel, VersionQuotationModel } from "@/data/postgres";
-import {
+import type {
   DuplicateMultipleVersionQuotationDto,
   DuplicateVersionQuotationDto,
   GetVersionQuotationsDto,
@@ -7,7 +7,7 @@ import {
   VersionQuotationIDDto,
 } from "@/domain/dtos";
 import {
-  VersionQuotation,
+  type VersionQuotation,
   VersionQuotationEntity,
   VersionQuotationStatus,
 } from "@/domain/entities";
@@ -71,13 +71,16 @@ export class VersionQuotationService {
           "Los detalles de viaje ya no esta disponible, para esta cotización"
         );
       }
+      if (error.code === "P2003") {
+        throw CustomError.notFound("Detalles de viaje no encontrado");
+      }
       throw error;
     });
 
     return new ApiResponse<VersionQuotationEntity>(
       200,
       "Versión de cotización actualizada correctamente",
-      VersionQuotationEntity.fromObject(updatedVersionQuotation)
+      await await VersionQuotationEntity.fromObject(updatedVersionQuotation)
     );
   }
 
@@ -108,19 +111,21 @@ export class VersionQuotationService {
     let newVersionQuotations: VersionQuotationEntity[] = [];
     let count = 0;
 
-    for (const id of ids) {
-      await this.duplicateVersionQuotation({
-        id,
-        userId,
-      })
-        .then((versionQuotation) =>
-          newVersionQuotations.push(versionQuotation.data)
-        )
-        .catch((error) => {
-          if (error instanceof CustomError) count++;
-          else throw error;
-        });
-    }
+    await prisma.$transaction(async () => {
+      for (const id of ids) {
+        await this.duplicateVersionQuotation({
+          id,
+          userId,
+        })
+          .then((versionQuotation) =>
+            newVersionQuotations.push(versionQuotation.data)
+          )
+          .catch((error) => {
+            if (error instanceof CustomError) count++;
+            else throw error;
+          });
+      }
+    });
 
     if (count === ids.length)
       throw CustomError.badRequest(
@@ -130,7 +135,12 @@ export class VersionQuotationService {
     return new ApiResponse<VersionQuotationEntity[]>(
       201,
       `Se duplicaron ${newVersionQuotations.length} versiones de cotización correctamente`,
-      newVersionQuotations
+      newVersionQuotations.map((versionQuotation) => {
+        return {
+          ...versionQuotation,
+          quotation: undefined,
+        };
+      })
     );
   }
 
@@ -181,8 +191,8 @@ export class VersionQuotationService {
       unOfficial: VersionQuotationEntity;
       newOfficial: VersionQuotationEntity;
     }>(200, "Versión de cotización actualizada correctamente", {
-      unOfficial: VersionQuotationEntity.fromObject(unOfficial),
-      newOfficial: VersionQuotationEntity.fromObject(newOfficial),
+      unOfficial: await VersionQuotationEntity.fromObject(unOfficial),
+      newOfficial: await VersionQuotationEntity.fromObject(newOfficial),
     });
   }
 
@@ -258,8 +268,8 @@ export class VersionQuotationService {
       newApproved: VersionQuotationEntity;
       oldApproved: VersionQuotationEntity;
     }>(200, "Versión de cotización actualizada correctamente", {
-      newApproved: VersionQuotationEntity.fromObject(newApproved),
-      oldApproved: VersionQuotationEntity.fromObject(oldApproved),
+      newApproved: await VersionQuotationEntity.fromObject(newApproved),
+      oldApproved: await VersionQuotationEntity.fromObject(oldApproved),
     });
   }
 
@@ -279,11 +289,11 @@ export class VersionQuotationService {
 
     if (!versionsQuotation)
       throw CustomError.notFound("Versión de cotización no encontrada");
-    
+
     return new ApiResponse<VersionQuotationEntity>(
       200,
       "Versión de cotización encontrada",
-      VersionQuotationEntity.fromObject(versionsQuotation)
+      await VersionQuotationEntity.fromObject(versionsQuotation)
     );
   }
 
@@ -330,21 +340,25 @@ export class VersionQuotationService {
       200,
       "Versión de cotización encontrada",
       new PaginatedResponse(
-        versionsQuotation.map(({ quotation, ...rest }) => {
-          return {
-            ...VersionQuotationEntity.fromObject({
+        await Promise.all(
+          versionsQuotation.map(async ({ quotation, ...rest }) => {
+            const versionQuotationEntity = await VersionQuotationEntity.fromObject({
               ...rest,
               quotation: {
                 ...quotation,
                 version_quotation: undefined,
-                reservation: quotation?.reservation,
+                reservation: rest.official ? quotation.reservation : undefined,
               },
-            }),
-            hasUnofficialVersions:
-              quotation.version_quotation.filter((version) => !version.official)
-                .length > 0,
-          };
-        }),
+            });
+        
+            return {
+              ...versionQuotationEntity,
+              hasUnofficialVersions:
+                quotation.version_quotation.filter((version) => !version.official)
+                  .length > 0,
+            };
+          })
+        ),
         getVersionQuotationsDto.page,
         Math.ceil(totalCount / getVersionQuotationsDto.limit),
         totalCount,
@@ -459,7 +473,7 @@ export class VersionQuotationService {
           }
 
           versionQuotationsDeleted.push(
-            VersionQuotationEntity.fromObject(deletedQuotation)
+            await VersionQuotationEntity.fromObject(deletedQuotation)
           );
 
           return { success: true };
@@ -527,7 +541,7 @@ export class VersionQuotationService {
         });
 
         versionQuotationsUpdated.push(
-          VersionQuotationEntity.fromObject(versionUpdated)
+          await VersionQuotationEntity.fromObject(versionUpdated)
         );
       }
     });
@@ -585,7 +599,7 @@ export class VersionQuotationService {
     return new ApiResponse<VersionQuotationEntity>(
       201,
       "Versión de cotización duplicada correctamente",
-      VersionQuotationEntity.fromObject(newVersionQuotation)
+      await VersionQuotationEntity.fromObject(newVersionQuotation)
     );
   }
 
@@ -598,7 +612,7 @@ export class VersionQuotationService {
         },
         status: {
           not: VersionQuotationStatus.DRAFT,
-        }
+        },
       },
       include: {
         trip_details: {

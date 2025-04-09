@@ -14,7 +14,7 @@ export class CountryService {
     return new ApiResponse<CountryEntity[]>(
       200,
       "Lista de países",
-      countries.map((country) => CountryEntity.fromObject(country))
+      await Promise.all(countries.map((country) => CountryEntity.fromObject(country)))
     );
   }
 }

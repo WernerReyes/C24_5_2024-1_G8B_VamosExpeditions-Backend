@@ -1,5 +1,5 @@
 import { EnvsConst } from "@/core/constants";
-import { v2 as cloudinary, UploadApiResponse, ConfigOptions } from "cloudinary";
+import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 
 export interface UploadImageOptions {
   filePath: Buffer;

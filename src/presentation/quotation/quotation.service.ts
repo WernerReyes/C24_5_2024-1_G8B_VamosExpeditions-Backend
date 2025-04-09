@@ -43,7 +43,7 @@ export class QuotationService {
     return new ApiResponse<QuotationEntity>(
       200,
       "Cotización creada correctamente",
-      QuotationEntity.fromObject(quotation)
+      await QuotationEntity.fromObject(quotation)
     );
   }
 
@@ -57,7 +57,7 @@ export class QuotationService {
     return new ApiResponse<QuotationEntity[]>(
       200,
       "Lista de cotizaciones",
-      quotations.map(QuotationEntity.fromObject)
+      await Promise.all(quotations.map(QuotationEntity.fromObject))
     );
   }
 

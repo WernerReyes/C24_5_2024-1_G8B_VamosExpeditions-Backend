@@ -27,6 +27,15 @@ export class Middleware {
     }
     try {
       const payload = await JwtAdapter.verifyToken<{ id: string }>(token);
+      if (!payload) {
+        return res.status(401).json({
+          ok: false,
+          message: "Invalid token",
+          code: ErrorCodeConst.ERR_USER_INVALID_TOKEN,
+        });
+      }
+
+
       const user = await UserModel.findFirst({
         where: {
           id_user: parseInt(payload!.id),
@@ -42,8 +51,9 @@ export class Middleware {
           code: ErrorCodeConst.ERR_USER_INVALID_TOKEN,
         });
       }
-      const userEntity = UserEntity.fromObject(user);
+      const userEntity = await UserEntity.fromObject(user);
       (req as RequestAuth).user = userEntity;
+      
       next();
     } catch (error) {
       return res.status(401).json({

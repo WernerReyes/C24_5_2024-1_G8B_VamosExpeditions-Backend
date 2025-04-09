@@ -6,6 +6,7 @@ import {
   isWithinInterval,
   getHours,
   eachDayOfInterval,
+  addDays,
 } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import { es } from "date-fns/locale/es";
@@ -64,6 +65,15 @@ export class DateAdapter {
     return eachDayOfInterval({
       start: DateAdapter.parseISO(startDate),
       end: DateAdapter.parseISO(endDate),
+    });
+  }
+  static rangeFromStartDate(
+    startDate: Date,
+    days: number
+  ): Date[] {
+    return eachDayOfInterval({
+      start: DateAdapter.parseISO(startDate),
+      end: addDays(DateAdapter.parseISO(startDate), days - 1),
     });
   }
 }

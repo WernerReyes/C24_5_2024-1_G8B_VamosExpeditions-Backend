@@ -1,43 +1,47 @@
 import { DateAdapter } from "@/core/adapters";
 import type {
   InsertManyHotelRoomTripDetailsDto,
+  UpdateManyHotelRoomTripDetailsByDateDto,
 } from "@/domain/dtos";
 import type { Prisma } from "@prisma/client";
 
-type Dto = InsertManyHotelRoomTripDetailsDto;
+type Dto =
+  | InsertManyHotelRoomTripDetailsDto
+  | UpdateManyHotelRoomTripDetailsByDateDto;
 
 export class HotelRoomTripDetailsMapper {
   private dto: Dto;
-
+ 
   constructor() {
     this.dto = {} as Dto;
+
   }
 
   public set setDto(dto: Dto) {
     this.dto = dto;
   }
 
-  public get toCreateMany(): Prisma.hotel_room_trip_detailsCreateManyInput[] {
-    this.dto = this.dto as InsertManyHotelRoomTripDetailsDto;
+  
+
+  public get createMany(): Prisma.hotel_room_trip_detailsCreateManyInput[] {
+    const dto = this.dto as InsertManyHotelRoomTripDetailsDto;
     const dates = DateAdapter.eachDayOfInterval(
-      this.dto.dateRange[0],
-      this.dto.dateRange[1]
+      dto.dateRange[0],
+      dto.dateRange[1]
     );
 
     const dataToInsert = dates.flatMap((date) => {
-      return Array.from(
-        { length: (this.dto as InsertManyHotelRoomTripDetailsDto).countPerDay },
-        () => ({
-          hotel_room_id: this.dto.hotelRoomId,
-          trip_details_id: this.dto.tripDetailsId,
-          date,
-          number_of_people: this.dto.numberOfPeople,
-        })
-      );
+      return Array.from({ length: dto.countPerDay }, () => ({
+        hotel_room_id: dto.hotelRoomId,
+        trip_details_id: dto.tripDetailsId,
+        date,
+        cost_person: dto.costPerson,
+      }));
     });
-    
+
     return dataToInsert;
   }
+
 
   public get toSelectInclude(): Prisma.hotel_room_trip_detailsInclude {
     return {

@@ -42,6 +42,12 @@ export class EnvsConst {
     .required()
     .asString();
 
+  //* Redis
+  public static readonly REDIS_URL = get("REDIS_URL")
+    .required()
+    .asString();
+
+
   /* Cloudinary */
   public static readonly CLOUDINARY_CLOUD_NAME = get("CLOUDINARY_CLOUD_NAME")
     .required()

@@ -1,4 +1,6 @@
-import { DateUtils, Validations } from "@/core/utils";
+import { DateAdapter } from "@/core/adapters";
+import { Validations } from "@/core/utils";
+import { DateUtils } from "@/core/utils/date";
 
 export class InsertManyHotelRoomTripDetailsDto {
   private constructor(
@@ -6,7 +8,7 @@ export class InsertManyHotelRoomTripDetailsDto {
     public readonly tripDetailsId: number,
     public readonly dateRange: [Date, Date],
     public readonly countPerDay: number,
-    public readonly numberOfPeople: number
+    public readonly costPerson: number
   ) {}
 
   public static create(props: {
@@ -17,18 +19,18 @@ export class InsertManyHotelRoomTripDetailsDto {
       tripDetailsId,
       dateRange,
       countPerDay,
-      numberOfPeople,
+      costPerson,
     } = props as InsertManyHotelRoomTripDetailsDto;
 
     const emptyFieldsError = Validations.validateEmptyFields(
-      { hotelRoomId, numberOfPeople, dateRange, tripDetailsId, countPerDay },
+      { hotelRoomId, costPerson, dateRange, tripDetailsId, countPerDay },
       "InsertManyHotelRoomTripDetailsDto"
     );
     if (emptyFieldsError) return [emptyFieldsError, undefined];
 
     const numberError = Validations.validateNumberFields({
       hotelRoomId,
-      numberOfPeople,
+      costPerson,
       tripDetailsId,
       countPerDay,
     });
@@ -37,15 +39,14 @@ export class InsertManyHotelRoomTripDetailsDto {
     const greaterThanZeroError = Validations.validateGreaterThanValueFields(
       {
         hotelRoomId,
-        numberOfPeople,
+        costPerson,
         tripDetailsId,
       },
       0
     );
     if (greaterThanZeroError) return [greaterThanZeroError, undefined];
    
-    console.log( [DateUtils.parseISO(dateRange[0]), DateUtils.parseISO(dateRange[1])])
-
+  
     return [
       undefined,
       new InsertManyHotelRoomTripDetailsDto(
@@ -53,7 +54,7 @@ export class InsertManyHotelRoomTripDetailsDto {
         +tripDetailsId,
         [DateUtils.parseISO(dateRange[0]), DateUtils.parseISO(dateRange[1])],
         +countPerDay < 1 ? 1 : +countPerDay,
-        +numberOfPeople
+        +costPerson
       ),
     ];
   }

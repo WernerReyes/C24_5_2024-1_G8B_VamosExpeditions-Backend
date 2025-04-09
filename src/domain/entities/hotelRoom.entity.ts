@@ -18,7 +18,7 @@ export class HotelRoomEntity {
     public readonly hotel?: HotelEntity
   ) {}
 
-  public static fromObject(hotelRoom: HotelRoom): HotelRoomEntity {
+  public static async fromObject(hotelRoom: HotelRoom): Promise<HotelRoomEntity> {
     const {
       id_hotel_room,
       room_type,
@@ -41,7 +41,7 @@ export class HotelRoomEntity {
       Number(rate_usd) ?? undefined,
       Number(price_pen),
       Number(price_usd),
-      hotel ? HotelEntity.fromObject(hotel) : undefined
+      hotel ? await HotelEntity.fromObject(hotel) : undefined
     );
   }
 }

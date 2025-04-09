@@ -12,13 +12,13 @@ export class DistritEntity {
     public readonly city?: CityEntity
   ) {}
 
-  public static fromObject(distrit: Distrit): DistritEntity {
+  public static async fromObject(distrit: Distrit): Promise<DistritEntity> {
     const { id_distrit, name, city } = distrit;
 
     return new DistritEntity(
       id_distrit,
       name,
-      city ? CityEntity.fromObject(city) : undefined
+      city ? await CityEntity.fromObject(city) : undefined
     );
   }
 }

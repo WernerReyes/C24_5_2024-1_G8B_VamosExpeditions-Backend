@@ -1,4 +1,4 @@
-import { DateUtils } from "@/core/utils";
+import { DateAdapter } from "@/core/adapters";
 import { Content, ContextPageSize } from "pdfmake/interfaces";
 
 const footerText: Content = {
@@ -32,7 +32,8 @@ export const footerSection = (
                 style: "footerText",
               },
               {
-                text: DateUtils.getDDMMMMYYYY(new Date()),
+              
+                text: DateAdapter.format(new Date()),
                 alignment: "left",
                 style: "footerText",
               },

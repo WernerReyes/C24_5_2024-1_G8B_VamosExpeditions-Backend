@@ -1,6 +1,4 @@
-import { CustomError } from "../../../domain/error/custom.error";
 import type { ExternalCountryModel } from "./country.model";
-import { Validations } from "../../../core/utils/validations";
 
 export type Image = {
   svg: string;
@@ -52,36 +50,12 @@ export class ExternalCountryEntity {
       flags: { svg, png },
       subregion,
     } = object;
-    const error = Validations.validateEmptyFields({
-      name,
-      code,
-      svg,
-      png,
-    });
-
-    if (error) throw CustomError.badRequest(error);
 
     return new ExternalCountryEntity(
       name,
       code,
       { svg, png },
       subregion as Subregion
-    );
-  }
-
-  public static validateEntity(
-    entity: ExternalCountryEntity,
-    from: string
-  ): string | null {
-    const { name, code, image, subregion } = entity;
-    return Validations.validateEmptyFields(
-      {
-        name,
-        code,
-        image,
-        subregion,
-      },
-      `${from}, ExternalCountryEntity`
     );
   }
 }

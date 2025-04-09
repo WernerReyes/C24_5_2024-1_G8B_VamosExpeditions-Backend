@@ -1,6 +1,6 @@
-import { DateUtils } from "@/core/utils";
 import {
   HotelRoomTripDetailsModel,
+  prisma,
   TripDetailsModel,
 } from "@/data/postgres";
 import type {
@@ -15,6 +15,8 @@ import { CustomError } from "@/domain/error";
 import type { HotelRoomTripDetailsMapper } from "./hotelRoomTripDetails.mapper";
 import { ApiResponse } from "../response";
 import type { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { DateAdapter } from "@/core/adapters";
+import { DateUtils } from "@/core/utils/date";
 
 export class HotelRoomTripDetailsService {
   constructor(
@@ -31,7 +33,7 @@ export class HotelRoomTripDetailsService {
 
     const hotelRoomTripDetails =
       await HotelRoomTripDetailsModel.createManyAndReturn({
-        data: this.hotelRoomTripDetailsMapper.toCreateMany,
+        data: this.hotelRoomTripDetailsMapper.createMany,
         include: this.hotelRoomTripDetailsMapper.toSelectInclude,
       }).catch((error: PrismaClientKnownRequestError) => {
         if (error.code === "P2003")
@@ -43,15 +45,17 @@ export class HotelRoomTripDetailsService {
     return new ApiResponse<HotelRoomTripDetailsEntity[]>(
       201,
       "Cotizaciones de habitaciones creadas correctamente",
-      hotelRoomTripDetails.map((hotelRoomTripDetails) =>
-        HotelRoomTripDetailsEntity.fromObject(hotelRoomTripDetails)
+      await Promise.all(
+        hotelRoomTripDetails.map((hotelRoomTripDetails) =>
+          HotelRoomTripDetailsEntity.fromObject(hotelRoomTripDetails)
+        )
       )
     );
   }
 
   private async validateDateRange({
     tripDetailsId,
-    numberOfPeople,
+    costPerson,
     dateRange,
   }: InsertManyHotelRoomTripDetailsDto) {
     const tripDetails = await TripDetailsModel.findUnique({
@@ -79,16 +83,16 @@ export class HotelRoomTripDetailsService {
 
     if (!tripDetails) throw CustomError.notFound("Cotización no encontrada");
 
-    if (numberOfPeople > tripDetails.number_of_people)
-      throw CustomError.badRequest(
-        "El número de personas no coincide con la cantidad de personas de los detalles de reserva"
-      );
+    // if (numberOfPeople > tripDetails.number_of_people)
+    //   throw CustomError.badRequest(
+    //     "El número de personas no coincide con la cantidad de personas de los detalles de reserva"
+    //   );
 
     // Filtrar solo las reservas que corresponden al mismo día
     // const reservationsForTheDay = dateRange.hotel_room_trip_details.filter(
     //   (hotelRoomTripDetails) =>
-    //     DateUtils.resetTimeToMidnight(hotelRoomTripDetails.date).getTime() ===
-    //     DateUtils.resetTimeToMidnight(HotelRoomTripDetailsDto.date).getTime()
+    //     DateAdapter.resetTimeToMidnight(hotelRoomTripDetails.date).getTime() ===
+    //     DateAdapter.resetTimeToMidnight(HotelRoomTripDetailsDto.date).getTime()
     // );
 
     // Calcular la cantidad total de personas para ese día, incluyendo la nueva reserva
@@ -109,6 +113,17 @@ export class HotelRoomTripDetailsService {
 
     const startDate = DateUtils.resetTimeToMidnight(tripDetails.start_date);
     const endDate = DateUtils.resetTimeToMidnight(tripDetails.end_date);
+
+    console.log(
+      "startDate",
+      startDate,
+      "endDate",
+      endDate,
+      "currentStartDate",
+      currentStartDate,
+      "currentEndDate",
+      currentEndDate
+    );
 
     if (
       currentStartDate.getTime() < startDate.getTime() ||
@@ -131,30 +146,51 @@ export class HotelRoomTripDetailsService {
           gt: startDate,
         },
       },
+      select: {
+        id: true,
+        date: true,
+      },
     });
+    if (hotelRoomTripDetails.length === 0)
+      throw CustomError.notFound(
+        "No se encontraron cotizaciones de habitación"
+      );
 
     const updatedManyHotelRoomTripDetails: HotelRoomTripDetails[] = [];
-    if (hotelRoomTripDetails.length > 0) {
-      for (let i = 0; i < hotelRoomTripDetails.length; i++) {
-        const newDate = new Date(hotelRoomTripDetails[i].date);
-        newDate.setDate(newDate.getDate() - 1);
-        const updatedHotelRoomTripDetails =
-          await HotelRoomTripDetailsModel.update({
-            where: {
-              id: hotelRoomTripDetails[i].id,
-            },
-            data: { date: newDate },
-            include: this.hotelRoomTripDetailsMapper.toSelectInclude,
-          });
 
-        updatedManyHotelRoomTripDetails.push(updatedHotelRoomTripDetails);
-      }
-    }
+    await prisma
+      .$transaction(async () => {
+        for (let i = 0; i < hotelRoomTripDetails.length; i++) {
+          const newDate = new Date(hotelRoomTripDetails[i].date);
+          newDate.setDate(newDate.getDate() - 1);
+
+          const updatedHotelRoomTripDetails =
+            await HotelRoomTripDetailsModel.update({
+              where: {
+                id: hotelRoomTripDetails[i].id,
+              },
+              data: { date: newDate },
+              include: this.hotelRoomTripDetailsMapper.toSelectInclude,
+            });
+
+          updatedManyHotelRoomTripDetails.push(updatedHotelRoomTripDetails);
+        }
+      })
+      .catch((error: PrismaClientKnownRequestError) => {
+        if (error.code === "P2003")
+          throw CustomError.notFound("Hotel no encontrada");
+
+        throw CustomError.internalServer(error.message);
+      });
 
     return new ApiResponse<HotelRoomTripDetailsEntity[]>(
       200,
       `${updatedManyHotelRoomTripDetails.length} detalles de habitación actualizados correctamente`,
-      updatedManyHotelRoomTripDetails.map(HotelRoomTripDetailsEntity.fromObject)
+      await Promise.all(
+        updatedManyHotelRoomTripDetails.map(
+          HotelRoomTripDetailsEntity.fromObject
+        )
+      )
     );
   }
 
@@ -174,7 +210,7 @@ export class HotelRoomTripDetailsService {
     return new ApiResponse<HotelRoomTripDetailsEntity>(
       204,
       "Cotización de habitación eliminada correctamente",
-      HotelRoomTripDetailsEntity.fromObject(hotelRoomTripDetailsDeleted)
+      await HotelRoomTripDetailsEntity.fromObject(hotelRoomTripDetailsDeleted)
     );
   }
 
@@ -198,7 +234,9 @@ export class HotelRoomTripDetailsService {
       } de habitación eliminada${
         hotelRoomTripDetails.length === 1 ? "" : "s"
       } correctamente`,
-      hotelRoomTripDetails.map(HotelRoomTripDetailsEntity.fromObject)
+      await Promise.all(
+        hotelRoomTripDetails.map(HotelRoomTripDetailsEntity.fromObject)
+      )
     );
   }
 }

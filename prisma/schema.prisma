@@ -63,7 +63,6 @@ model user {
   email                                     String              @db.VarChar(45)
   password                                  String              @db.VarChar(200)
   id_role                                   Int
-  online                                    Boolean?            @default(false)
   description                               String?
   phone_number                              String?             @db.VarChar(20)
   notification_notification_from_userTouser notification[]      @relation("notification_from_userTouser")
@@ -117,10 +116,10 @@ model version_quotation {
   updated_at            DateTime                 @default(now()) @db.Timestamp(6)
   status                version_quotation_status @default(DRAFT)
   completion_percentage Int                      @default(0)
-  commission            Decimal?                 @default(3) @db.Decimal(5, 2)
-  partner_id            Int                      @default(1)
+  commission            Decimal?                 @default(0) @db.Decimal(5, 2)
+  partner_id            Int?
   trip_details          trip_details?
-  partners              partner                  @relation(fields: [partner_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_partner")
+  partners              partner?                 @relation(fields: [partner_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_partner")
   quotation             quotation                @relation(fields: [quotation_id], references: [id_quotation], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_quotation")
   user                  user                     @relation(fields: [user_id], references: [id_user], onDelete: Cascade, onUpdate: NoAction, map: "fk_version_quotation_user")
 
@@ -130,13 +129,13 @@ model version_quotation {
 }
 
 model hotel_room_trip_details {
-  id               Int          @id @default(autoincrement())
-  hotel_room_id    Int
-  date             DateTime     @db.Date
-  trip_details_id  Int
-  number_of_people Int?
-  hotel_room       hotel_room   @relation(fields: [hotel_room_id], references: [id_hotel_room], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_hotel_room")
-  trip_details     trip_details @relation(fields: [trip_details_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_trip_details")
+  id              Int          @id @default(autoincrement())
+  hotel_room_id   Int
+  date            DateTime     @db.Date
+  trip_details_id Int
+  cost_person     Decimal      @db.Decimal(8, 2)
+  hotel_room      hotel_room   @relation(fields: [hotel_room_id], references: [id_hotel_room], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_hotel_room")
+  trip_details    trip_details @relation(fields: [trip_details_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_trip_details")
 }
 
 model trip_details {

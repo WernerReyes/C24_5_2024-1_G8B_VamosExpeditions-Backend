@@ -65,7 +65,7 @@ export class VersionQuotationReport {
           { text: db?.hotel_room?.hotel?.name || "-", alignment: "left" },
           { text: db?.hotel_room?.room_type || "-", alignment: "left" },
           {
-            text: db?.number_of_people?.toString() || "-",
+            text: db?.cost_person?.toString() || "-",
             alignment: "center",
           },
           {
