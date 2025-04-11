@@ -1,17 +1,11 @@
-import { CustomError } from "@/domain/error";
-import type { QuotationMapper } from "./quotation.mapper";
-import { prisma, QuotationModel } from "@/data/postgres";
-import { ContextStrategy } from "../../lib/strategies/context.strategy";
-import { Reportdto } from "@/domain/dtos";
-import { ReservationType } from "@/lib";
-import { ApiResponse } from "../response";
+import { prisma } from "@/data/postgres";
 import { QuotationEntity } from "@/domain/entities";
+import { CustomError } from "@/domain/error";
+import { ApiResponse } from "../response";
+import type { QuotationMapper } from "./quotation.mapper";
 
 export class QuotationService {
-  constructor(
-    private readonly quotationMapper: QuotationMapper,
-    private readonly contextStrategy: ContextStrategy
-  ) {}
+  constructor(private readonly quotationMapper: QuotationMapper) {}
 
   public async createQuotation(userId: number) {
     const quotation = await prisma
@@ -44,40 +38,5 @@ export class QuotationService {
       "Cotización creada correctamente",
       await QuotationEntity.fromObject(quotation)
     );
-  }
-
-  public async getQuotations() {
-    const quotations = await QuotationModel.findMany({
-      include: this.quotationMapper.toSelectInclude,
-    }).catch((error) => {
-      throw CustomError.internalServer(`${error}`);
-    });
-
-    return new ApiResponse<QuotationEntity[]>(
-      200,
-      "Lista de cotizaciones",
-      await Promise.all(quotations.map(QuotationEntity.fromObject))
-    );
-  }
-
-  public async sendEmailAndPdf(reportdto: Reportdto) {
-    const resultSend = await this.contextStrategy.executeStrategy({
-      to: reportdto.to,
-      subject: reportdto.subject,
-      type: reportdto.resources as ReservationType,
-      htmlBody: reportdto.description,
-      reservationId: reportdto.reservationId,
-      from: reportdto.from,
-    });
-
-    if (!resultSend) {
-      throw CustomError.internalServer("Error sending email");
-    }
-
-    if (resultSend) {
-      return {
-        message: "Email sent successfully",
-      };
-    }
   }
 }

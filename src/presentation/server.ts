@@ -33,7 +33,7 @@ export class Server {
       cors({
         origin: this.origins,
         credentials: true,
-        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // ✅ Asegura que POST está permitido
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
       })
     );

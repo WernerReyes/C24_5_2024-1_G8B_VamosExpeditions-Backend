@@ -1,4 +1,5 @@
 import { EnvsConst } from "@/core/constants";
+import { CustomError } from "@/domain/error";
 import nodemailer, { Transporter } from "nodemailer";
 
 export type ReservationType =
@@ -16,7 +17,11 @@ export interface SendMailOptions {
   from: string;
   type?: ReservationType;
   queryResult?: any;
-  reservationId?: number;
+  // reservationId?: number;
+  versionQuotationId: {
+    quotationId: number;
+    versionNumber: number;
+  };
 }
 
 export interface Attachement {
@@ -37,7 +42,9 @@ export class EmailService {
     });
   }
 
-  async sendEmail(options: SendMailOptions): Promise<boolean> {
+  async sendEmail(
+    options: Omit<SendMailOptions, "versionQuotationId">
+  ): Promise<boolean> {
     const { to, subject, htmlBody, attachements = [], from } = options;
 
     try {
@@ -51,8 +58,7 @@ export class EmailService {
 
       return true;
     } catch (error) {
-      console.log(error);
-      return false;
+      throw CustomError.internalServer("Error sending email" + error);
     }
   }
 }

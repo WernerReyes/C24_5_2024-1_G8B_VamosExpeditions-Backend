@@ -17,6 +17,7 @@ export class CacheAdapter {
   }
 
   private async initializeRedisClient(): Promise<void> {
+    try {
     const client: RedisClientType = createClient({
       url: EnvsConst.REDIS_URL,
       socket: {
@@ -25,12 +26,13 @@ export class CacheAdapter {
       },
     });
 
-    client.on("error", (err) => console.error("Redis Client Error", err));
-
     await client.connect();
 
     console.log("Redis client connected");
     this.cache = client;
+  } catch (error) {
+    throw new Error("Failed to initialize Redis client" + error);
+  }
   }
 
   public static getInstance(): CacheAdapter {

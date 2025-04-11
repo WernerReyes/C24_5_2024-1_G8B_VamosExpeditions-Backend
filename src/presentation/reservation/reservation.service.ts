@@ -16,7 +16,6 @@ import { CustomError } from "@/domain/error";
 import {
   ReservationEntity,
   ReservationStatus,
-  VersionQuotationEntity,
   VersionQuotationStatus,
 } from "@/domain/entities";
 import { ApiResponse, PaginatedResponse } from "../response";
@@ -24,7 +23,7 @@ import { ApiResponse, PaginatedResponse } from "../response";
 export class ReservationService {
   constructor(
     private reservationMapper: ReservationMapper,
-    private pdfService: PdfService
+
   ) {}
 
   public async upsertReservation(

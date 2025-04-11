@@ -1,31 +1,28 @@
 -- Delete table if exists
-DROP TYPE role_type CASCADE;
-DROP TYPE trip_details_traveler_style  CASCADE;
-DROP TYPE trip_details_order_type CASCADE;
-DROP TYPE reservation_status CASCADE;
-DROP TYPE version_quotation_status CASCADE;
 
+-- Eliminar tipos si existen
+DROP TYPE IF EXISTS role_type CASCADE;
+DROP TYPE IF EXISTS trip_details_traveler_style CASCADE;
+DROP TYPE IF EXISTS trip_details_order_type CASCADE;
+DROP TYPE IF EXISTS reservation_status CASCADE;
+DROP TYPE IF EXISTS version_quotation_status CASCADE;
 
-DROP table if EXISTS reservation;
+-- Eliminar tablas si existen
+DROP TABLE IF EXISTS reservation;
 DROP TABLE IF EXISTS hotel_room_trip_details;
 DROP TABLE IF EXISTS trip_details;
 DROP TABLE IF EXISTS version_quotation;
 DROP TABLE IF EXISTS quotation;
-
-
 DROP TABLE IF EXISTS notification;
 DROP TABLE IF EXISTS "user";
 DROP TABLE IF EXISTS role;
-
-DROP table if EXISTS hotel_room;
-DROP table if EXISTS hotel;
-
-DROP table if EXISTS trip_details_has_city;
-DROP table if EXISTS client;
-
-DROP table if EXISTS distrit;
-DROP table if EXISTS city;
-DROP table if EXISTS country;
+DROP TABLE IF EXISTS hotel_room;
+DROP TABLE IF EXISTS hotel;
+DROP TABLE IF EXISTS trip_details_has_city;
+DROP TABLE IF EXISTS client;
+DROP TABLE IF EXISTS distrit;
+DROP TABLE IF EXISTS city;
+DROP TABLE IF EXISTS country;
 
 
 -- -----------------------------------------------------
@@ -52,7 +49,7 @@ email VARCHAR(45) NOT NULL,
 online BOOlEAN DEFAULT FAlSE,
 password VARCHAR(200) NOT NULL,
 description TEXT NULL,
-phone_number VARCHAR(20) NULL;
+phone_number VARCHAR(20) NULL,
 id_role INT NOT NULL,
 CONSTRAINT fk_user_role FOREIGN KEY (id_role)
 REFERENCES role (id_role)
@@ -295,29 +292,35 @@ CREATE TABLE IF NOT EXISTS reservation (
     status reservation_status DEFAULT 'PENDING' NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    ALTER TABLE reservation ADD CONSTRAINT fk_reservation_quotation FOREIGN KEY (quotation_id) 
-    REFERENCES quotation(id_quotation) ON DELETE CASCADE,
-    ALTER TABLE reservation ADD CONSTRAINT unique_reservation UNIQUE (quotation_id);
+    CONSTRAINT fk_reservation_quotation FOREIGN KEY (quotation_id) REFERENCES quotation(id_quotation) ON DELETE CASCADE,
+    CONSTRAINT unique_reservation UNIQUE (quotation_id)
         
-);
-
-
--- -----------------------------------------------------
+);-- -----------------------------------------------------
 -- View `reservation_version_summary`
 -- -----------------------------------------------------
+
+  
+
+
+
+DROP VIEW IF EXISTS reservation_version_summary;
+
 CREATE OR REPLACE VIEW reservation_version_summary AS
-SELECT 
+SELECT
   r.created_at AS reservation_date,
   v.final_price,
   v.profit_margin,
   q.id_quotation AS quotation_id,
   v.version_number,
-   r.status AS reservation_status, -- Add reservation status
-  r.id AS id  -- Add a unique identifier
-FROM reservation r
-JOIN quotation q ON r.quotation_id = q.id_quotation
-JOIN version_quotation v ON q.id_quotation = v.quotation_id
-WHERE v.status = 'APPROVED' AND v.official = TRUE;
+  r.status AS reservation_status, -- Add reservation status
+  r.id AS id -- Add a unique identifier
+FROM
+  reservation r
+  JOIN quotation q ON r.quotation_id = q.id_quotation
+  JOIN version_quotation v ON q.id_quotation = v.quotation_id
+WHERE
+  v.status = 'APPROVED'
+  AND v.official = TRUE;
 
 
-DROP VIEW reservation_version_summary;
+/*DROP VIEW reservation_version_summary;*/

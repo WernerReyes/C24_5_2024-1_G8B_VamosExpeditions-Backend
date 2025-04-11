@@ -12,6 +12,14 @@ export enum VersionQuotationStatus {
   APPROVED = "APPROVED",
 }
 
+export enum AllowVersionQuotationType {
+  TRANSPORTATION = "TRANSPORTATION",
+  ACTIVITY = "ACTIVITY",
+  ACCOMMODATION = "ACCOMMODATION",
+  FOOD = "FOOD",
+  GUIDE = "GUIDE",
+}
+
 export type VersionQuotation = version_quotation & {
   user?: User;
   trip_details?: TripDetails | null;
@@ -78,7 +86,9 @@ export class VersionQuotationEntity {
       profit_margin ? Number(profit_margin) : undefined,
       final_price ? Number(final_price) : undefined,
       commission ? Number(commission) : undefined,
-      trip_details ? await TripDetailsEntity.fromObject(trip_details) : undefined,
+      trip_details
+        ? await TripDetailsEntity.fromObject(trip_details)
+        : undefined,
       user ? await UserEntity.fromObject(user) : undefined,
       quotation?.reservation
         ? await ReservationEntity.fromObject(quotation.reservation)

@@ -22,7 +22,7 @@ async function main() {
   try {
     await AppCacheContext.initialize();
   } catch (error) {
-    console.error("Error initializing cache:", error);
+    console.error(error);
   }
 
   const server = new Server({
@@ -38,6 +38,4 @@ async function main() {
   httpServer.listen(EnvsConst.PORT, () => {
     console.log(`Server listening on port ${EnvsConst.PORT}`);
   });
-
-  // server.start();
 }

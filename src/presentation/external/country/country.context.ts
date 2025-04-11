@@ -9,7 +9,7 @@ export class ExternalCountryContext {
   public static async initialize(cache: CacheAdapter) {
     this._externalCountries =
       (await cache.get<ExternalCountryEntity[]>(CacheConst.COUNTRIES)) ?? [];
-
+      
     if (!this._externalCountries.length) {
       const response = await fetch(
         EnvsConst.EXTERNAL_API_COUNTRY_URL + "/countries"
@@ -30,5 +30,11 @@ export class ExternalCountryContext {
     code: string
   ): ExternalCountryEntity | undefined {
     return this._externalCountries.find((country) => country.code === code);
+  }
+
+  public static getCountryByName(
+    name: string
+  ): ExternalCountryEntity | undefined {
+    return this._externalCountries.find((country) => country.name === name);
   }
 }

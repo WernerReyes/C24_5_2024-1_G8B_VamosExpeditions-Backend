@@ -1,15 +1,15 @@
-import type { Request, Response } from "express";
 import {
   DuplicateMultipleVersionQuotationDto,
   GetVersionQuotationsDto,
-  PaginationDto,
+  SendEmailAndGenerateReportDto,
   VersionQuotationDto,
-  VersionQuotationIDDto,
+  VersionQuotationIDDto
 } from "@/domain/dtos";
-import { AppController } from "../controller";
-import { VersionQuotationService } from "./versionQuotation.service";
 import { CustomError } from "@/domain/error";
+import type { Request, Response } from "express";
+import { AppController } from "../controller";
 import type { RequestAuth } from "../middleware";
+import { VersionQuotationService } from "./versionQuotation.service";
 
 export class VersionQuotationController extends AppController {
   constructor(
@@ -172,4 +172,15 @@ export class VersionQuotationController extends AppController {
       })
       .catch((error) => this.handleResponseError(res, error));
   };
+
+
+  public sendEmailAndGenerateReport = async (req: Request, res: Response) => {
+    const [error, reportDto] = SendEmailAndGenerateReportDto.create(req.body);
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(this.versionQuotationService.sendEmailAndGenerateReport(reportDto!))
+      .then((report) => res.status(200).json(report))
+      .catch((error) => this.handleResponseError(res, error));
+  }
 }

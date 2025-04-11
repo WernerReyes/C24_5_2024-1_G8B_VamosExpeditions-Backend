@@ -29,18 +29,7 @@ export class NotificationMessageEntity {
       created_at,
       user_notification_from_userTouser,
     } = notification;
-    const error = Validations.validateEmptyFields(
-      {
-        id,
-        from_user,
-        to_user,
-        message,
-        created_at,
-      },
-      "NotificationMessageEntity"
-    );
-    if (error) throw CustomError.badRequest(error);
-
+  
     return new NotificationMessageEntity(
       id,
       from_user,

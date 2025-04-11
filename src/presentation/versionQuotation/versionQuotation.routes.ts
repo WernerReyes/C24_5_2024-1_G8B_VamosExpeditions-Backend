@@ -4,7 +4,7 @@ import { VersionQuotationMapper } from "./versionQuotation.mapper";
 import { VersionQuotationService } from "./versionQuotation.service";
 import { VersionQuotationController } from "./versionQuotation.controller";
 import { VersionQuotationReport } from "./versionQuotation.report";
-import { PdfService } from "@/lib";
+import { CloudinaryService, EmailService, PdfService } from "@/lib";
 
 export class VersionQuotationRoutes {
   static get routes(): Router {
@@ -13,10 +13,15 @@ export class VersionQuotationRoutes {
     const versionQuotationMapper = new VersionQuotationMapper();
     const versionQuotationReport = new VersionQuotationReport();
     const pdfService = new PdfService();
+    const cloudinaryService = new CloudinaryService();
+    const emailService = new EmailService();
+    
     const versionQuotationService = new VersionQuotationService(
       versionQuotationMapper,
       versionQuotationReport,
-      pdfService
+      pdfService,
+      emailService,
+      cloudinaryService,
     );
     const versionQuotationController = new VersionQuotationController(
       versionQuotationService
@@ -61,6 +66,9 @@ export class VersionQuotationRoutes {
       "/multiple",
       versionQuotationController.deleteMultipleVersionQuotation
     );
+
+     router.post("/send-email-pdf", versionQuotationController.sendEmailAndGenerateReport);
+
 
     return router;
   }

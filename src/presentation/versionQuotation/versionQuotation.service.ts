@@ -3,26 +3,35 @@ import type {
   DuplicateMultipleVersionQuotationDto,
   DuplicateVersionQuotationDto,
   GetVersionQuotationsDto,
+  SendEmailAndGenerateReportDto,
   VersionQuotationDto,
-  VersionQuotationIDDto,
+  VersionQuotationIDDto
 } from "@/domain/dtos";
 import {
+  AllowVersionQuotationType,
   type VersionQuotation,
   VersionQuotationEntity,
   VersionQuotationStatus,
 } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
+import {
+  CloudinaryService,
+  EmailService,
+  PdfService
+} from "@/lib";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { TDocumentDefinitions } from "pdfmake/interfaces";
 import { ApiResponse, PaginatedResponse } from "../response";
 import type { VersionQuotationMapper } from "./versionQuotation.mapper";
-import { PdfService } from "@/lib";
 import { VersionQuotationReport } from "./versionQuotation.report";
 
 export class VersionQuotationService {
   constructor(
     private readonly versionQuotationMapper: VersionQuotationMapper,
     private readonly versionQuotationReport: VersionQuotationReport,
-    private readonly pdfService: PdfService
+    private readonly pdfService: PdfService,
+    private readonly emailService: EmailService,
+    private readonly cloudinaryService: CloudinaryService
   ) {}
 
   public async updateVersionQuotation(
@@ -342,20 +351,24 @@ export class VersionQuotationService {
       new PaginatedResponse(
         await Promise.all(
           versionsQuotation.map(async ({ quotation, ...rest }) => {
-            const versionQuotationEntity = await VersionQuotationEntity.fromObject({
-              ...rest,
-              quotation: {
-                ...quotation,
-                version_quotation: undefined,
-                reservation: rest.official ? quotation.reservation : undefined,
-              },
-            });
-        
+            const versionQuotationEntity =
+              await VersionQuotationEntity.fromObject({
+                ...rest,
+                quotation: {
+                  ...quotation,
+                  version_quotation: undefined,
+                  reservation: rest.official
+                    ? quotation.reservation
+                    : undefined,
+                },
+              });
+
             return {
               ...versionQuotationEntity,
               hasUnofficialVersions:
-                quotation.version_quotation.filter((version) => !version.official)
-                  .length > 0,
+                quotation.version_quotation.filter(
+                  (version) => !version.official
+                ).length > 0,
             };
           })
         ),
@@ -647,5 +660,121 @@ export class VersionQuotationService {
     });
 
     return await this.pdfService.createPdf(pdfGenerated);
+  }
+
+  public async sendEmailAndGenerateReport({
+    resources,
+    versionQuotationId,
+    ...data
+  }: SendEmailAndGenerateReportDto) {
+    const document = await new Promise(
+      async (
+        resolve: (document: TDocumentDefinitions) => void,
+        reject: (error: string) => void
+      ) => {
+        switch (resources) {
+          case AllowVersionQuotationType.TRANSPORTATION:
+
+          case AllowVersionQuotationType.ACCOMMODATION:
+            const versionQuotation = await VersionQuotationModel.findUnique({
+              where: {
+                version_number_quotation_id: {
+                  version_number: versionQuotationId.versionNumber,
+                  quotation_id: versionQuotationId.quotationId,
+                },
+              },
+              omit: {
+                created_at: true,
+                updated_at: true,
+              },
+              include: {
+                user: {
+                  omit: {
+                    id_role: true,
+                    password: true,
+                  },
+                },
+                trip_details: {
+                  omit: {
+                    client_id: true,
+                  },
+                  include: {
+                    client: {
+                      omit: {
+                        createdAt: true,
+                        updatedAt: true,
+                      },
+                    },
+                    hotel_room_trip_details: {
+                      orderBy: {
+                        date: "asc",
+                      },
+                      include: {
+                        hotel_room: {
+                          include: {
+                            hotel: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            });
+
+            if (!versionQuotation)
+              reject("No se encontró la versión de cotización");
+
+            const document = await this.versionQuotationReport.generateReport({
+              title: "",
+              subTitle: "",
+              dataQuey: versionQuotation as VersionQuotation,
+            });
+
+            resolve(document);
+        }
+      }
+    ).catch((error) => {
+      throw CustomError.badRequest(`${error}`);
+    });
+
+    const pdfBuffer = await this.pdfService.createPdfEmail(document);
+
+    const upload = await this.cloudinaryService
+      .uploadImage({
+        filePath: pdfBuffer,
+        folder: "reservations",
+      })
+      .catch((error) => {
+        throw CustomError.internalServer(`Error uploading image: ${error}`);
+      });
+
+    if (!upload) {
+      throw CustomError.internalServer("Error uploading image");
+    }
+
+    await this.emailService.sendEmail({
+      to: data.to,
+      subject: data.subject,
+      from: data.from,
+      htmlBody: `
+          
+          <p>${data.description}</p>
+        `,
+      attachements: [
+        {
+          filename: "reporte.pdf",
+          path: upload.secure_url || "",
+        },
+      ],
+    });
+
+    return new ApiResponse<void>(
+      200,
+      `Se envió el correo correctamente a los siguientes usuarios: ${data.to.join(
+        ", "
+      )}`,
+      undefined
+    );
   }
 }
