@@ -37,8 +37,6 @@ export class UserContext {
     const connections = this._onlineUsers.get(userId);
     if (!connections) return;
 
-    connections.delete(connectionId);
-
     if (connections.size === 0) {
       this._onlineUsers.delete(userId);
       await this.cache?.sRem(CacheConst.ONLINE_USERS, userId);

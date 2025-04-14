@@ -5,7 +5,7 @@ import type {
   GetVersionQuotationsDto,
   SendEmailAndGenerateReportDto,
   VersionQuotationDto,
-  VersionQuotationIDDto
+  VersionQuotationIDDto,
 } from "@/domain/dtos";
 import {
   AllowVersionQuotationType,
@@ -14,11 +14,7 @@ import {
   VersionQuotationStatus,
 } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
-import {
-  CloudinaryService,
-  EmailService,
-  PdfService
-} from "@/lib";
+import { CloudinaryService, EmailService, PdfService } from "@/lib";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { TDocumentDefinitions } from "pdfmake/interfaces";
 import { ApiResponse, PaginatedResponse } from "../response";
@@ -667,9 +663,12 @@ export class VersionQuotationService {
     versionQuotationId,
     ...data
   }: SendEmailAndGenerateReportDto) {
-    const document = await new Promise(
+    const [document, versionQuotation] = await new Promise(
       async (
-        resolve: (document: TDocumentDefinitions) => void,
+        resolve: ([document, versionQuotation]: [
+          TDocumentDefinitions,
+          VersionQuotation
+        ]) => void,
         reject: (error: string) => void
       ) => {
         switch (resources) {
@@ -731,7 +730,7 @@ export class VersionQuotationService {
               dataQuey: versionQuotation as VersionQuotation,
             });
 
-            resolve(document);
+            resolve([document, versionQuotation as VersionQuotation]);
         }
       }
     ).catch((error) => {
@@ -740,34 +739,25 @@ export class VersionQuotationService {
 
     const pdfBuffer = await this.pdfService.createPdfEmail(document);
 
-    const upload = await this.cloudinaryService
-      .uploadImage({
-        filePath: pdfBuffer,
-        folder: "reservations",
-      })
-      .catch((error) => {
-        throw CustomError.internalServer(`Error uploading image: ${error}`);
-      });
 
-    if (!upload) {
-      throw CustomError.internalServer("Error uploading image");
-    }
-
-    await this.emailService.sendEmail({
-      to: data.to,
-      subject: data.subject,
-      from: data.from,
-      htmlBody: `
-          
-          <p>${data.description}</p>
-        `,
-      attachements: [
-        {
-          filename: "reporte.pdf",
-          path: upload.secure_url || "",
-        },
-      ],
-    });
+    await this.emailService.sendEmailForVersionQuotation(
+      {
+        serviceType: resources,
+        versionQuotation,
+        description: data.description,
+      },
+      {
+        to: data.to,
+        subject: data.subject,
+        attachments: [
+          {
+            filename: `Cotización-${versionQuotation.name}.pdf`,
+            content: pdfBuffer,
+            contentType: "application/pdf",
+          },
+        ],
+      }
+    );
 
     return new ApiResponse<void>(
       200,

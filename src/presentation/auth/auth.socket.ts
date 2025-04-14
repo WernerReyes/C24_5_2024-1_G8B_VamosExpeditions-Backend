@@ -15,17 +15,17 @@ export class AuthSocket {
   }
 
   async logoutSocket(socket: Socket) {
-    socket.on("disconnect", () => {
-      const connections = UserContext.getConnections(socket.data.id);
-      if (!connections) return;
+    const connections = UserContext.getConnections(socket.data.id);
+    if (!connections) return;
 
-      //* Remove user connection from cache
-      connections.delete(socket.id);
+    //* Remove user connection from cache
+    connections.delete(socket.id);
 
-      if (connections.size === 0) {
-        UserContext.removeConnection(socket.data.id, socket.id);
-        this._socketService.io.emit("userDisconnected", socket.data.id);
-      }
-    });
+    if (connections.size === 0) {
+      console.log("User disconnected:", socket.data.id);
+
+      UserContext.removeConnection(socket.data.id, socket.id);
+      this._socketService.io.emit("userDisconnected", socket.data.id);
+    }
   }
 }

@@ -1,9 +1,11 @@
 import "module-alias/register";
 //* AUTH
 export * from './auth/login.dto';
+export * from './auth/resetPassword.dto';
 
 //* USER
 export * from './user/user.dto';
+export * from './user/changePassword.dto';
 
 //* CLIENT
 export * from './client/client.dto';

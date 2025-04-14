@@ -1,33 +1,9 @@
 import { EnvsConst } from "@/core/constants";
 import { CustomError } from "@/domain/error";
 import nodemailer, { Transporter } from "nodemailer";
-
-export type ReservationType =
-  | "Hotel"
-  | "Flight"
-  | "Tour"
-  | "Alojamiento"
-  | "Transporte";
-
-export interface SendMailOptions {
-  to: string | string[];
-  subject: string;
-  htmlBody?: string;
-  attachements?: Attachement[];
-  from: string;
-  type?: ReservationType;
-  queryResult?: any;
-  // reservationId?: number;
-  versionQuotationId: {
-    quotationId: number;
-    versionNumber: number;
-  };
-}
-
-export interface Attachement {
-  filename: string;
-  path: string;
-}
+import { EmailTemplate } from "./email.template";
+import { AllowVersionQuotationType, VersionQuotation } from "@/domain/entities";
+import type { Options } from "nodemailer/lib/mailer";
 
 export class EmailService {
   private transporter: Transporter;
@@ -42,23 +18,49 @@ export class EmailService {
     });
   }
 
-  async sendEmail(
-    options: Omit<SendMailOptions, "versionQuotationId">
-  ): Promise<boolean> {
-    const { to, subject, htmlBody, attachements = [], from } = options;
-
+  private async sendEmail(options: Options): Promise<boolean> {
     try {
-      await this.transporter.sendMail({
-        to: to,
-        from,
-        subject: subject,
-        html: htmlBody,
-        attachments: attachements,
-      });
+      await this.transporter.sendMail(options);
 
       return true;
     } catch (error) {
       throw CustomError.internalServer("Error sending email" + error);
     }
+  }
+
+  public async sendEmailForResetPassword(
+    email: string,
+    fullName: string,
+    url: string
+  ): Promise<boolean> {
+    this.sendEmail({
+      to: email,
+      subject: "Restablecer contraseña",
+      html: await EmailTemplate.renderResetPassword(fullName, url),
+      from: EnvsConst.MAILER_EMAIL,
+    });
+    return true;
+  }
+
+  public async sendEmailForVersionQuotation(
+    data: {
+      versionQuotation: VersionQuotation;
+      serviceType: AllowVersionQuotationType;
+      description?: string;
+    },
+    options: Options
+  ): Promise<boolean> {
+    this.sendEmail({
+      html: await EmailTemplate.renderVersionQuotation({
+        quotationId: `Q${data.versionQuotation.quotation_id}-V${data.versionQuotation.version_number}`,
+        quotationName: data.versionQuotation.name,
+        serviceType: data.serviceType,
+
+        description: data.description,
+      }),
+      subject: `Cotización ${data.versionQuotation.name}`,
+      ...options,
+    });
+    return true;
   }
 }

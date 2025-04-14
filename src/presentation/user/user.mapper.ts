@@ -1,8 +1,8 @@
 import { BcryptAdapter } from "../../core/adapters";
-import type { UserDto } from "@/domain/dtos";
+import type { ChangePasswordDto, UserDto } from "@/domain/dtos";
 import type { Prisma } from "@prisma/client";
 
-type Dto = UserDto;
+type Dto = UserDto | ChangePasswordDto;
 export class UserMapper {
   private dto: Dto;
 
@@ -38,10 +38,16 @@ export class UserMapper {
     };
   }
 
+  public get changePassword(): Prisma.userUncheckedUpdateInput {
+    this.dto = this.dto as ChangePasswordDto;
+    return {
+      password: BcryptAdapter.hash(this.dto.newPassword),
+    };
+  }
+
   public get toInclude(): Prisma.userInclude {
     return {
       role: true,
     };
   }
-  
 }

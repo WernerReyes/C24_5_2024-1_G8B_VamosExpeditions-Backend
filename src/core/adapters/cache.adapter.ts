@@ -23,6 +23,8 @@ export class CacheAdapter {
       socket: {
         tls: EnvsConst.NODE_ENV === "production",
         rejectUnauthorized: EnvsConst.NODE_ENV !== "production",
+        // tls: true,
+        // rejectUnauthorized: false,
       },
     });
 
@@ -55,6 +57,22 @@ export class CacheAdapter {
   public async sAdd(key: string, value: any): Promise<void> {
     await this.cache.sAdd(key, JSON.stringify(value));
   }
+
+  public async hSet(key: string, field: string, value: any): Promise<void> {
+    await this.cache.hSet(key, field, JSON.stringify(value));
+  }
+
+  
+
+  public async hDel(key: string, field: string): Promise<void> {
+    await this.cache.hDel(key, field);
+  }
+
+  public async hGetAll<T>(key: string): Promise<T[]> {
+    const data = await this.cache.hGetAll(key);
+    return Object.entries(data).map(([key, value]) => JSON.parse(value));
+  }
+
 
   public async sRem(key: string, value: any): Promise<void> {
     await this.cache.sRem(key, JSON.stringify(value));

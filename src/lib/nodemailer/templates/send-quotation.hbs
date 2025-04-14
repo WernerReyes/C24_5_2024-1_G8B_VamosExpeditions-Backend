@@ -1,0 +1,19 @@
+<div
+  style="background-color: #f8f9fa; border-left: 4px solid #00A4B4; padding: 20px; margin: 20px 0;"
+>
+  <h3 style="color: #00A4B4; margin-top: 0;">Detalles del Documento</h3>
+  <p style="margin: 5px 0;"><strong>Código:</strong>
+    {{quotationId}}</p>
+  <p style="margin: 5px 0;"><strong>Nombre:</strong>
+    {{quotationName}}</p>
+  <p style="margin: 5px 0;"><strong>Tipo:</strong>
+    {{serviceType}}</p>
+</div>
+
+<p style="color: #333; font-size: 16px;">
+  {{#if description}}
+    {{description}}
+  {{else}}
+    Te hemos enviado un documento relacionado con la cotización.
+  {{/if}}
+</p>

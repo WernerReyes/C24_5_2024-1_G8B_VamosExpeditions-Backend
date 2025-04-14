@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { AppController } from "../controller";
 import { UserService } from "./user.service";
-import { UserDto } from "@/domain/dtos";
+import { ChangePasswordDto, UserDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 
 export class UserController extends AppController {
@@ -24,6 +24,19 @@ export class UserController extends AppController {
       return this.handleResponseError(res, CustomError.badRequest(error));
 
     this.handleError(this.userService.upsertUser(userDto!))
+      .then((user) => res.status(200).json(user))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public changePassword = async (req: Request, res: Response) => {
+    const [error, changePasswordDto] = ChangePasswordDto.create({
+      ...req.body,
+      id: req.params.id,
+    });
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(this.userService.changePassword(changePasswordDto!))
       .then((user) => res.status(200).json(user))
       .catch((error) => this.handleResponseError(res, error));
   };

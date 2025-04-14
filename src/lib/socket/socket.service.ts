@@ -1,5 +1,5 @@
 import { Middleware } from "@/presentation/middleware";
-import type { AppSocket } from "@/presentation/socket";
+import { AppSocket } from "@/presentation/socket";
 import { UserContext } from "@/presentation/user/user.context";
 import { Server } from "http";
 import { Socket, Server as SocketServer } from "socket.io";
@@ -41,17 +41,17 @@ export class SocketService {
         const userId = socket.data.id;
 
         if (!UserContext.isOnline(userId)) {
-          await UserContext.addConnection(userId, socket.id);
+          UserContext.addConnection(userId, socket.id);
         }
 
         const [authSocket, notificationSocket] = this.appSocket.sockets;
         authSocket.loginSocket(socket);
-        authSocket.logoutSocket(socket);
         notificationSocket.setupMessageHandler(socket);
 
-        console.log(
-          `🔗 User ${userId} connected with socket ID: ${socket.id}`
-        );
+        socket.on("disconnect", () => {
+          authSocket.logoutSocket(socket);
+        });
+        console.log(`🔗 User ${userId} connected with socket ID: ${socket.id}`);
       } catch (error) {
         console.error("⚠️ Error durante la conexión:", error);
         socket.disconnect();
