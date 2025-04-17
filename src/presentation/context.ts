@@ -10,7 +10,6 @@ export class AppCacheContext {
     })
   }
 
-
   private static async initializeContexts(cache: CacheAdapter) {
     await UserContext.initialize(cache);
     await AuthContext.initialize(cache);

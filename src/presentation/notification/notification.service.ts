@@ -1,5 +1,6 @@
-import { NotificationModel, UserModel } from "@/data/postgres";
-import { NotificationMessageEntity, UserEntity } from "@/domain/entities";
+import { NotificationModel } from "@/data/postgres";
+import { NotificationMessageEntity } from "@/domain/entities";
+import { ApiResponse } from "../response";
 
 interface NotificationMessage {
   to_user: number[];
@@ -8,28 +9,23 @@ interface NotificationMessage {
 }
 
 export class NotificationService {
-
   private static instance: NotificationService;
 
   constructor() {
     NotificationService.instance = this;
   }
 
-  
   static getInstance(): NotificationService {
     if (!NotificationService.instance) {
-     throw new Error("NotificationService not initialized. Call initialize() first.");
+      throw new Error(
+        "NotificationService not initialized. Call initialize() first."
+      );
     }
     return NotificationService.instance;
   }
- 
 
- 
-  
-
-  
   public async getUserNotifications(userId: number) {
-    const MessageUser = await NotificationModel.findMany({
+    const messageUser = await NotificationModel.findMany({
       include: {
         user_notification_from_userTouser: {
           omit: {
@@ -46,51 +42,51 @@ export class NotificationService {
     });
 
     return await Promise.all(
-      MessageUser.map((message) =>
+      messageUser.map((message) =>
         NotificationMessageEntity.fromObject(message)
       )
     );
   }
 
   public async deleteNotifications(notificationIds: number[]) {
-    try {
-      if (!notificationIds || notificationIds.length === 0) {
-        return {
-          message: `No se ha seleccionado ninguna notificación para eliminar`,
-        };
-      }
-
-      const data = await NotificationModel.deleteMany({
-        where: { id: { in: notificationIds } },
-      });
-
+    if (!notificationIds || notificationIds.length === 0) {
       return {
-        message: `Notificaciones eliminadas correctamente`,
+        message: `No se ha seleccionado ninguna notificación para eliminar`,
       };
-    } catch (error) {
-      console.error(error);
     }
+
+    await NotificationModel.deleteMany({
+      where: { id: { in: notificationIds } },
+    });
+
+    return new ApiResponse<number[]>(
+      200,
+      `Notificaciones eliminadas correctamente`,
+      notificationIds
+    );
   }
 
   public async markNotificationsAsRead(notificationIds: number[]) {
-    try {
-      if (!notificationIds || notificationIds.length === 0) {
-        return {
-          message: `No se ha seleccionado ninguna notificación para marcar como leída`,
-        };
-      }
-
-      await NotificationModel.updateMany({
-        where: { id: { in: notificationIds } },
-        data: { is_read: true },
-      });
-
+    if (!notificationIds || notificationIds.length === 0) {
       return {
-        message: `Notificaciones marcadas como leídas correctamente`,
+        message: `No se ha seleccionado ninguna notificación para marcar como leída`,
       };
-    } catch (error) {
-      console.error(error);
     }
+
+    const notificationsUpdated = await NotificationModel.updateManyAndReturn({
+      where: { id: { in: notificationIds } },
+      data: { is_read: true },
+    });
+
+    return new ApiResponse<NotificationMessageEntity[]>(
+      200,
+      `Notificaciones marcadas como leídas correctamente`,
+      await Promise.all(
+        notificationsUpdated.map((notification) =>
+          NotificationMessageEntity.fromObject(notification)
+        )
+      )
+    );
   }
 
   public async NotificationMessage(notifications: NotificationMessage) {

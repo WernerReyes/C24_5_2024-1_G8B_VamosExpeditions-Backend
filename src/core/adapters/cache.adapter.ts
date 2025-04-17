@@ -45,6 +45,7 @@ export class CacheAdapter {
     return CacheAdapter.instance;
   }
 
+  
   public async get<T>(key: string): Promise<T | null> {
     const data = await this.cache.get(key);
     return data ? (JSON.parse(data) as T) : null;

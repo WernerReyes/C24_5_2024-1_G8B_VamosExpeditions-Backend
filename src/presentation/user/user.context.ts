@@ -30,7 +30,7 @@ export class UserContext {
       await this.cache?.sAdd(CacheConst.ONLINE_USERS, userId);
     }
 
-    this._onlineUsers.get(userId)!.add(connectionId);
+    this._onlineUsers.get(userId)?.add(connectionId);
   }
 
   public static async removeConnection(userId: number, connectionId: string) {

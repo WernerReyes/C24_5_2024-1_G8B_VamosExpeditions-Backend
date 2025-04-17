@@ -107,7 +107,7 @@ model version_quotation {
   version_number        Int
   quotation_id          Int
   indirect_cost_margin  Decimal?                 @db.Decimal(5, 2)
-  name                  String                   @db.VarChar(100)
+  name                  String
   profit_margin         Decimal?                 @db.Decimal(5, 2)
   final_price           Decimal?                 @db.Decimal(10, 2)
   official              Boolean                  @default(false)

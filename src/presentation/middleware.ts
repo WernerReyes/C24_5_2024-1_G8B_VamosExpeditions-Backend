@@ -1,12 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
 import { JwtAdapter } from "../core/adapters";
 
-import { RoleEnum } from "../domain/entities";
+import { RoleEnum, User } from "../domain/entities";
 import { EnvsConst, ErrorCodeConst } from "@/core/constants";
 
 import { Socket } from "socket.io";
 import * as cookie from "cookie";
 import { AuthContext, AuthUser } from "./auth/auth.context";
+import { UserModel } from "@/data/postgres";
 
 export interface RequestAuth extends Request {
   user: AuthUser;
@@ -35,7 +36,15 @@ export class Middleware {
         });
       }
 
-      let user = AuthContext.getAuthenticatedUser(parseInt(payload.id));
+      let user = AuthContext.isInitialized
+        ? AuthContext.getAuthenticatedUser(parseInt(payload.id))
+        : await UserModel.findUnique({
+            where: { id_user: parseInt(payload.id),  },
+            select: {
+              id_user: true,
+              role: { select: { name: true } },
+            }
+          });
 
       if (!user) {
         return res.status(401).json({
@@ -45,7 +54,15 @@ export class Middleware {
         });
       }
 
-      (req as RequestAuth).user = user;
+      (req as RequestAuth).user = AuthContext.isInitialized
+        ? user as AuthUser
+        : (function () {
+            const { id_user, role } = user as User;
+            return {
+              id: id_user,
+              role: role?.name,
+            } as AuthUser;
+          })();
 
       next();
     } catch (error) {

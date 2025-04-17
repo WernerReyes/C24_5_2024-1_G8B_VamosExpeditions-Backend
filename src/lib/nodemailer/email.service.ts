@@ -2,7 +2,7 @@ import { EnvsConst } from "@/core/constants";
 import { CustomError } from "@/domain/error";
 import nodemailer, { Transporter } from "nodemailer";
 import { EmailTemplate } from "./email.template";
-import { AllowVersionQuotationType, VersionQuotation } from "@/domain/entities";
+import type { AllowVersionQuotationType, VersionQuotation } from "@/domain/entities";
 import type { Options } from "nodemailer/lib/mailer";
 
 export class EmailService {

@@ -29,6 +29,11 @@ export class AuthContext {
     }
   }
 
+  public static get isInitialized() {
+    return !!this.cache;
+  }
+
+
   public static getAuthenticatedUser(
     userId: AuthUser["id"]
   ): AuthUser | undefined {
