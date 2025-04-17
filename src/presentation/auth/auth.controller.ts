@@ -47,7 +47,7 @@ export class AuthController extends AppController {
       httpOnly: true,
       secure: EnvsConst.NODE_ENV === "production",
       expires: expiresAtRefresh,
-      /* sameSite: EnvsConst.NODE_ENV === "production" ? "none" : undefined, */
+      sameSite: EnvsConst.NODE_ENV === "production" ? "none" : undefined,
       path: "/",
     });
 
