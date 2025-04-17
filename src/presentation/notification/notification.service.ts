@@ -78,14 +78,10 @@ export class NotificationService {
       data: { is_read: true },
     });
 
-    return new ApiResponse<NotificationMessageEntity[]>(
+    return new ApiResponse<number[]>(
       200,
       `Notificaciones marcadas como leídas correctamente`,
-      await Promise.all(
-        notificationsUpdated.map((notification) =>
-          NotificationMessageEntity.fromObject(notification)
-        )
-      )
+      notificationsUpdated.map((notification) => notification.id)
     );
   }
 
