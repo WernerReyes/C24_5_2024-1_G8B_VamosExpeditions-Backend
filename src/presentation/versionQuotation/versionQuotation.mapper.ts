@@ -50,6 +50,9 @@ export class VersionQuotationMapper {
           version_number: this.dto.id.versionNumber,
           quotation_id: this.dto.id.quotationId,
         },
+        AND: { // TODO: Check if this is needed and if it breaks anything
+          is_archived: false,
+        },
       },
     };
   }
@@ -80,8 +83,6 @@ export class VersionQuotationMapper {
     };
   }
 
-  
-
   public get getVersionsQuotationsWhere(): Prisma.version_quotationWhereInput {
     this.validateModelInstance(this.dto, "getVersionsQuotationsWhere");
     this.dto = this.dto as GetVersionQuotationsDto;
@@ -92,6 +93,7 @@ export class VersionQuotationMapper {
         mode: "insensitive",
       },
       quotation_id: this.dto.quotationId,
+      is_archived: this.dto.isArchived,
       trip_details: {
         client_id: this.dto.clientsIds
           ? { in: this.dto.clientsIds }

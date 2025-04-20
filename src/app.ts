@@ -5,6 +5,7 @@ import { AppRoutes } from "./presentation/routes";
 import { Server } from "./presentation/server";
 import { AppSocket } from "./presentation/socket";
 import { AppCacheContext } from "./presentation/context";
+import { AppCron } from "./presentation/cron";
 
 const ORIGINS = [
   EnvsConst.CLIENT_URL,
@@ -19,8 +20,16 @@ const ORIGINS = [
 })();
 
 async function main() {
+  //* Initialize the redis cache context
   try {
     await AppCacheContext.initialize();
+  } catch (error) {
+    console.error(error);
+  }
+
+  //* Initialize the cron jobs
+  try {
+    AppCron.runJobs();
   } catch (error) {
     console.error(error);
   }

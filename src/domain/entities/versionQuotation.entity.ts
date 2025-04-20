@@ -46,7 +46,13 @@ export class VersionQuotationEntity {
     public readonly tripDetails?: TripDetailsEntity,
     public readonly user?: UserEntity,
     public readonly reservation?: ReservationEntity,
-    public readonly partner?: PartnerEntity
+    public readonly partner?: PartnerEntity,
+
+    public readonly hasVersions: boolean = false,
+
+    public readonly isArchived: boolean = false,
+    public readonly archivedAt?: Date,
+    public readonly archivedReason?: string
   ) {}
 
   public static async fromObject(
@@ -69,6 +75,10 @@ export class VersionQuotationEntity {
       user,
       quotation,
       partners,
+
+      is_archived,
+      archived_at,
+      archive_reason,
     } = versionQuotation;
 
     return new VersionQuotationEntity(
@@ -93,7 +103,14 @@ export class VersionQuotationEntity {
       quotation?.reservation
         ? await ReservationEntity.fromObject(quotation.reservation)
         : undefined,
-      partners ? PartnerEntity.fromObject(partners) : undefined
+      partners ? PartnerEntity.fromObject(partners) : undefined,
+      official &&
+        (quotation?.version_quotation ?? []).filter(
+          (version) => !version.official && !version.is_archived
+        ).length > 0,
+      is_archived,
+      archived_at ? new Date(archived_at) : undefined,
+      archive_reason ? archive_reason : undefined
     );
   }
 }

@@ -1,40 +1,21 @@
-import "module-alias/register";
-//* AUTH
 export * from './auth/login.dto';
 export * from './auth/resetPassword.dto';
-
-//* USER
-export * from './user/user.dto';
-export * from './user/changePassword.dto';
-
-//* CLIENT
 export * from './client/client.dto';
-
-//* RESERVATION
-export * from './reservation/reservation.dto';
+export * from './common/pagination.dto';
+export * from './common/versionQuotationID.dto';
+export * from './hotel/getHotels.dto';
+export * from './hotel/insertManyHotelExcel.dto';
+export * from './hotelRoomTripDetails/insertManyRoomTripDetails.dto';
+export * from './hotelRoomTripDetails/updateManyHotelRoomTripDetailsByDate.dto';
 export * from './reservation/getReservations.dto';
 export * from './reservation/getStadistics.dto';
-
-//* HOTEL
-export * from './hotel/getHotels.dto';
-
-
-//* VERSION QUOTATION
-export * from './versionQuotation/versionQuotation.dto';
-export * from './versionQuotation/duplicateVersionQuotation.dto';
+export * from './reservation/reservation.dto';
+export * from './tripDetails/tripDetails.dto';
+export * from './user/changePassword.dto';
+export * from './user/user.dto';
+export * from './versionQuotation/archiveVersionQuotation.dto';
 export * from './versionQuotation/duplicateMultipleVersionQuotation.dto';
+export * from './versionQuotation/duplicateVersionQuotation.dto';
 export * from './versionQuotation/getVersionQuotations.dto';
 export * from './versionQuotation/sendEmailAndGenerateReport.dto';
-
-//* HOTEL ROOM TRIP DETAILS
-export * from './hotelRoomTripDetails/updateManyHotelRoomTripDetailsByDate.dto';
-export * from './hotelRoomTripDetails/insertManyRoomTripDetails.dto';
-
-
-//* TRIP DETAILS
-export * from './tripDetails/tripDetails.dto';
-
-
-//* COMMON
-export * from './common/versionQuotationID.dto';
-export * from './common/pagination.dto';
+export * from './versionQuotation/versionQuotation.dto';

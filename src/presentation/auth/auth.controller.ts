@@ -12,10 +12,9 @@ export class AuthController extends AppController {
     super();
   }
   private setCookie = (res: Response, token: string) => {
-    const expires = 1000 * 60 * 60 * 24 * EnvsConst.COOKIE_EXPIRATION;
+    const expires = 1000 * 60 * 60 * 24 * EnvsConst.COOKIE_EXPIRATION; //* 24 hours
     const expiresAt = new Date(
       Date.now() + expires
-      // Date.now() + 1000 * 60 * EnvsConst.COOKIE_EXPIRATION
     ); //* 24 hours
 
     const expiresAtRefresh = new Date(

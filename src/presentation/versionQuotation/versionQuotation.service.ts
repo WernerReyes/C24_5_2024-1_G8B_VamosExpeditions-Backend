@@ -1,38 +1,33 @@
-import {
-  prisma,
-  QuotationModel,
-  VersionQuotationModel
-} from "@/data/postgres";
+import { prisma, QuotationModel, VersionQuotationModel } from "@/data/postgres";
 import type {
+  ArchiveVersionQuotationDto,
   DuplicateMultipleVersionQuotationDto,
   GetVersionQuotationsDto,
   SendEmailAndGenerateReportDto,
   VersionQuotationDto,
-  VersionQuotationIDDto
+  VersionQuotationIDDto,
 } from "@/domain/dtos";
 import {
   AllowVersionQuotationType,
   UserEntity,
   type VersionQuotation,
   VersionQuotationEntity,
-  VersionQuotationStatus
+  VersionQuotationStatus,
 } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
 import type { EmailService, PdfService } from "@/lib";
-import {
-  PrismaClientKnownRequestError
-} from "@prisma/client/runtime/library";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import type { TDocumentDefinitions } from "pdfmake/interfaces";
 import { ApiResponse, PaginatedResponse } from "../response";
 import type { VersionQuotationMapper } from "./versionQuotation.mapper";
-import { VersionQuotationReport } from "./versionQuotation.report";
+import type { VersionQuotationReport } from "./versionQuotation.report";
 
 export class VersionQuotationService {
   constructor(
     private readonly versionQuotationMapper: VersionQuotationMapper,
     private readonly versionQuotationReport: VersionQuotationReport,
     private readonly pdfService: PdfService,
-    private readonly emailService: EmailService,
+    private readonly emailService: EmailService
   ) {}
 
   public async updateVersionQuotation(
@@ -113,7 +108,6 @@ export class VersionQuotationService {
       );
     }
   }
-
 
   public async duplicateMultipleVersionQuotation({
     ids,
@@ -207,7 +201,6 @@ export class VersionQuotationService {
               trip.quotation_id === version.quotation_id &&
               trip.version_number === version.version_number
           );
-          console.log(trip_details);
           return {
             ...version,
             trip_details,
@@ -272,10 +265,13 @@ export class VersionQuotationService {
         user_id: userId,
         created_at: new Date(),
         updated_at: new Date(),
-        status: "DRAFT",
-        completion_percentage: 0,
+        status: v.status,
+        completion_percentage: v.completion_percentage,
         commission: v.commission,
         partner_id: v.partner_id,
+        archived_at: null,
+        archive_reason: null,
+        is_archived: false,
       });
 
       if (v.trip_details) {
@@ -450,6 +446,71 @@ export class VersionQuotationService {
     });
   }
 
+  public async archiveVersionQuotation({
+    archiveReason,
+    id,
+    official,
+  }: ArchiveVersionQuotationDto) {
+    const archivedVersionQuotation = await VersionQuotationModel.update({
+      where: {
+        version_number_quotation_id: {
+          version_number: id.versionNumber,
+          quotation_id: id.quotationId,
+        },
+      },
+      data: {
+        is_archived: true,
+        archived_at: new Date(),
+        archive_reason: archiveReason,
+        official,
+      },
+      include: this.versionQuotationMapper.toSelectInclude,
+    }).catch((error) => {
+      if (error.code === "P2025") {
+        throw CustomError.notFound("Versión de cotización no encontrada");
+      }
+
+      throw error;
+    });
+
+    return new ApiResponse<VersionQuotationEntity>(
+      200,
+      `Versión de cotización "${archivedVersionQuotation.name}" archivada correctamente`,
+      await VersionQuotationEntity.fromObject(archivedVersionQuotation)
+    );
+  }
+
+  public async unArchiveVersionQuotation({
+    versionQuotationId,
+  }: VersionQuotationIDDto) {
+    const unArchivedVersionQuotation = await VersionQuotationModel.update({
+      where: {
+        version_number_quotation_id: {
+          version_number: versionQuotationId!.versionNumber,
+          quotation_id: versionQuotationId!.quotationId,
+        },
+      },
+      data: {
+        is_archived: false,
+        archived_at: null,
+        archive_reason: null,
+      },
+      include: this.versionQuotationMapper.toSelectInclude,
+    }).catch((error) => {
+      if (error.code === "P2025") {
+        throw CustomError.notFound("Versión de cotización no encontrada");
+      }
+
+      throw error;
+    });
+
+    return new ApiResponse<VersionQuotationEntity>(
+      200,
+      `Versión de cotización "${unArchivedVersionQuotation.name}" desarchivada correctamente`,
+      await VersionQuotationEntity.fromObject(unArchivedVersionQuotation)
+    );
+  }
+
   public async getVersionQuotationById(id: {
     quotationId: number;
     versionNumber: number;
@@ -492,6 +553,7 @@ export class VersionQuotationService {
             version_quotation: {
               select: {
                 official: true,
+                is_archived: true,
               },
             },
             reservation: true,
@@ -507,38 +569,14 @@ export class VersionQuotationService {
       where: this.versionQuotationMapper.getVersionsQuotationsWhere,
     });
 
-    return new ApiResponse<
-      PaginatedResponse<
-        VersionQuotationEntity & {
-          hasUnofficialVersions: boolean;
-        }
-      >
-    >(
+    return new ApiResponse<PaginatedResponse<VersionQuotationEntity>>(
       200,
       "Versión de cotización encontrada",
       new PaginatedResponse(
         await Promise.all(
-          versionsQuotation.map(async ({ quotation, ...rest }) => {
-            const versionQuotationEntity =
-              await VersionQuotationEntity.fromObject({
-                ...rest,
-                quotation: {
-                  ...quotation,
-                  version_quotation: undefined,
-                  reservation: rest.official
-                    ? quotation.reservation
-                    : undefined,
-                },
-              });
-
-            return {
-              ...versionQuotationEntity,
-              hasUnofficialVersions:
-                quotation.version_quotation.filter(
-                  (version) => !version.official
-                ).length > 0,
-            };
-          })
+          versionsQuotation.map((versionQuotation) =>
+            VersionQuotationEntity.fromObject(versionQuotation as any)
+          )
         ),
         getVersionQuotationsDto.page,
         Math.ceil(totalCount / getVersionQuotationsDto.limit),
@@ -595,154 +633,6 @@ export class VersionQuotationService {
       totalDraftsPreviousMonth: previousMonthDrafts,
       increase,
     });
-  }
-
-  public async deleteMultipleVersionQuotation(ids: VersionQuotationIDDto[]) {
-    let versionQuotationsDeleted: VersionQuotationEntity[] = [];
-    let versionQuotationsUpdated: VersionQuotationEntity[] = [];
-
-    const versionQuotations = await VersionQuotationModel.findMany({
-      where: {
-        OR: ids.map((id) => ({
-          AND: [
-            { version_number: id.versionQuotationId?.versionNumber },
-            { quotation_id: id.versionQuotationId?.quotationId },
-          ],
-        })),
-      },
-      include: {
-        quotation: {
-          include: {
-            reservation: true,
-          },
-        },
-      },
-    });
-
-    const versionWithoutReservation = versionQuotations.filter(
-      (version) =>
-        !version.quotation?.reservation ||
-        (version.quotation?.reservation && !version.official)
-    );
-
-    const deletePromises = versionWithoutReservation.map(
-      async ({ version_number, quotation_id }) => {
-        if (!version_number || !quotation_id)
-          return {
-            success: false,
-            error: "ID inválido",
-          };
-
-        try {
-          const deletedQuotation = await VersionQuotationModel.delete({
-            where: {
-              version_number_quotation_id: {
-                version_number,
-                quotation_id,
-              },
-            },
-            include: this.versionQuotationMapper.toSelectInclude,
-          }).catch((error) => {
-            throw error;
-          });
-
-          if (!deletedQuotation) {
-            return {
-              success: false,
-              error: "No se pudo eliminar la cotización",
-            };
-          }
-
-          versionQuotationsDeleted.push(
-            await VersionQuotationEntity.fromObject(deletedQuotation)
-          );
-
-          return { success: true };
-        } catch (error) {
-          if (error instanceof PrismaClientKnownRequestError) {
-            return { success: false, error: "Error en la base de datos" };
-          }
-          throw error; //* Throw the error to the catch block
-        }
-      }
-    );
-
-    //* Wait for all promises to resolve
-    const results = await Promise.allSettled(deletePromises);
-
-    const failedDeletions = results.filter(
-      (result) => result.status === "fulfilled" && !result.value.success
-    ).length;
-    const successfulDeletions = ids.length - failedDeletions;
-
-    if (successfulDeletions === 0) {
-      throw CustomError.badRequest(
-        "No se pudieron eliminar ninguna de las versiones de cotización"
-      );
-    }
-
-    await prisma.$transaction(async () => {
-      const uniqueQuotations = versionQuotationsDeleted.filter(
-        (version, index, self) =>
-          index ===
-          self.findIndex((t) => t?.id.quotationId === version.id.quotationId)
-      );
-
-      for (const version of uniqueQuotations) {
-        //* Find the minimum version number
-        const currentVersions = await VersionQuotationModel.findMany({
-          where: {
-            quotation_id: version.id.quotationId,
-          },
-          select: {
-            quotation_id: true,
-            official: true,
-            version_number: true,
-          },
-          orderBy: {
-            version_number: "asc",
-          },
-        });
-
-        const minVersion = currentVersions[0];
-
-        if (!minVersion || minVersion.official) continue;
-
-        const versionUpdated = await VersionQuotationModel.update({
-          where: {
-            version_number_quotation_id: {
-              version_number: minVersion.version_number,
-              quotation_id: minVersion.quotation_id,
-            },
-          },
-          data: {
-            official: true,
-          },
-          include: this.versionQuotationMapper.toSelectInclude,
-        });
-
-        versionQuotationsUpdated.push(
-          await VersionQuotationEntity.fromObject(versionUpdated)
-        );
-      }
-    });
-
-    return new ApiResponse<{
-      versionQuotationsDeleted: VersionQuotationEntity[];
-      versionQuotationsUpdated: VersionQuotationEntity[];
-    }>(
-      200,
-      `Se eliminaron ${successfulDeletions} versiones de cotización correctamente`,
-      {
-        versionQuotationsDeleted: versionQuotationsDeleted.map((version) => {
-          return {
-            ...version,
-            quotation: undefined,
-          };
-        }),
-        versionQuotationsUpdated,
-      }
-    );
   }
 
   public async generatePdf({ versionQuotationId }: VersionQuotationIDDto) {

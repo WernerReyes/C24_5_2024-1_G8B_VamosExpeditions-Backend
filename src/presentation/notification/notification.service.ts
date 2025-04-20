@@ -112,7 +112,7 @@ export class NotificationService {
         )
       );
     } catch (e) {
-      console.log(e);
+ 
     }
   }
 }

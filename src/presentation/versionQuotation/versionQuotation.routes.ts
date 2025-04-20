@@ -55,15 +55,18 @@ export class VersionQuotationRoutes {
       )
     );
 
+    router.put("/archive", versionQuotationController.archiveVersionQuotation);
+
+    router.put(
+      "/unarchive",
+      versionQuotationController.unArchiveVersionQuotation
+    );
+
     router.get(
       "/:quotationId/:versionNumber",
       versionQuotationController.getVersionsQuotationById
     );
 
-    router.delete(
-      "/multiple",
-      versionQuotationController.deleteMultipleVersionQuotation
-    );
 
      router.post("/send-email-pdf", versionQuotationController.sendEmailAndGenerateReport);
 
