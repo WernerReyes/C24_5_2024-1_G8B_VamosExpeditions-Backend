@@ -13,9 +13,6 @@
     "seed": "tsnd --respawn --clear -r tsconfig-paths/register src/data/postgres/seed/seed.ts",
     "seed:excel": "tsnd --respawn --clear -r tsconfig-paths/register src/data/postgres/seed/excel.ts"
   },
-  "_moduleAliases": {
-    "@": "dist"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -53,11 +50,13 @@
     "date-fns-tz": "^3.2.0",
     "dotenv": "^16.3.1",
     "env-var": "^7.4.1",
+    "exceljs": "^4.4.0",
     "express": "^4.18.2",
     "handlebars": "^4.7.8",
     "jsonwebtoken": "^9.0.2",
     "module-alias": "^2.2.3",
     "multer": "1.4.5-lts.2",
+    "node-cache": "^5.1.2",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0",
     "pdfmake": "^0.2.18",

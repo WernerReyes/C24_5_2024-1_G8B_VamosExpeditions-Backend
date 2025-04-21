@@ -538,6 +538,8 @@ export class VersionQuotationService {
     );
   }
 
+
+
   public async getVersionsQuotation(
     getVersionQuotationsDto: GetVersionQuotationsDto
   ) {
@@ -564,7 +566,7 @@ export class VersionQuotationService {
         },
       },
     }).catch((error) => {
-      throw CustomError.internalServer(`${error}`);
+      throw CustomError.internalServer(error.message);
     });
 
     //* Count based on the same condition

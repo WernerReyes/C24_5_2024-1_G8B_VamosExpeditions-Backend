@@ -11,6 +11,7 @@ import { VersionQuotationRoutes } from "./versionQuotation/versionQuotation.rout
 import { HotelRoomTripDetailsRoutes } from "./hotelRoomTripDetails/hotelRoomTripDetails.routes";
 import { TripDetailsRoutes } from "./tripDetails/tripDetails.routes";
 import { NotificationRoutes } from "./notification/notification.routes";
+import { DistritRoutes } from "./distrit/distrit.routes";
 
 export class AppRoutes {
   private static prefix: string = "/api/v1";
@@ -21,7 +22,7 @@ export class AppRoutes {
     router.use(`${this.prefix}/auth`, AuthRoutes.routes);
     router.use(`${this.prefix}/user`, UserRoutes.routes);
     router.use(`${this.prefix}/notification`, NotificationRoutes.routes);
-    router.use(`${this.prefix}/country`, CountryRoutes.routes);
+    
     router.use(`${this.prefix}/hotel`, HotelRoutes.routes);
     router.use(`${this.prefix}/client`, ClientRoutes.routes);
     router.use(`${this.prefix}/quotation`, QuotationRoutes.routes);
@@ -35,6 +36,10 @@ export class AppRoutes {
       HotelRoomTripDetailsRoutes.getRoutes
     );
     router.use(`${this.prefix}/reservation`, ReservationRoutes.routes);
+
+    //country
+    router.use(`${this.prefix}/country`, CountryRoutes.routes);
+    router.use(`${this.prefix}/distrit`, DistritRoutes.routes);
 
     //* External
     router.use(`${this.prefix}/external/country`, ExternalCountryRoutes.routes);

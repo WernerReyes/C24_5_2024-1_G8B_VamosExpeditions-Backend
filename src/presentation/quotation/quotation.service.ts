@@ -8,9 +8,11 @@ export class QuotationService {
   constructor(private readonly quotationMapper: QuotationMapper) {}
 
   public async createQuotation(userId: number) {
+    console.log("createQuotation", userId);
     const quotation = await prisma
       .$transaction(async (tx) => {
         const quotation = await tx.quotation.create({
+           
           include: this.quotationMapper.toSelectInclude,
         });
 

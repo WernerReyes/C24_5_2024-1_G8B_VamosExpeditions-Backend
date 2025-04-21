@@ -8,6 +8,9 @@ const headers = {
 };
 
 export class InsertManyHotelExcelDto {
+
+   
+
   constructor(
     public readonly HABITACIONES?: string[],
     public readonly HOTELES?: string[],

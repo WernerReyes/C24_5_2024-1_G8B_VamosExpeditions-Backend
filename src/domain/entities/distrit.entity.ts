@@ -1,7 +1,7 @@
 import type { distrit } from "@prisma/client";
 import { City, CityEntity } from "./city.entity";
 
-export type Distrit = distrit & {
+export type Distrit = Omit<distrit, "city_id"> & {
   city?: City;
 };
 

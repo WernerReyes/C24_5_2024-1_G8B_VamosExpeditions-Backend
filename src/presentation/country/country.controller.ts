@@ -12,4 +12,10 @@ export class CountryController extends AppController {
       .then((clients) => res.status(200).json(clients))
       .catch((error) => this.handleResponseError(res, error));
   };
+
+  public getAllDistritAnd = async (req: Request, res: Response) => {
+    this.handleError(this.countryService.getAllDistritAnd())
+      .then((clients) => res.status(200).json(clients))
+      .catch((error) => this.handleResponseError(res, error));
+  }
 }
