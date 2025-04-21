@@ -1,6 +1,6 @@
 import { Middleware } from "@/presentation/middleware";
 import type { AppSocket } from "@/presentation/socket";
-import { UserContext } from "@/presentation/user/user.context";
+import { UserContext } from "../../presentation/user/user.context";
 import { Server } from "http";
 import { Socket, Server as SocketServer } from "socket.io";
 

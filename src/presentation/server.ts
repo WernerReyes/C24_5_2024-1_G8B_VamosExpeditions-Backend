@@ -3,14 +3,13 @@ import cors from "cors";
 import express, { Router } from "express";
 import path from "path";
 
-<<<<<<< HEAD
+
 import { Server as SocketServer } from "socket.io";
 
 import { SocketService } from "@/lib";
 import { NotificationService } from "./notification/notification.service";
 
-=======
->>>>>>> 14b9a70b84eed112bf5e228a1a446dec79a53c7c
+
 interface Options {
   origins: string[];
   routes: Router;

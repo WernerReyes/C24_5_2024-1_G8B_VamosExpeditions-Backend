@@ -15,6 +15,13 @@ export * from './reservation/getStadistics.dto';
 
 //* HOTEL
 export * from './hotel/getHotels.dto';
+export * from './hotel/registerHotel.dto';
+
+//* HOTEL AND ROOM
+
+
+//*  ROOM
+export * from './room/registerRoom.dto';
 
 
 //* VERSION QUOTATION

@@ -342,20 +342,24 @@ export class VersionQuotationService {
       new PaginatedResponse(
         await Promise.all(
           versionsQuotation.map(async ({ quotation, ...rest }) => {
-            const versionQuotationEntity = await VersionQuotationEntity.fromObject({
-              ...rest,
-              quotation: {
-                ...quotation,
-                version_quotation: undefined,
-                reservation: rest.official ? quotation.reservation : undefined,
-              },
-            });
-        
+            const versionQuotationEntity =
+              await VersionQuotationEntity.fromObject({
+                ...rest,
+                quotation: {
+                  ...quotation,
+                  version_quotation: undefined,
+                  reservation: rest.official
+                    ? quotation.reservation
+                    : undefined,
+                },
+              });
+
             return {
               ...versionQuotationEntity,
               hasUnofficialVersions:
-                quotation.version_quotation.filter((version) => !version.official)
-                  .length > 0,
+                quotation.version_quotation.filter(
+                  (version) => !version.official
+                ).length > 0,
             };
           })
         ),

@@ -35,6 +35,8 @@ export class HotelMapper {
       hotel_room: true,
       distrit: {
         select: {
+          id_distrit: true,
+          name: true,
           city: {
             select: {
               id_city: true,
@@ -45,11 +47,13 @@ export class HotelMapper {
                   name: true,
                 },
               },
-            }
-          }
-        }
-        
-      },
-    };
-  }
+            },
+          },
+        },
+      }
+    }
+  };
+
+
+  
 }

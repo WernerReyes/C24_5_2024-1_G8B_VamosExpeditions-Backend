@@ -21,10 +21,14 @@ export class HotelRoutes {
     const hotelService = new HotelService(hotelMapper);
     const hotelController = new HotelController(hotelService);
 
-    /* router.use(Middleware.validateToken); */
+    router.use(Middleware.validateToken);
 
     router.get("/", hotelController.getAll);
     router.post("/upload-excel",upload.single("file"), hotelController.uploadExcel);
+    router.get("/hotel-all", hotelController.getAllHotel);
+    router.get("/page", hotelController.getAllHotelsRoomsAndDistricts); 
+    router.post("/hotel-room", hotelController.registerHotelandRoom);
+    router.post("/upload-excel-hotel-room",upload.single("file"), hotelController.uploadExcelHotelRoom);
 
 
     // router.get("/search/:country/:city", hotelController.countryAndCity);

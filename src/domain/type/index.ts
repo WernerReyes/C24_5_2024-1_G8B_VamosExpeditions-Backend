@@ -1,0 +1,1 @@
+export * from "./hotel-and-room.types";
