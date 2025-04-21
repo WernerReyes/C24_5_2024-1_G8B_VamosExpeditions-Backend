@@ -1,20 +1,20 @@
 import type { Request, Response } from "express";
 import { AppController } from "../controller";
 import { EnvsConst } from "@/core/constants";
-import { LoginDto } from "@/domain/dtos";
+import { LoginDto, ResetPasswordDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 import { AuthService } from "./auth.service";
 import type { RequestAuth } from "../middleware";
+import { Validations } from "@/core/utils";
 
 export class AuthController extends AppController {
   constructor(private readonly authService: AuthService) {
     super();
   }
   private setCookie = (res: Response, token: string) => {
-    const expires = 1000 * 60 * 60 * 24 * EnvsConst.COOKIE_EXPIRATION;
+    const expires = 1000 * 60 * 60 * 24 * EnvsConst.COOKIE_EXPIRATION; //* 24 hours
     const expiresAt = new Date(
       Date.now() + expires
-      // Date.now() + 1000 * 60 * EnvsConst.COOKIE_EXPIRATION
     ); //* 24 hours
 
     const expiresAtRefresh = new Date(
@@ -76,8 +76,40 @@ export class AuthController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
+  public sendResetPasswordEmail = async (req: Request, res: Response) => {
+    const { email } = req.body;
+    const emailError = Validations.validateEmail(email);
+    if (emailError)
+      return this.handleResponseError(res, CustomError.badRequest(emailError));
+
+    this.handleError(this.authService.sendResetPasswordEmail(email))
+      .then((response) => res.status(200).json(response))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public verifyResetPasswordToken = (req: Request, res: Response) => {
+    const { token } = req.params;
+    const error = Validations.validateStringFields({ token });
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(this.authService.verifyResetPasswordToken(token))
+      .then((response) => res.status(200).json(response))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public resetPassword = async (req: Request, res: Response) => {
+    const [error, resetPasswordDto] = ResetPasswordDto.create(req.body);
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(this.authService.resetPassword(resetPasswordDto!))
+      .then((response) => res.status(200).json(response))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
   public reLogin = async (req: RequestAuth, res: Response) => {
-    this.handleError(this.authService.reLogin(req.user))
+    this.handleError(this.authService.reLogin(req.user.id))
       .then((response) => {
         const { expiresAt } = this.setCookie(res, response.data.token);
 
@@ -105,13 +137,26 @@ export class AuthController extends AppController {
 
   public userAuthenticated = async (req: RequestAuth, res: Response) => {
     const expiresAt = req.cookies[EnvsConst.EXPIRATION_TOKEN_COOKIE_NAME];
-    return res.status(200).json({
-      message: "Usuario autenticado correctamente",
-      status: 200,
-      data: {
-        user: req.user,
-        expiresAt,
-      },
-    });
+    this.handleError(this.authService.userAuthenticated(req.user.id))
+      .then((response) => {
+        return res.status(200).json({
+          message: response.message,
+          status: response.status,
+          data: {
+            user: response.data.user,
+            expiresAt,
+          },
+        });
+      })
+      .catch((error) => this.handleResponseError(res, error));
+
+    // return res.status(200).json({
+    //   message: "Usuario autenticado correctamente",
+    //   status: 200,
+    //   data: {
+    //     user: req.user,
+    //     expiresAt,
+    //   },
+    // });
   };
 }

@@ -17,14 +17,23 @@ export class UserRoutes {
 
     router.get("/", userController.getUsers);
 
-    router.post(
-      "/",
+    router.post("/", [
       Middleware.validateActionPermission([
         RoleEnum.MANAGER_ROLE,
       ]) as RequestHandler,
+      userController.upsertUser,
+    ]);
+
+    router.put(
+      "/:id",
+      Middleware.validateOwnership as RequestHandler,
       userController.upsertUser
     );
-    router.put("/:id",  userController.upsertUser);
+    router.put(
+      "/:id/change-password",
+      Middleware.validateOwnership as RequestHandler,
+      userController.changePassword
+    );
 
     return router;
   }

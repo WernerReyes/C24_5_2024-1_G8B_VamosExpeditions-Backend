@@ -1,17 +1,13 @@
-import { CacheAdapter } from "../../core/adapters";
-import { CacheConst } from "@/core/constants";
+import { ExternalCountryContext } from "@/presentation/external/country/country.context";
 import type {
-  ExternalCountryEntity,
-  Image,
+  Image
 } from "@/presentation/external/country/country.entity";
 import type { client } from "@prisma/client";
 
 export type Client = client & {};
 
 export class ClientEntity {
-  private static get cache(): CacheAdapter {
-    return CacheAdapter.getInstance();
-  }
+ 
   private constructor(
     public readonly id: number,
     public readonly fullName: string,
@@ -38,9 +34,7 @@ export class ClientEntity {
       updatedAt,
     } = client;
 
-    const cachedCountries =
-      (await this.cache.get<ExternalCountryEntity[]>(CacheConst.COUNTRIES)) ||
-      [];
+   
 
     return new ClientEntity(
       id,
@@ -49,7 +43,7 @@ export class ClientEntity {
       phone,
       {
         name: country,
-        image: cachedCountries.find((c) => c.name === country)?.image,
+        image: ExternalCountryContext.getCountryByName(country)?.image,
       },
       subregion,
       createdAt!,

@@ -14,6 +14,8 @@ export class VersionQuotationIDDto {
     },
     op: boolean = false
   ): [string?, VersionQuotationIDDto?] {
+    if (!props) return ["The body is required"];
+
     const { quotationId, versionNumber } = props;
 
     if (op) {

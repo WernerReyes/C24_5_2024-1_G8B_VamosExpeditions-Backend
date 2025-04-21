@@ -2,7 +2,9 @@ import type { role, user } from "@prisma/client";
 import { RoleEntity } from "./role.entity";
 import { CacheAdapter } from "@/core/adapters";
 import { CacheConst } from "@/core/constants";
+import { AuthContext } from "@/presentation/auth/auth.context";
 import { UserContext } from "@/presentation/user/user.context";
+// import { UserContext } from "@/presentation/user/user.context";
 
 export interface User extends Omit<user, "password" | "id_role"> {
   role?: role;

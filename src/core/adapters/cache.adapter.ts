@@ -17,20 +17,24 @@ export class CacheAdapter {
   }
 
   private async initializeRedisClient(): Promise<void> {
+    try {
     const client: RedisClientType = createClient({
       url: EnvsConst.REDIS_URL,
       socket: {
         tls: EnvsConst.NODE_ENV === "production",
         rejectUnauthorized: EnvsConst.NODE_ENV !== "production",
+        // tls: true,
+        // rejectUnauthorized: false,
       },
     });
-
-    client.on("error", (err) => console.error("Redis Client Error", err));
 
     await client.connect();
 
     console.log("Redis client connected");
     this.cache = client;
+  } catch (error) {
+    throw new Error("Failed to initialize Redis client" + error);
+  }
   }
 
   public static getInstance(): CacheAdapter {
@@ -41,6 +45,7 @@ export class CacheAdapter {
     return CacheAdapter.instance;
   }
 
+  
   public async get<T>(key: string): Promise<T | null> {
     const data = await this.cache.get(key);
     return data ? (JSON.parse(data) as T) : null;
@@ -53,6 +58,22 @@ export class CacheAdapter {
   public async sAdd(key: string, value: any): Promise<void> {
     await this.cache.sAdd(key, JSON.stringify(value));
   }
+
+  public async hSet(key: string, field: string, value: any): Promise<void> {
+    await this.cache.hSet(key, field, JSON.stringify(value));
+  }
+
+  
+
+  public async hDel(key: string, field: string): Promise<void> {
+    await this.cache.hDel(key, field);
+  }
+
+  public async hGetAll<T>(key: string): Promise<T[]> {
+    const data = await this.cache.hGetAll(key);
+    return Object.entries(data).map(([key, value]) => JSON.parse(value));
+  }
+
 
   public async sRem(key: string, value: any): Promise<void> {
     await this.cache.sRem(key, JSON.stringify(value));

@@ -12,6 +12,14 @@ export enum VersionQuotationStatus {
   APPROVED = "APPROVED",
 }
 
+export enum AllowVersionQuotationType {
+  TRANSPORTATION = "TRANSPORTATION",
+  ACTIVITY = "ACTIVITY",
+  ACCOMMODATION = "ACCOMMODATION",
+  FOOD = "FOOD",
+  GUIDE = "GUIDE",
+}
+
 export type VersionQuotation = version_quotation & {
   user?: User;
   trip_details?: TripDetails | null;
@@ -38,7 +46,13 @@ export class VersionQuotationEntity {
     public readonly tripDetails?: TripDetailsEntity,
     public readonly user?: UserEntity,
     public readonly reservation?: ReservationEntity,
-    public readonly partner?: PartnerEntity
+    public readonly partner?: PartnerEntity,
+
+    public readonly hasVersions: boolean = false,
+
+    public readonly isArchived: boolean = false,
+    public readonly archivedAt?: Date,
+    public readonly archivedReason?: string
   ) {}
 
   public static async fromObject(
@@ -61,6 +75,10 @@ export class VersionQuotationEntity {
       user,
       quotation,
       partners,
+
+      is_archived,
+      archived_at,
+      archive_reason,
     } = versionQuotation;
 
     return new VersionQuotationEntity(
@@ -78,12 +96,21 @@ export class VersionQuotationEntity {
       profit_margin ? Number(profit_margin) : undefined,
       final_price ? Number(final_price) : undefined,
       commission ? Number(commission) : undefined,
-      trip_details ? await TripDetailsEntity.fromObject(trip_details) : undefined,
-      user ? await UserEntity.fromObject(user) : undefined,
-      quotation?.reservation
-        ? await ReservationEntity.fromObject(quotation.reservation)
+      trip_details
+        ? await TripDetailsEntity.fromObject(trip_details)
         : undefined,
-      partners ? PartnerEntity.fromObject(partners) : undefined
+      user ? await UserEntity.fromObject(user) : undefined,
+      official ? quotation?.reservation
+        ? await ReservationEntity.fromObject(quotation.reservation)
+        : undefined : undefined,
+      partners ? PartnerEntity.fromObject(partners) : undefined,
+      official &&
+        (quotation?.version_quotation ?? []).filter(
+          (version) => !version.official && !version.is_archived
+        ).length > 0,
+      is_archived,
+      archived_at ? new Date(archived_at) : undefined,
+      archive_reason ? archive_reason : undefined
     );
   }
 }

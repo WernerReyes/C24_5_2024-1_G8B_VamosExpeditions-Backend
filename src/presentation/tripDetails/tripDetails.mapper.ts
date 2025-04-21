@@ -1,4 +1,4 @@
-import { ReservationDto, TripDetailsDto } from "@/domain/dtos";
+import { TripDetailsDto } from "@/domain/dtos";
 import type {
   Prisma,
   trip_details_order_type,

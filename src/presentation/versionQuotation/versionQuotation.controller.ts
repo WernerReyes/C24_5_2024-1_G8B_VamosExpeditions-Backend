@@ -1,15 +1,16 @@
-import type { Request, Response } from "express";
 import {
+  ArchiveVersionQuotationDto,
   DuplicateMultipleVersionQuotationDto,
   GetVersionQuotationsDto,
-  PaginationDto,
+  SendEmailAndGenerateReportDto,
   VersionQuotationDto,
   VersionQuotationIDDto,
 } from "@/domain/dtos";
-import { AppController } from "../controller";
-import { VersionQuotationService } from "./versionQuotation.service";
 import { CustomError } from "@/domain/error";
+import type { Request, Response } from "express";
+import { AppController } from "../controller";
 import type { RequestAuth } from "../middleware";
+import { VersionQuotationService } from "./versionQuotation.service";
 
 export class VersionQuotationController extends AppController {
   constructor(
@@ -89,6 +90,35 @@ export class VersionQuotationController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
+  public archiveVersionQuotation = async (req: Request, res: Response) => {
+    const [error, archiveVersionQuotationDto] =
+      ArchiveVersionQuotationDto.create(req.body);
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(
+      this.versionQuotationService.archiveVersionQuotation(
+        archiveVersionQuotationDto!
+      )
+    )
+      .then((versionQuotation) => res.status(200).json(versionQuotation))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public unArchiveVersionQuotation = async (req: Request, res: Response) => {
+    const [error, versionQuotationIDDto] = VersionQuotationIDDto.create(
+      req.body
+    );
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(
+      this.versionQuotationService.unArchiveVersionQuotation(versionQuotationIDDto!)
+    )
+      .then((versionQuotation) => res.status(200).json(versionQuotation))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
   public getVersionsQuotationById = async (req: Request, res: Response) => {
     const id = {
       quotationId: Number(req.params.quotationId),
@@ -115,46 +145,6 @@ export class VersionQuotationController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public getTotalDraftsVersionQuotation = async (
-    req: Request,
-    res: Response
-  ) => {
-    this.handleError(
-      this.versionQuotationService.getTotalDraftsVersionQuotation()
-    )
-      .then((totalDrafts) => res.status(200).json(totalDrafts))
-      .catch((error) => this.handleResponseError(res, error));
-  };
-
-  public deleteMultipleVersionQuotation = async (
-    req: Request,
-    res: Response
-  ) => {
-    const ids = req.body.ids;
-    if (!ids || ids.length === 0)
-      return this.handleResponseError(
-        res,
-        CustomError.badRequest("ids must be an array")
-      );
-
-    let validatedIds: VersionQuotationIDDto[] = [];
-
-    for (const id of ids) {
-      const [error, dtoValidated] = VersionQuotationIDDto.create(id);
-      if (error) {
-        return this.handleResponseError(res, CustomError.badRequest(error));
-      }
-
-      validatedIds.push(dtoValidated!);
-    }
-
-    this.handleError(
-      this.versionQuotationService.deleteMultipleVersionQuotation(validatedIds)
-    )
-      .then((versionsQuotation) => res.status(200).json(versionsQuotation))
-      .catch((error) => this.handleResponseError(res, error));
-  };
-
   public generatePdf = async (req: Request, res: Response) => {
     const [error, idDto] = VersionQuotationIDDto.create(req.params);
     if (error)
@@ -170,6 +160,18 @@ export class VersionQuotationController extends AppController {
         pdf.pipe(res);
         pdf.end();
       })
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public sendEmailAndGenerateReport = async (req: Request, res: Response) => {
+    const [error, reportDto] = SendEmailAndGenerateReportDto.create(req.body);
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(
+      this.versionQuotationService.sendEmailAndGenerateReport(reportDto!)
+    )
+      .then((report) => res.status(200).json(report))
       .catch((error) => this.handleResponseError(res, error));
   };
 }

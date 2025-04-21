@@ -1,5 +1,5 @@
 import PdfPrinter from "pdfmake";
-import {
+import type {
   BufferOptions,
   CustomTableLayout,
   TDocumentDefinitions,

@@ -1,28 +1,34 @@
+-- QUERY TRUNCATED
 -- Delete table if exists
+DROP TYPE if exists role_type CASCADE;
+DROP TYPE if exists trip_details_traveler_style  CASCADE;
+DROP TYPE if exists trip_details_order_type CASCADE;
+DROP TYPE if exists reservation_status CASCADE;
+DROP TYPE if exists version_quotation_status CASCADE;
 
--- Eliminar tipos si existen
-DROP TYPE IF EXISTS role_type CASCADE;
-DROP TYPE IF EXISTS trip_details_traveler_style CASCADE;
-DROP TYPE IF EXISTS trip_details_order_type CASCADE;
-DROP TYPE IF EXISTS reservation_status CASCADE;
-DROP TYPE IF EXISTS version_quotation_status CASCADE;
 
--- Eliminar tablas si existen
-DROP TABLE IF EXISTS reservation;
+DROP table if EXISTS reservation;
 DROP TABLE IF EXISTS hotel_room_trip_details;
 DROP TABLE IF EXISTS trip_details;
 DROP TABLE IF EXISTS version_quotation;
 DROP TABLE IF EXISTS quotation;
+
+
 DROP TABLE IF EXISTS notification;
+DROP TABLE IF EXISTS partner;
 DROP TABLE IF EXISTS "user";
 DROP TABLE IF EXISTS role;
-DROP TABLE IF EXISTS hotel_room;
-DROP TABLE IF EXISTS hotel;
-DROP TABLE IF EXISTS trip_details_has_city;
-DROP TABLE IF EXISTS client;
-DROP TABLE IF EXISTS distrit;
-DROP TABLE IF EXISTS city;
-DROP TABLE IF EXISTS country;
+
+DROP table if EXISTS hotel_room;
+DROP table if EXISTS hotel;
+
+DROP table if EXISTS trip_details_has_city;
+DROP table if EXISTS client;
+
+DROP table if EXISTS distrit;
+DROP table if EXISTS city;
+DROP table if EXISTS country;
+
 
 
 -- -----------------------------------------------------
@@ -36,9 +42,6 @@ id_role SERIAL PRIMARY KEY, -- Use SERIAL for auto-incrementing IDs
 name role_type NOT NULL UNIQUE
 );
 
-ALTER TABLE role
-ADD COLUMN name role_type  NOT NULL UNIQUE;
-
 -- -----------------------------------------------------
 -- Table `user`
 -- -----------------------------------------------------
@@ -46,7 +49,6 @@ CREATE TABLE IF NOT EXISTS "user" ( -- Use double quotes for reserved keywords l
 id_user SERIAL PRIMARY KEY, -- Use SERIAL for auto-incrementing IDs
 fullname VARCHAR(45) NOT NULL,
 email VARCHAR(45) NOT NULL,
-online BOOlEAN DEFAULT FAlSE,
 password VARCHAR(200) NOT NULL,
 description TEXT NULL,
 phone_number VARCHAR(20) NULL,
@@ -179,52 +181,78 @@ CREATE TABLE IF NOT EXISTS quotation (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
   );
-  
 
+-- -----------------------------------------------------
+-- Table `Partner`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS partner (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
   
 -- -----------------------------------------------------
 -- Table `version_quotation`
 -- -----------------------------------------------------
 CREATE TYPE  version_quotation_status AS ENUM ('DRAFT', 'COMPLETED', 'CANCELATED', 'APPROVED');
 
-ALTER TYPE version_quotation_status ADD VALUE 'APPROVED' BEFORE 'COMPLETED';
-
 
   CREATE TABLE IF NOT EXISTS version_quotation (
     version_number INT NOT NULL,
     quotation_id INT NOT NULL,
     indirect_cost_margin DECIMAL(5, 2),
-    name VARCHAR(100) NOT NULL,
+    name TEXT NOT NULL,
     profit_margin DECIMAL(5, 2),
     final_price DECIMAL(10, 2),
     completion_percentage INT DEFAULT 0 NOT NULL,
     status version_quotation_status DEFAULT 'DRAFT' NOT NULL, -- Custom ENUM type (defined previously)
     official BOOLEAN DEFAULT FALSE NOT NULL,
     user_id INT NOT NULL,
+    partner_id INT NULL DEFAULT NULL,
+    commission DECIMAL(5,2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+   -- Soft Delete
+   is_archived BOOLEAN DEFAULT FALSE NOT NULL,
+   archived_at TIMESTAMP NULL DEFAULT NULL,
+   archive_reason TEXT,
+    
     PRIMARY KEY (version_number, quotation_id),
     CONSTRAINT fk_version_quotation_user FOREIGN KEY (user_id) REFERENCES "user" (id_user) ON DELETE CASCADE,
     CONSTRAINT fk_version_quotation_quotation FOREIGN KEY (quotation_id) REFERENCES quotation (id_quotation) ON DELETE CASCADE,
-    CONSTRAINT chk_completion_percentage CHECK (completion_percentage IN (0, 25, 50, 75, 100))
+    CONSTRAINT chk_completion_percentage CHECK (completion_percentage IN (0, 25, 50, 75, 100)),
+    CONSTRAINT fk_version_quotation_partner FOREIGN KEY (partner_id) REFERENCES partner(id) ON DELETE CASCADE,
+    CONSTRAINT version_quotation_commission_check CHECK (commission = 0 OR commission BETWEEN 3 AND 20)
 );
 
 
 
 
--- Add an index on quotation_id for faster lookups if needed:
-CREATE INDEX idx_quotation_id ON version_quotation (quotation_id);
-CREATE INDEX idx_version_number ON version_quotation (version_number);
+-- INDEXS
+-- Índice compuesto en quotation_id y official
+CREATE INDEX idx_quotation_id_official ON version_quotation(quotation_id, official);
 
+-- Índice en status
+CREATE INDEX idx_status ON version_quotation(status);
+
+-- Índice en user_id
+CREATE INDEX idx_user_id ON version_quotation(user_id);
+
+-- Índice en created_at
+CREATE INDEX idx_created_at ON version_quotation(created_at);
+
+-- Índice en updated_at
+CREATE INDEX idx_updated_at ON version_quotation(updated_at);
+
+-- Índice en name
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX idx_name_trgm ON version_quotation USING GIN (name gin_trgm_ops);
+
+-- Indice en unique official
 CREATE UNIQUE INDEX unique_official_idx 
 ON version_quotation (quotation_id) 
 WHERE official = TRUE;
-
-
-ALTER TABLE version_quotation 
-ADD COLUMN status version_quotation_status DEFAULT 'DRAFT' NOT NULL;
-
-
 
 
 -- -----------------------------------------------------
@@ -235,7 +263,7 @@ CREATE TYPE  trip_details_order_type AS ENUM (
     'DIRECT',
     'INDIRECT'
 );
-DROP TABLE IF EXISTS trip_details;
+
 CREATE TABLE trip_details (
 	id SERIAL PRIMARY KEY,
 	version_number INT NOT NULL,
@@ -253,15 +281,27 @@ CREATE TABLE trip_details (
 	CONSTRAINT unique_version_id UNIQUE (version_number, quotation_id)
 );
 
+-- INDEXS
+-- Índice en client_id
+CREATE INDEX idx_client_id ON trip_details(client_id);
+
+-- Índice en start_date
+CREATE INDEX idx_startDate ON trip_details(start_date);
+
+-- Índice en end_date
+CREATE INDEX idx_endDate ON trip_details(end_date);
+
+
+
 -- -----------------------------------------------------
--- Table `trip_details_has_city` -- Crear la tabla 'reservation_has_city' para la relación muchos a muchos
+-- Table `trip_details_has_city`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS trip_details_has_city (
-  trip_details_id INT,                            -- ID de la ciudad (clave foránea)
-  city_id INT,                     -- ID de la reserva (clave foránea)
-  PRIMARY KEY (city_id, trip_details_id),  -- Combinación única de city_id y reservation_id
-  FOREIGN KEY (city_id) REFERENCES city(id_city) ON DELETE CASCADE,        -- Relación con la tabla 'city'
-  FOREIGN KEY (trip_details_id) REFERENCES trip_details(id) ON DELETE CASCADE -- Relación con la tabla 'reservation'
+  trip_details_id INT,                  
+  city_id INT,                 
+  PRIMARY KEY (city_id, trip_details_id),
+  FOREIGN KEY (city_id) REFERENCES city(id_city) ON DELETE CASCADE,        
+  FOREIGN KEY (trip_details_id) REFERENCES trip_details(id) ON DELETE CASCADE 
 );
 
 -- -----------------------------------------------------
@@ -271,13 +311,11 @@ CREATE TABLE IF NOT EXISTS hotel_room_trip_details (
   id SERIAL PRIMARY KEY,
   hotel_room_id INT NOT NULL,
   date DATE NOT NULL,
-  trip_details_id INT NOT NULL,  -- Ahora se enlaza solo con trip_details
-  number_of_people INT NOT NULL,
+  trip_details_id INT NOT NULL,  
+  cost_person DECIMAL(8,2) NOT NULL,
   CONSTRAINT fk_hotel_room_quotation_hotel_room FOREIGN KEY (hotel_room_id) REFERENCES hotel_room(id_hotel_room) ON DELETE CASCADE,
-  CONSTRAINT fk_hotel_room_quotation_trip_details FOREIGN KEY (trip_details_id) REFERENCES trip_details(id) ON DELETE CASCADE,
-  CONSTRAINT unique_hotel_per_trip UNIQUE (hotel_room_id, date, trip_details_id)
+  CONSTRAINT fk_hotel_room_quotation_trip_details FOREIGN KEY (trip_details_id) REFERENCES trip_details(id) ON DELETE CASCADE
 );
-
 
 
 -- -----------------------------------------------------
@@ -292,35 +330,35 @@ CREATE TABLE IF NOT EXISTS reservation (
     status reservation_status DEFAULT 'PENDING' NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT fk_reservation_quotation FOREIGN KEY (quotation_id) REFERENCES quotation(id_quotation) ON DELETE CASCADE,
+    CONSTRAINT fk_reservation_quotation FOREIGN KEY (quotation_id) 
+    REFERENCES quotation(id_quotation) ON DELETE CASCADE,
     CONSTRAINT unique_reservation UNIQUE (quotation_id)
         
-);-- -----------------------------------------------------
+);
+-- Índice en client_id
+CREATE INDEX idx_status_r ON reservation(status);
+
+-- Índice en created_at
+CREATE INDEX idx_created_at_r ON reservation(created_at);
+
+-- Índice en updated_at
+CREATE INDEX idx_updated_at_r ON reservation(updated_at);
+
+
+
+-- -----------------------------------------------------
 -- View `reservation_version_summary`
 -- -----------------------------------------------------
-
-  
-
-
-
-DROP VIEW IF EXISTS reservation_version_summary;
-
 CREATE OR REPLACE VIEW reservation_version_summary AS
-SELECT
+SELECT 
   r.created_at AS reservation_date,
   v.final_price,
   v.profit_margin,
   q.id_quotation AS quotation_id,
   v.version_number,
-  r.status AS reservation_status, -- Add reservation status
-  r.id AS id -- Add a unique identifier
-FROM
-  reservation r
-  JOIN quotation q ON r.quotation_id = q.id_quotation
-  JOIN version_quotation v ON q.id_quotation = v.quotation_id
-WHERE
-  v.status = 'APPROVED'
-  AND v.official = TRUE;
-
-
-/*DROP VIEW reservation_version_summary;*/
+   r.status AS reservation_status, -- Add reservation status
+  r.id AS id  -- Add a unique identifier
+FROM reservation r
+JOIN quotation q ON r.quotation_id = q.id_quotation
+JOIN version_quotation v ON q.id_quotation = v.quotation_id
+WHERE v.status = 'APPROVED' AND v.official = TRUE;

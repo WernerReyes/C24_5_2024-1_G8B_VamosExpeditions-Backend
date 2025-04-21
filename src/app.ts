@@ -6,11 +6,13 @@ import { Server } from "./presentation/server";
 import { AppSocket } from "./presentation/socket";
 import { AppCacheContext } from "./presentation/context";
 
+import { AppCron } from "./presentation/cron";
+
+
 const ORIGINS = [
   EnvsConst.CLIENT_URL,
   "https://c24-5-2024-1-g8b-vamosexpeditions-backend.onrender.com",
   "http://localhost:8000",
-  "https://vamosexpeditions.netlify.app",
   "http://192.168.100.130:5173",
 ];
 
@@ -19,10 +21,20 @@ const ORIGINS = [
 })();
 
 async function main() {
+  //* Initialize the redis cache context
   try {
     await AppCacheContext.initialize();
   } catch (error) {
     console.error(error);
+
+  }
+
+  //* Initialize the cron jobs
+  try {
+    AppCron.runJobs();
+  } catch (error) {
+    console.error(error);
+
   }
 
   const server = new Server({
@@ -38,4 +50,6 @@ async function main() {
   httpServer.listen(EnvsConst.PORT, () => {
     console.log(`Server listening on port ${EnvsConst.PORT}`);
   });
+
 }
+

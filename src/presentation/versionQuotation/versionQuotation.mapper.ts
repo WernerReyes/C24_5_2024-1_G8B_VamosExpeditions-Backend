@@ -50,6 +50,9 @@ export class VersionQuotationMapper {
           version_number: this.dto.id.versionNumber,
           quotation_id: this.dto.id.quotationId,
         },
+        AND: { // TODO: Check if this is needed and if it breaks anything
+          is_archived: false,
+        },
       },
     };
   }
@@ -63,9 +66,6 @@ export class VersionQuotationMapper {
       new Date().getFullYear() +
       "-" +
       dto.versionQuotationId?.quotationId;
-
-      console.log(dto)
-
 
     return {
       name:
@@ -83,60 +83,6 @@ export class VersionQuotationMapper {
     };
   }
 
-  public get toDuplicate(): Prisma.version_quotationUncheckedCreateInput {
-    this.validateModelInstance(
-      [this.versionQuotation, this.dto],
-      "toDuplicate"
-    );
-
-    const dto = this.dto as DuplicateVersionQuotationDto;
-
-    const { quotation, trip_details, user, status, ...rest } = this
-      .versionQuotation as VersionQuotation;
-
-    const maxVersion = quotation?.version_quotation?.reduce((prev, current) =>
-      prev.version_number > current.version_number ? prev : current
-    ).version_number;
-
-    return {
-      ...rest,
-      user_id: dto.userId,
-      status: status,
-      version_number: maxVersion! + 1,
-      official: false,
-      updated_at: new Date(),
-      created_at: new Date(),
-      trip_details: trip_details
-        ? {
-            create: {
-              number_of_people: trip_details.number_of_people,
-              start_date: trip_details.start_date,
-              end_date: trip_details.end_date,
-              client_id: trip_details.client_id,
-              traveler_style: trip_details.traveler_style,
-              order_type: trip_details.order_type,
-              additional_specifications: trip_details.additional_specifications,
-              code: trip_details.code,
-              trip_details_has_city: {
-                create: trip_details?.trip_details_has_city?.map((city) => ({
-                  city_id: city.city_id,
-                })),
-              },
-              hotel_room_trip_details: {
-                create: trip_details?.hotel_room_trip_details?.map(
-                  (hotel: hotel_room_trip_details) => ({
-                    hotel_room_id: hotel.hotel_room_id,
-                    date: hotel.date,
-                    cost_person: hotel.cost_person,
-                  })
-                ),
-              },
-            },
-          }
-        : undefined,
-    };
-  }
-
   public get getVersionsQuotationsWhere(): Prisma.version_quotationWhereInput {
     this.validateModelInstance(this.dto, "getVersionsQuotationsWhere");
     this.dto = this.dto as GetVersionQuotationsDto;
@@ -147,6 +93,7 @@ export class VersionQuotationMapper {
         mode: "insensitive",
       },
       quotation_id: this.dto.quotationId,
+      is_archived: this.dto.isArchived,
       trip_details: {
         client_id: this.dto.clientsIds
           ? { in: this.dto.clientsIds }

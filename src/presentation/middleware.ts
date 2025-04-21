@@ -1,15 +1,16 @@
 import type { NextFunction, Request, Response } from "express";
-import { UserModel } from "../data/postgres";
 import { JwtAdapter } from "../core/adapters";
 
-import { RoleEnum, UserEntity } from "../domain/entities";
+import { RoleEnum, User } from "../domain/entities";
 import { EnvsConst, ErrorCodeConst } from "@/core/constants";
 
 import { Socket } from "socket.io";
 import * as cookie from "cookie";
+import { AuthContext, AuthUser } from "./auth/auth.context";
+import { UserModel } from "@/data/postgres";
 
 export interface RequestAuth extends Request {
-  user: UserEntity;
+  user: AuthUser;
 }
 
 export class Middleware {
@@ -35,15 +36,16 @@ export class Middleware {
         });
       }
 
+      let user = AuthContext.isInitialized
+        ? AuthContext.getAuthenticatedUser(parseInt(payload.id))
+        : await UserModel.findUnique({
+            where: { id_user: parseInt(payload.id),  },
+            select: {
+              id_user: true,
+              role: { select: { name: true } },
+            }
+          });
 
-      const user = await UserModel.findFirst({
-        where: {
-          id_user: parseInt(payload!.id),
-        },
-        include: {
-          role: true,
-        },
-      });
       if (!user) {
         return res.status(401).json({
           ok: false,
@@ -51,9 +53,17 @@ export class Middleware {
           code: ErrorCodeConst.ERR_USER_INVALID_TOKEN,
         });
       }
-      const userEntity = await UserEntity.fromObject(user);
-      (req as RequestAuth).user = userEntity;
-      
+
+      (req as RequestAuth).user = AuthContext.isInitialized
+        ? user as AuthUser
+        : (function () {
+            const { id_user, role } = user as User;
+            return {
+              id: id_user,
+              role: role?.name,
+            } as AuthUser;
+          })();
+
       next();
     } catch (error) {
       return res.status(401).json({
@@ -66,7 +76,7 @@ export class Middleware {
 
   static validateActionPermission(roles: RoleEnum[]) {
     return (req: RequestAuth, res: Response, next: NextFunction) => {
-      if (!roles.includes(req.user.role!.name as RoleEnum)) {
+      if (!roles.includes(req.user.role as RoleEnum)) {
         return res.status(403).json({
           ok: false,
           message: "Unauthorized",
@@ -77,8 +87,12 @@ export class Middleware {
     };
   }
 
-  static validateOwnership() {
-    return (req: RequestAuth, res: Response, next: NextFunction) => {
+  static validateOwnership(
+    req: RequestAuth,
+    res: Response,
+    next: NextFunction
+  ) {
+    {
       if (req.user.id !== parseInt(req.params.id)) {
         return res.status(403).json({
           ok: false,
@@ -87,7 +101,7 @@ export class Middleware {
         });
       }
       next();
-    };
+    }
   }
 
   public static async validateSocketToken(

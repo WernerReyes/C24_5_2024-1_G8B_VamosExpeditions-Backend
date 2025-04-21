@@ -1,10 +1,4 @@
-import { PdfService } from "@/lib";
-import { ReservationMapper } from "./reservation.mapper";
-import {
-  GetReservationsDto,
-  GetStadisticsDto,
-  ReservationDto,
-} from "@/domain/dtos";
+import { Month } from "@/core/constants";
 import {
   prisma,
   QuotationModel,
@@ -12,20 +6,23 @@ import {
   ReservationVersionSummaryView,
   VersionQuotationModel,
 } from "@/data/postgres";
-import { CustomError } from "@/domain/error";
+import {
+  GetReservationsDto,
+  GetStadisticsDto,
+  ReservationDto,
+} from "@/domain/dtos";
 import {
   ReservationEntity,
   ReservationStatus,
-  VersionQuotationEntity,
   VersionQuotationStatus,
 } from "@/domain/entities";
+import { CustomError } from "@/domain/error";
 import { ApiResponse, PaginatedResponse } from "../response";
+import { ReservationMapper } from "./reservation.mapper";
+import { DateAdapter } from "@/core/adapters";
 
 export class ReservationService {
-  constructor(
-    private reservationMapper: ReservationMapper,
-    private pdfService: PdfService
-  ) {}
+  constructor(private reservationMapper: ReservationMapper) {}
 
   public async upsertReservation(
     reservationDto: ReservationDto
@@ -47,8 +44,8 @@ export class ReservationService {
                   status: VersionQuotationStatus.COMPLETED,
                 },
                 {
-                  status: VersionQuotationStatus.CANCELATED
-                }
+                  status: VersionQuotationStatus.CANCELATED,
+                },
               ],
               //  VersionQuotationStatus.APPROVED
               official: true,
@@ -261,21 +258,6 @@ export class ReservationService {
   }
 
   public async getStadistics({ year }: GetStadisticsDto) {
-    const months = [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre",
-    ];
-
     const totalPricesPerMonth = await ReservationVersionSummaryView.groupBy({
       by: ["reservation_date"],
       where: {
@@ -294,8 +276,7 @@ export class ReservationService {
       orderBy: { reservation_date: "asc" },
     });
 
- 
-    const formattedPricesPerMonth = months.map((month, index) => {
+    const formattedPricesPerMonth = Month.MONTHS_SPANISH.map((month, index) => {
       //* Get all reservations for the given month
       const monthPrices = totalPricesPerMonth.filter(
         (price) =>
@@ -313,7 +294,7 @@ export class ReservationService {
         },
         { totalIncome: 0, totalMargin: 0, totalTrips: 0, totalEntries: 0 }
       );
- 
+
       return {
         month,
         income: totals.totalIncome.toFixed(2),
@@ -325,11 +306,23 @@ export class ReservationService {
       };
     });
 
-    return new ApiResponse(
-      200,
-      "Estadísticas encontradas",
-      formattedPricesPerMonth
-    );
+    const avaliableYears = totalPricesPerMonth.map((price) => {
+      return price!.reservation_date!.getFullYear();
+    });
+
+  
+    return new ApiResponse<{
+      pricesPerMonth: {
+        month: string;
+        income: string;
+        margin: string;
+        trips: number;
+      }[];
+      years: number[];
+    }>(200, "Estadísticas encontradas", {
+      pricesPerMonth: formattedPricesPerMonth,
+      years: [...new Set(avaliableYears)],
+    });
   }
 
   public async getStats() {
@@ -360,6 +353,7 @@ export class ReservationService {
     const currentMonthDrafts = await VersionQuotationModel.count({
       where: {
         status: VersionQuotationStatus.DRAFT,
+        is_archived: false,
         created_at: {
           gte: firstDayCurrentMonth,
         },
@@ -370,6 +364,7 @@ export class ReservationService {
     const previousMonthDrafts = await VersionQuotationModel.count({
       where: {
         status: VersionQuotationStatus.DRAFT,
+        is_archived: false,
         created_at: {
           gte: firstDayPreviousMonth,
           lte: lastDayPreviousMonth,
@@ -380,6 +375,7 @@ export class ReservationService {
     const totalDrafts = await VersionQuotationModel.count({
       where: {
         status: VersionQuotationStatus.DRAFT,
+        is_archived: false,
       },
     });
 
@@ -479,24 +475,10 @@ export class ReservationService {
   }
 
   private async getCurrentDayMonth() {
-    const now = new Date();
-
-    //* First day of the current month
-    const firstDayCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    //* First and last day of the previous month
-    const firstDayPreviousMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() - 1,
-      1
-    );
-
-    const lastDayPreviousMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-
     return {
-      firstDayCurrentMonth,
-      firstDayPreviousMonth,
-      lastDayPreviousMonth,
+      firstDayCurrentMonth: DateAdapter.getMonthRange(0).start,
+      firstDayPreviousMonth: DateAdapter.getMonthRange(-1).start,
+      lastDayPreviousMonth: DateAdapter.getMonthRange(-1).end,
     };
   }
 }

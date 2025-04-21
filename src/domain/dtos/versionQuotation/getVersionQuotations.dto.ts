@@ -14,6 +14,7 @@ export class GetVersionQuotationsDto extends PaginationDto {
     public readonly representativesIds?: number[],
     public readonly quotationId?: number,
     public readonly official?: boolean,
+    public readonly isArchived?: boolean,
     public readonly createdAt?: Date,
     public readonly updatedAt?: Date
   ) {
@@ -34,6 +35,7 @@ export class GetVersionQuotationsDto extends PaginationDto {
       representativesIds,
       quotationId,
       official,
+      isArchived,
       createdAt,
       updatedAt,
     } = props;
@@ -68,6 +70,13 @@ export class GetVersionQuotationsDto extends PaginationDto {
       if (booleanError) return [booleanError];
     }
 
+    if (isArchived) {
+      const booleanError = Validations.validateBooleanFields({
+        isArchived,
+      });
+      if (booleanError) return [booleanError];
+    }
+
     if (createdAt) {
       const dateError = Validations.validateDateFields({ createdAt });
       if (dateError) return [dateError];
@@ -77,8 +86,6 @@ export class GetVersionQuotationsDto extends PaginationDto {
       const dateError = Validations.validateDateFields({ updatedAt });
       if (dateError) return [dateError];
     }
-
-    
 
     return [
       undefined,
@@ -94,11 +101,8 @@ export class GetVersionQuotationsDto extends PaginationDto {
           ? ParamsUtils.parseArray(representativesIds)
           : undefined,
         quotationId ? Number(quotationId) : undefined,
-        official
-          ? official === "true"
-            ? true
-            : false
-          : undefined,
+        official ? (official === "true" ? true : false) : undefined,
+        isArchived ? (isArchived === "true" ? true : false) : undefined,
         createdAt ? new Date(createdAt) : undefined,
         updatedAt ? new Date(updatedAt) : undefined
       ),

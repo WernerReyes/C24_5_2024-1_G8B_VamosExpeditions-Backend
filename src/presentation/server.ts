@@ -4,10 +4,12 @@ import express, { Router } from "express";
 import path from "path";
 
 
+
 import { Server as SocketServer } from "socket.io";
 
 import { SocketService } from "@/lib";
 import { NotificationService } from "./notification/notification.service";
+
 
 
 interface Options {
@@ -53,7 +55,6 @@ export class Server {
 
     //* SPA /^\/(?!api).*/  <== Únicamente si no empieza con la palabra api
     this.app.get("*", (req, res) => {
-      
       const indexPath = path.join(
         __dirname + `../../../${this.publicPath}/index.html`
       );

@@ -1,4 +1,5 @@
 .env
+.env.prod
 mongo/
 # postgres/
 node_modules/
