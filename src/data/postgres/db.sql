@@ -216,14 +216,14 @@ CREATE TYPE  version_quotation_status AS ENUM ('DRAFT', 'COMPLETED', 'CANCELATED
    -- Soft Delete
    is_archived BOOLEAN DEFAULT FALSE NOT NULL,
    archived_at TIMESTAMP NULL DEFAULT NULL,
-   archive_reason TEXT;
+   archive_reason TEXT,
     
     PRIMARY KEY (version_number, quotation_id),
     CONSTRAINT fk_version_quotation_user FOREIGN KEY (user_id) REFERENCES "user" (id_user) ON DELETE CASCADE,
     CONSTRAINT fk_version_quotation_quotation FOREIGN KEY (quotation_id) REFERENCES quotation (id_quotation) ON DELETE CASCADE,
     CONSTRAINT chk_completion_percentage CHECK (completion_percentage IN (0, 25, 50, 75, 100)),
     CONSTRAINT fk_version_quotation_partner FOREIGN KEY (partner_id) REFERENCES partner(id) ON DELETE CASCADE,
-    CONSTRAINT version_quotation_commission_check CHECK (commission = 0 OR commission BETWEEN 3 AND 20);
+    CONSTRAINT version_quotation_commission_check CHECK (commission = 0 OR commission BETWEEN 3 AND 20)
 );
 
 

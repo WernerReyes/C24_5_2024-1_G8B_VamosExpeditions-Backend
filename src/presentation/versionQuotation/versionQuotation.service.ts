@@ -589,7 +589,6 @@ export class VersionQuotationService {
     );
   }
 
-
   public async generatePdf({ versionQuotationId }: VersionQuotationIDDto) {
     const versionQuotation = await VersionQuotationModel.findUnique({
       where: {
@@ -652,6 +651,7 @@ export class VersionQuotationService {
       ) => {
         switch (resources) {
           case AllowVersionQuotationType.TRANSPORTATION:
+            break;
 
           case AllowVersionQuotationType.ACCOMMODATION:
             const versionQuotation = await VersionQuotationModel.findUnique({
@@ -711,6 +711,7 @@ export class VersionQuotationService {
             });
 
             resolve([document, versionQuotation as VersionQuotation]);
+            break;
         }
       }
     ).catch((error) => {
