@@ -19,6 +19,7 @@ import {
 import { CustomError } from "@/domain/error";
 import { ApiResponse, PaginatedResponse } from "../response";
 import { ReservationMapper } from "./reservation.mapper";
+import { DateAdapter } from "@/core/adapters";
 
 export class ReservationService {
   constructor(private reservationMapper: ReservationMapper) {}
@@ -352,6 +353,7 @@ export class ReservationService {
     const currentMonthDrafts = await VersionQuotationModel.count({
       where: {
         status: VersionQuotationStatus.DRAFT,
+        is_archived: false,
         created_at: {
           gte: firstDayCurrentMonth,
         },
@@ -362,6 +364,7 @@ export class ReservationService {
     const previousMonthDrafts = await VersionQuotationModel.count({
       where: {
         status: VersionQuotationStatus.DRAFT,
+        is_archived: false,
         created_at: {
           gte: firstDayPreviousMonth,
           lte: lastDayPreviousMonth,
@@ -372,6 +375,7 @@ export class ReservationService {
     const totalDrafts = await VersionQuotationModel.count({
       where: {
         status: VersionQuotationStatus.DRAFT,
+        is_archived: false,
       },
     });
 
@@ -471,24 +475,10 @@ export class ReservationService {
   }
 
   private async getCurrentDayMonth() {
-    const now = new Date();
-
-    //* First day of the current month
-    const firstDayCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    //* First and last day of the previous month
-    const firstDayPreviousMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() - 1,
-      1
-    );
-
-    const lastDayPreviousMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-
     return {
-      firstDayCurrentMonth,
-      firstDayPreviousMonth,
-      lastDayPreviousMonth,
+      firstDayCurrentMonth: DateAdapter.getMonthRange(0).start,
+      firstDayPreviousMonth: DateAdapter.getMonthRange(-1).start,
+      lastDayPreviousMonth: DateAdapter.getMonthRange(-1).end,
     };
   }
 }

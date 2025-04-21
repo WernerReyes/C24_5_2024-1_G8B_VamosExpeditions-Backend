@@ -7,8 +7,13 @@ import {
   getHours,
   eachDayOfInterval,
   addDays,
+  subMonths,
+  addMonths,
+  startOfMonth,
+  endOfMonth,
+  startOfDay,
 } from "date-fns";
-import { toZonedTime, fromZonedTime } from "date-fns-tz";
+import { toZonedTime, fromZonedTime, } from "date-fns-tz";
 import { es } from "date-fns/locale/es";
 
 type FormatDateType =
@@ -29,7 +34,7 @@ export class DateAdapter {
   }
   static parseISO(dateString: string | Date): Date {
     const date = dateString instanceof Date ? dateString : parseISO(dateString);
-    return toZonedTime(date, "UTC");
+    return startOfDay(toZonedTime(date, "UTC"));
   }
   static toISO(date: Date): string {
     // Convert a date to the specified timezone, then format as ISO 8601
@@ -67,13 +72,23 @@ export class DateAdapter {
       end: DateAdapter.parseISO(endDate),
     });
   }
-  static rangeFromStartDate(
-    startDate: Date,
-    days: number
-  ): Date[] {
+  static rangeFromStartDate(startDate: Date, days: number): Date[] {
     return eachDayOfInterval({
       start: DateAdapter.parseISO(startDate),
       end: addDays(DateAdapter.parseISO(startDate), days - 1),
     });
+  }
+
+  //* @param offset: number - The number of months to offset from the current date. Positive values move forward, negative values move backward.
+  static getMonthRange(offset: number = 0): { start: Date; end: Date } {
+    const targetDate =
+      offset < 0
+        ? subMonths(new Date(), Math.abs(offset))
+        : addMonths(new Date(), offset);
+
+    return {
+      start: startOfMonth(targetDate),
+      end: endOfMonth(targetDate),
+    };
   }
 }

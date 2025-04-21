@@ -111,9 +111,10 @@ export class HotelRoomTripDetailsService {
 
     const [currentStartDate, currentEndDate] = dateRange;
 
-    const startDate = DateUtils.resetTimeToMidnight(tripDetails.start_date);
-    const endDate = DateUtils.resetTimeToMidnight(tripDetails.end_date);
-
+    // const startDate = DateUtils.resetTimeToMidnight(tripDetails.start_date);
+    const startDate = DateAdapter.parseISO(tripDetails.start_date);
+    // const endDate = DateUtils.resetTimeToMidnight(tripDetails.end_date);
+    const endDate = DateAdapter.parseISO(tripDetails.end_date);
 
     if (
       currentStartDate.getTime() < startDate.getTime() ||

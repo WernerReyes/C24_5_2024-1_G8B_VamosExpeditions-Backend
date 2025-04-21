@@ -100,9 +100,9 @@ export class VersionQuotationEntity {
         ? await TripDetailsEntity.fromObject(trip_details)
         : undefined,
       user ? await UserEntity.fromObject(user) : undefined,
-      quotation?.reservation
+      official ? quotation?.reservation
         ? await ReservationEntity.fromObject(quotation.reservation)
-        : undefined,
+        : undefined : undefined,
       partners ? PartnerEntity.fromObject(partners) : undefined,
       official &&
         (quotation?.version_quotation ?? []).filter(

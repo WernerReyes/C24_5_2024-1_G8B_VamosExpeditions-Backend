@@ -11,7 +11,6 @@ const ORIGINS = [
   EnvsConst.CLIENT_URL,
   "https://c24-5-2024-1-g8b-vamosexpeditions-backend.onrender.com",
   "http://localhost:8000",
-  "https://vamosexpeditions.netlify.app",
   "http://192.168.100.130:5173",
 ];
 

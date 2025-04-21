@@ -457,6 +457,7 @@ export class VersionQuotationService {
           version_number: id.versionNumber,
           quotation_id: id.quotationId,
         },
+        is_archived: false,
       },
       data: {
         is_archived: true,
@@ -489,6 +490,7 @@ export class VersionQuotationService {
           version_number: versionQuotationId!.versionNumber,
           quotation_id: versionQuotationId!.quotationId,
         },
+        is_archived: true,
       },
       data: {
         is_archived: false,
@@ -521,6 +523,7 @@ export class VersionQuotationService {
           version_number: id.versionNumber,
           quotation_id: id.quotationId,
         },
+        is_archived: false,
       },
       include: this.versionQuotationMapper.toInclude,
     });
@@ -586,54 +589,6 @@ export class VersionQuotationService {
     );
   }
 
-  public async getTotalDraftsVersionQuotation() {
-    const now = new Date();
-
-    //* First day of the current month
-    const firstDayCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    //* First and last day of the previous month
-    const firstDayPreviousMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() - 1,
-      1
-    );
-    const lastDayPreviousMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-
-    //* Count drafts for the current month
-    const currentMonthDrafts = await VersionQuotationModel.count({
-      where: {
-        status: "DRAFT",
-        created_at: {
-          gte: firstDayCurrentMonth,
-        },
-      },
-    });
-
-    //* Count drafts for the previous month
-    const previousMonthDrafts = await VersionQuotationModel.count({
-      where: {
-        status: "DRAFT",
-        created_at: {
-          gte: firstDayPreviousMonth,
-          lte: lastDayPreviousMonth,
-        },
-      },
-    });
-
-    //* Calculate the increase
-    const increase = currentMonthDrafts - previousMonthDrafts;
-
-    return new ApiResponse<{
-      totalDrafts: number;
-      totalDraftsPreviousMonth: number;
-      increase: number;
-    }>(200, "Total de borradores de cotización", {
-      totalDrafts: currentMonthDrafts,
-      totalDraftsPreviousMonth: previousMonthDrafts,
-      increase,
-    });
-  }
 
   public async generatePdf({ versionQuotationId }: VersionQuotationIDDto) {
     const versionQuotation = await VersionQuotationModel.findUnique({
@@ -642,6 +597,7 @@ export class VersionQuotationService {
           version_number: versionQuotationId!.versionNumber,
           quotation_id: versionQuotationId!.quotationId,
         },
+        is_archived: false,
         status: {
           not: VersionQuotationStatus.DRAFT,
         },
@@ -704,6 +660,7 @@ export class VersionQuotationService {
                   version_number: versionQuotationId.versionNumber,
                   quotation_id: versionQuotationId.quotationId,
                 },
+                is_archived: false,
               },
               omit: {
                 created_at: true,

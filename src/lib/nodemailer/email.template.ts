@@ -5,9 +5,6 @@ import Handlebars from "handlebars";
 import path from "path";
 
 const TEMPLATE_DIR = path.resolve(__dirname, "../../lib/nodemailer/templates");
-
-console.log("TEMPLATE_DIR", TEMPLATE_DIR);
-
 export class EmailTemplate {
   private static render(
     templateName: string,

@@ -30,11 +30,6 @@ export class VersionQuotationRoutes {
     router.get("/", versionQuotationController.getVersionQuotations);
 
     router.get(
-      "/drafts",
-      versionQuotationController.getTotalDraftsVersionQuotation
-    );
-
-    router.get(
       "/pdf/:quotationId/:versionNumber",
       versionQuotationController.generatePdf
     );

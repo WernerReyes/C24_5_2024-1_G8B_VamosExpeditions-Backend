@@ -145,18 +145,6 @@ export class VersionQuotationController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public getTotalDraftsVersionQuotation = async (
-    req: Request,
-    res: Response
-  ) => {
-    this.handleError(
-      this.versionQuotationService.getTotalDraftsVersionQuotation()
-    )
-      .then((totalDrafts) => res.status(200).json(totalDrafts))
-      .catch((error) => this.handleResponseError(res, error));
-  };
-
-
   public generatePdf = async (req: Request, res: Response) => {
     const [error, idDto] = VersionQuotationIDDto.create(req.params);
     if (error)
