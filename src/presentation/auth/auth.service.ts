@@ -37,6 +37,8 @@ export class AuthService {
     })) as string;
     if (!token) throw CustomError.internalServer("Error generating token");
 
+    console.log({ token, "login": "d", deviceId });
+
     //* Save user in redis
     AuthContext.authenticateUser({
       id: user.id_user,

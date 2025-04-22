@@ -19,6 +19,8 @@ export class Middleware {
       req.cookies[EnvsConst.TOKEN_COOKIE_NAME] ?? req.url.includes("re-login")
         ? req.cookies[EnvsConst.REFRESH_TOKEN_COOKIE_NAME]
         : null;
+
+        console.log({ token });
     if (!token) {
       return res.status(401).json({
         ok: false,
