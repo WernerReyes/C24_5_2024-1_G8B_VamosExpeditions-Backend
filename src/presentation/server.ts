@@ -3,15 +3,6 @@ import cors from "cors";
 import express, { Router } from "express";
 import path from "path";
 
-
-
-import { Server as SocketServer } from "socket.io";
-
-import { SocketService } from "@/lib";
-import { NotificationService } from "./notification/notification.service";
-
-
-
 interface Options {
   origins: string[];
   routes: Router;
