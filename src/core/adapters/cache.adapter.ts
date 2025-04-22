@@ -21,10 +21,10 @@ export class CacheAdapter {
       const client: RedisClientType = createClient({
         url: EnvsConst.REDIS_URL,
         socket: {
-          // tls: EnvsConst.NODE_ENV === "production",
-          // rejectUnauthorized: EnvsConst.NODE_ENV !== "production",
-          tls: true,
-          rejectUnauthorized: false,
+          tls: EnvsConst.NODE_ENV === "production",
+          rejectUnauthorized: EnvsConst.NODE_ENV !== "production",
+          // tls: true,
+          // rejectUnauthorized: false,
         },
       });
 

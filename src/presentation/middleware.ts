@@ -15,7 +15,6 @@ export interface RequestAuth extends Request {
 
 export class Middleware {
   static async validateToken(req: Request, res: Response, next: NextFunction) {
-
     const token =
       req.cookies[EnvsConst.TOKEN_COOKIE_NAME] ?? req.url.includes("re-login")
         ? req.cookies[EnvsConst.REFRESH_TOKEN_COOKIE_NAME]
@@ -28,8 +27,11 @@ export class Middleware {
       });
     }
     try {
-      const payload = await JwtAdapter.verifyToken<{ id: string, deviceId: string }>(token);
-  
+      const payload = await JwtAdapter.verifyToken<{
+        id: string;
+        deviceId: string;
+      }>(token);
+      console.log({ payload });
       if (!payload) {
         return res.status(401).json({
           ok: false,
@@ -38,9 +40,11 @@ export class Middleware {
         });
       }
 
-  
       let user = AuthContext.isInitialized
-        ? await AuthContext.getAuthenticatedUser(parseInt(payload.id), payload.deviceId)
+        ? await AuthContext.getAuthenticatedUser(
+            parseInt(payload.id),
+            payload.deviceId
+          )
         : await UserModel.findUnique({
             where: { id_user: parseInt(payload.id) },
             select: {
@@ -48,6 +52,8 @@ export class Middleware {
               role: { select: { name: true } },
             },
           });
+
+      console.log({ user });
 
       if (!user) {
         return res.status(401).json({
@@ -66,8 +72,6 @@ export class Middleware {
               role: role?.name,
             } as AuthUser;
           })();
-
-      
 
       next();
     } catch (error) {
