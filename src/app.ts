@@ -21,6 +21,16 @@ const ORIGINS = [
 })();
 
 async function main() {
+  const server = new Server({
+    routes: AppRoutes.routes,
+    origins: ORIGINS,
+  });
+
+  const httpServer = createServer(server.app);
+
+  const socketService = new SocketService(httpServer, new AppSocket(), ORIGINS);
+  socketService.initEvents();
+
   //* Initialize the redis cache context
   try {
     await AppCacheContext.initialize();
@@ -36,16 +46,6 @@ async function main() {
     console.error(error);
 
   }
-
-  const server = new Server({
-    routes: AppRoutes.routes,
-    origins: ORIGINS,
-  });
-
-  const httpServer = createServer(server.app);
-
-  const socketService = new SocketService(httpServer, new AppSocket(), ORIGINS);
-  socketService.initEvents();
 
   httpServer.listen(EnvsConst.PORT, () => {
     console.log(`Server listening on port ${EnvsConst.PORT}`);

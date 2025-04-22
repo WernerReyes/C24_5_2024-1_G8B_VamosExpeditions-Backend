@@ -1,13 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
 import { JwtAdapter } from "../core/adapters";
 
-import { RoleEnum, User } from "../domain/entities";
 import { EnvsConst, ErrorCodeConst } from "@/core/constants";
+import { RoleEnum, User } from "../domain/entities";
 
-import { Socket } from "socket.io";
-import * as cookie from "cookie";
-import { AuthContext, AuthUser } from "./auth/auth.context";
 import { UserModel } from "@/data/postgres";
+import * as cookie from "cookie";
+import { Socket } from "socket.io";
+import { AuthContext, type AuthUser } from "./auth/auth.context";
 
 export interface RequestAuth extends Request {
   user: AuthUser;
@@ -15,6 +15,7 @@ export interface RequestAuth extends Request {
 
 export class Middleware {
   static async validateToken(req: Request, res: Response, next: NextFunction) {
+
     const token =
       req.cookies[EnvsConst.TOKEN_COOKIE_NAME] ?? req.url.includes("re-login")
         ? req.cookies[EnvsConst.REFRESH_TOKEN_COOKIE_NAME]
@@ -27,7 +28,8 @@ export class Middleware {
       });
     }
     try {
-      const payload = await JwtAdapter.verifyToken<{ id: string }>(token);
+      const payload = await JwtAdapter.verifyToken<{ id: string, deviceId: string }>(token);
+  
       if (!payload) {
         return res.status(401).json({
           ok: false,
@@ -36,14 +38,15 @@ export class Middleware {
         });
       }
 
+  
       let user = AuthContext.isInitialized
-        ? AuthContext.getAuthenticatedUser(parseInt(payload.id))
+        ? await AuthContext.getAuthenticatedUser(parseInt(payload.id), payload.deviceId)
         : await UserModel.findUnique({
-            where: { id_user: parseInt(payload.id),  },
+            where: { id_user: parseInt(payload.id) },
             select: {
               id_user: true,
               role: { select: { name: true } },
-            }
+            },
           });
 
       if (!user) {
@@ -55,7 +58,7 @@ export class Middleware {
       }
 
       (req as RequestAuth).user = AuthContext.isInitialized
-        ? user as AuthUser
+        ? (user as AuthUser)
         : (function () {
             const { id_user, role } = user as User;
             return {
@@ -63,6 +66,8 @@ export class Middleware {
               role: role?.name,
             } as AuthUser;
           })();
+
+      
 
       next();
     } catch (error) {

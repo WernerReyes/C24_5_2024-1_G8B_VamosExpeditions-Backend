@@ -4,14 +4,14 @@ import { LoginDto, ResetPasswordDto } from "@/domain/dtos";
 import { UserEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
 import { ApiResponse } from "../response";
-import { AuthContext } from "./auth.context";
+import { AuthContext, AuthUser } from "./auth.context";
 import { EmailService } from "@/lib";
 import { EnvsConst } from "@/core/constants";
 
 export class AuthService {
   constructor(private readonly emailService: EmailService) {}
 
-  public async login(loginDto: LoginDto) {
+  public async login(loginDto: LoginDto, deviceId: string) {
     const user = await UserModel.findFirst({
       where: {
         email: loginDto.email,
@@ -33,6 +33,7 @@ export class AuthService {
     //* Generate token
     const token = (await JwtAdapter.generateToken({
       id: user.id_user,
+      deviceId,
     })) as string;
     if (!token) throw CustomError.internalServer("Error generating token");
 
@@ -40,6 +41,7 @@ export class AuthService {
     AuthContext.authenticateUser({
       id: user.id_user,
       role: user.role.name,
+      deviceId,
     });
 
     return new ApiResponse<{
@@ -167,9 +169,9 @@ export class AuthService {
     });
   }
 
-  public async logout(userId: number) {
+  public async logout(authUser: AuthUser) {
     //* Deauthenticate user
-    AuthContext.deauthenticateUser(userId);
+    AuthContext.deauthenticateUser(authUser);
 
     return new ApiResponse<null>(
       200,

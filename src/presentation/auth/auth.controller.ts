@@ -6,13 +6,14 @@ import { CustomError } from "@/domain/error";
 import { AuthService } from "./auth.service";
 import type { RequestAuth } from "../middleware";
 import { Validations } from "@/core/utils";
+import { UAParserAdapter } from "@/core/adapters";
 
 export class AuthController extends AppController {
   constructor(private readonly authService: AuthService) {
     super();
   }
   private setCookie = (res: Response, token: string) => {
-    const expires = 1000 * 60 * 60 * 24 * EnvsConst.COOKIE_EXPIRATION; //* 24 hours
+    const expires = EnvsConst.COOKIE_EXPIRATION; //* 24 hours
     const expiresAt = new Date(
       Date.now() + expires
     ); //* 24 hours
@@ -60,7 +61,15 @@ export class AuthController extends AppController {
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
 
-    this.handleError(this.authService.login(loginDto!))
+    const userAgent = req.headers["user-agent"];
+    const secChUa = req.headers["sec-ch-ua"];
+
+    const deviceId = UAParserAdapter.generateDeviceId(
+      userAgent as string,
+      secChUa as string
+    );
+
+    this.handleError(this.authService.login(loginDto!, deviceId))
       .then((response) => {
         const { expiresAt } = this.setCookie(res, response.data.token);
 
@@ -130,7 +139,7 @@ export class AuthController extends AppController {
     res.clearCookie(EnvsConst.EXPIRATION_TOKEN_COOKIE_NAME);
     res.clearCookie(EnvsConst.REFRESH_TOKEN_COOKIE_NAME);
     this.authService
-      .logout(req.user.id)
+      .logout(req.user)
       .then((response) => res.status(200).json(response))
       .catch((error) => this.handleResponseError(res, error));
   };

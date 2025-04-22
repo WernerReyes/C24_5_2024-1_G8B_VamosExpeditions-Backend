@@ -1,7 +1,6 @@
 import { SocketService } from "@/lib";
 import { Socket } from "socket.io";
 import { UserContext } from "../user/user.context";
-
 export class AuthSocket {
   private _socketService = SocketService.instance;
 
