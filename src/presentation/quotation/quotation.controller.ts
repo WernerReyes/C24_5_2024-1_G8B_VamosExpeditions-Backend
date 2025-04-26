@@ -9,9 +9,6 @@ export class QuotationController extends AppController {
   }
 
   public createQuotation = async (req: RequestAuth, res: Response) => {
-    
-    console.log("createQuotation", req.user.id);
-
     this.handleError(this.quotationService.createQuotation(+req.user.id))
       .then((quotation) => res.status(201).json(quotation))
       .catch((error) => this.handleResponseError(res, error));

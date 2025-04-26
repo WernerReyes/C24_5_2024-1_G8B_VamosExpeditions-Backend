@@ -1,54 +1,84 @@
-import { VersionQuotationModel } from "@/data/postgres";
+import { DateAdapter } from "@/core/adapters/date.adapter";
+import { prisma } from "@/data/postgres";
 import type { CronJob } from "../cron";
 
 export class VersionQuotationCron implements CronJob {
-  private isLastDayOfMonth(date: Date): boolean {
-    const tomorrow = new Date(date);
-    tomorrow.setDate(date.getDate() + 1);
-    return tomorrow.getDate() === 1;
-  }
-
-  private getOneMonthAgo(): Date {
-    const now = new Date();
-    const oneMonthAgo = new Date(now);
-    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-
-    const lastDay = new Date(
-      oneMonthAgo.getFullYear(),
-      oneMonthAgo.getMonth() + 1,
-      0
-    ).getDate();
-
-    oneMonthAgo.setDate(Math.min(now.getDate(), lastDay));
-
-    return oneMonthAgo;
-  }
-
   private async deleteOldArchivedVersions(date: Date) {
-    const result = await VersionQuotationModel.deleteMany({
-      where: {
-        is_archived: true,
-        archived_at: {
-          lte: date,
+    return await prisma.$transaction(async (tx) => {
+      // Obtener versiones a eliminar
+      const versionsToDelete = await tx.version_quotation.findMany({
+        where: {
+          is_archived: true,
+          archived_at: {
+            lte: date,
+          },
         },
-      },
-    });
+        select: {
+          version_number: true,
+          quotation_id: true,
+        },
+      });
 
-    return result.count;
+      if (versionsToDelete.length === 0) return 0;
+
+      const affectedQuotationIds = Array.from(
+        new Set(versionsToDelete.map((v) => v.quotation_id))
+      );
+
+      // Eliminar versiones
+      const deleteResult = await tx.version_quotation.deleteMany({
+        where: {
+          is_archived: true,
+          archived_at: {
+            lte: date,
+          },
+        },
+      });
+
+      // Verificar qué cotizaciones aún tienen versiones
+      const remainingVersions = await tx.version_quotation.findMany({
+        where: {
+          quotation_id: {
+            in: affectedQuotationIds,
+          },
+        },
+        select: {
+          quotation_id: true,
+        },
+      });
+
+      const quotationsWithRemainingVersions = new Set(
+        remainingVersions.map((v) => v.quotation_id)
+      );
+
+      const quotationIdsToDelete = affectedQuotationIds.filter(
+        (id) => !quotationsWithRemainingVersions.has(id)
+      );
+
+      if (quotationIdsToDelete.length > 0) {
+        await tx.quotation.deleteMany({
+          where: {
+            id_quotation: {
+              in: quotationIdsToDelete,
+            },
+          },
+        });
+      }
+
+      return deleteResult.count;
+    });
   }
 
   public async execute(): Promise<void> {
-    const today = new Date();
+    if (!DateAdapter.isLastDayOfMonth()) return; //* Exit if not the last day of the month
 
-    if (!this.isLastDayOfMonth(today)) return; //* Exit if not the last day of the month
-
-    const limitDate = this.getOneMonthAgo();
+    const lastDate = DateAdapter.getLastDayOfMonth(); //* Get the date one month ago
     console.log(
-      `🧹 Último día del mes. Eliminando versiones antes de: ${limitDate.toISOString()}`
+      `🧹 Último día del mes. Eliminando versiones antes de: ${lastDate.toISOString()}`
     );
 
     try {
-      const count = await this.deleteOldArchivedVersions(limitDate); //* Delete versions older than one month
+      const count = await this.deleteOldArchivedVersions(lastDate); //* Delete versions older than one month
       console.log(`✅ Eliminados ${count} registros archivados`);
     } catch (error) {
       console.error("❌ Error al eliminar registros antiguos:", error);

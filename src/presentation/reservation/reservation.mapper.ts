@@ -28,6 +28,7 @@ export class ReservationMapper {
     this.dto = this.dto as GetReservationsDto;
     return {
       status: this.dto.status ? { in: this.dto.status } : undefined,
+      is_archived: this.dto.isArchived,
       created_at: this.dto.createdAt ? { gte: this.dto.createdAt } : undefined,
       updated_at: this.dto.updatedAt ? { gte: this.dto.updatedAt } : undefined,
     };

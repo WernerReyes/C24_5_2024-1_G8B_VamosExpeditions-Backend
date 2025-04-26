@@ -1,6 +1,7 @@
-import { StyleDictionary, TDocumentDefinitions } from "pdfmake/interfaces";
 import type { HotelRoomTripDetails, VersionQuotation } from "@/domain/entities";
-import { footerSection, headerSection } from "@/report";
+import type { StyleDictionary } from "pdfmake/interfaces";
+import { PdfService } from "@/lib";
+import { DateAdapter } from "@/core/adapters";
 
 interface ReportOptions {
   title?: string;
@@ -8,27 +9,9 @@ interface ReportOptions {
   dataQuey: VersionQuotation;
 }
 
-export class VersionQuotationReport {
-  constructor() {}
-
-  private static _instance: VersionQuotationReport | null = null;
-  public static getInstance(): VersionQuotationReport {
-    if (!this._instance) {
-      this._instance = new VersionQuotationReport();
-    }
-    return this._instance;
-  }
-  
-  private formatDateWithoutDay(dateString: string | Date): string {
-    const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: "short",
-      month: "short",
-      day: "2-digit",
-      year: "numeric",
-      timeZone: "UTC",
-    };
-    return new Intl.DateTimeFormat("en-US", options).format(date);
+export class VersionQuotationReport extends PdfService {
+  constructor() {
+    super();
   }
 
   private generateTableContent({
@@ -52,14 +35,14 @@ export class VersionQuotationReport {
       const currentDate = new Date(trip_details!.start_date);
       currentDate.setDate(currentDate.getDate() + i); // Increment days
 
-      const dayLabel = this.formatDateWithoutDay(currentDate);
+      const dayLabel = DateAdapter.format(currentDate, "EEE, MMM dd, yyyy");
       groupedData[dayLabel] = []; // Initialize empty array for each date
     }
 
     // **Step 2: Add hotel room details to correct date**
     trip_details?.hotel_room_trip_details?.forEach(
       (db: HotelRoomTripDetails) => {
-        const dayLabel = this.formatDateWithoutDay(db.date);
+        const dayLabel = DateAdapter.format(db.date, "EEE, MMM dd, yyyy"); // Format date to match the label
 
         groupedData[dayLabel]?.push([
           { text: db?.hotel_room?.hotel?.name || "-", alignment: "left" },
@@ -199,19 +182,12 @@ export class VersionQuotationReport {
     };
   }
 
-  public generateReport(reportOptions: ReportOptions): TDocumentDefinitions {
+  private reportOptions(reportOptions: ReportOptions) {
     const { title, subTitle, dataQuey } = reportOptions;
 
     return {
-      pageOrientation: "portrait",
-      header: headerSection({
-        title: title ?? "Hotel Report",
-        subTitle: subTitle ?? "Detailed Itinerary",
-      }),
-      pageSize: "A4",
-      pageMargins: [20, 75, 20, 40],
-      footer: (currentPage, pageCount, pageSize) =>
-        footerSection(currentPage, pageCount, pageSize, dataQuey.user),
+      title: title ?? "Hotel Report",
+      subTitle: subTitle ?? "Detailed Itinerary",
       content: [
         { text: "Quick Summary", style: "textHeader" },
         {
@@ -225,8 +201,16 @@ export class VersionQuotationReport {
           },
         },
       ],
-
       styles: this.getDocumentStyles(),
+      user: dataQuey.user!,
     };
+  }
+
+  public generateReport(reportOptions: ReportOptions) {
+    return this.createPdf(this.reportOptions(reportOptions));
+  }
+
+  public generateReportForEmail(reportOptions: ReportOptions) {
+    return this.createPdfForEmail(this.reportOptions(reportOptions));
   }
 }

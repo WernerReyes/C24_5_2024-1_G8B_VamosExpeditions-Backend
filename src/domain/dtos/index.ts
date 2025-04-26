@@ -7,8 +7,12 @@ export * from './hotel/getHotels.dto';
 export * from './hotel/insertManyHotelExcel.dto';
 export * from './hotelRoomTripDetails/insertManyRoomTripDetails.dto';
 export * from './hotelRoomTripDetails/updateManyHotelRoomTripDetailsByDate.dto';
+
+
+//* RESERVATION
 export * from './reservation/getReservations.dto';
 export * from './reservation/getStadistics.dto';
+export * from './reservation/archiveReservation.dto';
 
 
 //* HOTEL

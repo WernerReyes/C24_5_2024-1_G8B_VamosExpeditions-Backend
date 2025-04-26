@@ -1,5 +1,5 @@
 import type { CacheAdapter } from "@/core/adapters";
-import { CacheConst, EnvsConst } from "@/core/constants";
+import { EnvsConst } from "@/core/constants";
 import { RoleEntity, UserEntity } from "@/domain/entities";
 import { SocketService } from "@/lib";
 import { role } from "@prisma/client";
@@ -15,9 +15,7 @@ const MAX_DEVICES = 1;
 export class AuthContext {
   private static _socketService?: SocketService = undefined;
 
-  private static _expirationTime: number = Math.floor(EnvsConst.COOKIE_EXPIRATION / 1000)//*  Math.floor(864000000 / 1000), //* 1 day in seconds
-
-  private static _authUsers: Map<UserEntity["id"], AuthUser> = new Map();
+  private static _expirationTime: number = Math.floor(EnvsConst.COOKIE_EXPIRATION / 1000) + 1000 * 60; // 24 hours + 1 minute in case of re-login
 
   private static cache?: CacheAdapter = undefined;
 

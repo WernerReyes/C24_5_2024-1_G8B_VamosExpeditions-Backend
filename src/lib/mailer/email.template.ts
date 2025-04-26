@@ -6,11 +6,7 @@ import path from "path";
 
 const TEMPLATE_DIR = path.resolve(__dirname, "../../lib/nodemailer/templates");
 export class EmailTemplate {
-  private static render(
-    templateName: string,
-    title: string,
-    data: any
-  ): string {
+  public static render(templateName: string, title: string, data: any): string {
     const layoutPath = path.join(TEMPLATE_DIR, "layout.hbs");
     const contentPath = path.join(TEMPLATE_DIR, `${templateName}.hbs`);
 
@@ -27,16 +23,6 @@ export class EmailTemplate {
       ...data,
       year: new Date().getFullYear(),
       body,
-    });
-  }
-
-  public static async renderResetPassword(
-    fullName: string,
-    url: string
-  ): Promise<string> {
-    return EmailTemplate.render("reset-password", "Restablecer contraseña", {
-      fullName,
-      url,
     });
   }
 

@@ -16,7 +16,6 @@ import type { HotelRoomTripDetailsMapper } from "./hotelRoomTripDetails.mapper";
 import { ApiResponse } from "../response";
 import type { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { DateAdapter } from "@/core/adapters";
-import { DateUtils } from "@/core/utils/date";
 
 export class HotelRoomTripDetailsService {
   constructor(

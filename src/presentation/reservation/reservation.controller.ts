@@ -3,6 +3,7 @@ import { CustomError } from "@/domain/error";
 import { Request, Response } from "express";
 
 import {
+  ArchiveReservationDto,
   GetReservationsDto,
   GetStadisticsDto,
   ReservationDto,
@@ -56,6 +57,18 @@ export class ReservationController extends AppController {
       this.reservationService.getReservations(getReservationsDto!)
     )
       .then((reservations) => res.status(200).json(reservations))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public archiveReservation = (req: Request, res: Response) => {
+    const [error, archiveReservationDto] = ArchiveReservationDto.create(req.body);
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+    
+    this.handleError(
+      this.reservationService.archiveReservation(archiveReservationDto!)
+    )
+      .then((reservation) => res.status(200).json(reservation))
       .catch((error) => this.handleResponseError(res, error));
   };
 

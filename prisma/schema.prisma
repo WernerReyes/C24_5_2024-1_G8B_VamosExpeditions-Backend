@@ -178,12 +178,15 @@ model trip_details_has_city {
 }
 
 model reservation {
-  id           Int                @id @default(autoincrement())
-  quotation_id Int                @unique(map: "unique_reservation")
-  status       reservation_status @default(PENDING)
-  created_at   DateTime           @default(now()) @db.Timestamp(6)
-  updated_at   DateTime           @default(now()) @db.Timestamp(6)
-  quotation    quotation          @relation(fields: [quotation_id], references: [id_quotation], onDelete: Cascade, onUpdate: NoAction, map: "fk_reservation_quotation")
+  id             Int                @id @default(autoincrement())
+  quotation_id   Int                @unique(map: "unique_reservation")
+  status         reservation_status @default(PENDING)
+  created_at     DateTime           @default(now()) @db.Timestamp(6)
+  updated_at     DateTime           @default(now()) @db.Timestamp(6)
+  is_archived    Boolean            @default(false)
+  archived_at    DateTime?          @db.Timestamp(6)
+  archive_reason String?
+  quotation      quotation          @relation(fields: [quotation_id], references: [id_quotation], onDelete: Cascade, onUpdate: NoAction, map: "fk_reservation_quotation")
 
   @@index([created_at], map: "idx_created_at_r")
   @@index([status], map: "idx_status_r")

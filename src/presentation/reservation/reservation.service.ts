@@ -7,6 +7,7 @@ import {
   VersionQuotationModel,
 } from "@/data/postgres";
 import {
+  ArchiveReservationDto,
   GetReservationsDto,
   GetStadisticsDto,
   ReservationDto,
@@ -210,6 +211,32 @@ export class ReservationService {
         totalReservations,
         limit
       )
+    );
+  }
+
+  public async archiveReservation(
+    { id, archiveReason }: ArchiveReservationDto
+  ): Promise<ApiResponse<ReservationEntity>> {
+  
+    const reservationArchived = await ReservationModel.update({
+      where: { id },
+      data: {
+        is_archived: true,
+        archive_reason: archiveReason,
+        archived_at: new Date(),
+      },
+      include: this.reservationMapper.toSelectInclude,
+    }).catch((error) => {
+      if (error.code === "P2025") {
+        throw CustomError.notFound("Reservación no encontrada");
+      }
+      throw CustomError.internalServer(error.message);
+    })
+
+    return new ApiResponse<ReservationEntity>(
+      200,
+      "Reservación archivada correctamente",
+      await ReservationEntity.fromObject(reservationArchived)
     );
   }
 

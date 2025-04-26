@@ -15,12 +15,10 @@ export interface RequestAuth extends Request {
 
 export class Middleware {
   static async validateToken(req: Request, res: Response, next: NextFunction) {
-    const token =
-      req.cookies[EnvsConst.TOKEN_COOKIE_NAME] ?? req.url.includes("re-login")
-        ? req.cookies[EnvsConst.REFRESH_TOKEN_COOKIE_NAME]
-        : null;
+    const token = req.url.includes("re-login")
+      ? req.cookies[EnvsConst.REFRESH_TOKEN_COOKIE_NAME]
+      : req.cookies[EnvsConst.TOKEN_COOKIE_NAME];
 
-        console.log({ token });
     if (!token) {
       return res.status(401).json({
         ok: false,
@@ -33,7 +31,7 @@ export class Middleware {
         id: string;
         deviceId: string;
       }>(token);
-      console.log({ payload });
+
       if (!payload) {
         return res.status(401).json({
           ok: false,
@@ -54,8 +52,6 @@ export class Middleware {
               role: { select: { name: true } },
             },
           });
-
-      console.log({ user });
 
       if (!user) {
         return res.status(401).json({

@@ -101,8 +101,8 @@ export class GetVersionQuotationsDto extends PaginationDto {
           ? ParamsUtils.parseArray(representativesIds)
           : undefined,
         quotationId ? Number(quotationId) : undefined,
-        official ? (official === "true" ? true : false) : undefined,
-        isArchived ? (isArchived === "true" ? true : false) : undefined,
+        official ? official === "true"  : undefined,
+        isArchived ? isArchived === "true" : undefined,
         createdAt ? new Date(createdAt) : undefined,
         updatedAt ? new Date(updatedAt) : undefined
       ),

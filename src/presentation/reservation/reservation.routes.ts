@@ -27,6 +27,10 @@ export class ReservationRoutes {
     );
     router.put("/:id", reservationController.upsertReservation);
     router.get("", reservationController.getReservations);
+    router.put(
+      "/archive",
+      reservationController.archiveReservation
+    );
     router.get("/stadistics", reservationController.getStadistics);
     router.get("/stats", reservationController.getStats);
     return router;

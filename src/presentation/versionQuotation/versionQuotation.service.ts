@@ -15,19 +15,18 @@ import {
   VersionQuotationStatus,
 } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
-import type { EmailService, PdfService } from "@/lib";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import type { TDocumentDefinitions } from "pdfmake/interfaces";
 import { ApiResponse, PaginatedResponse } from "../response";
+import type { VersionQuotationMailer } from "./versionQuotation.mailer";
 import type { VersionQuotationMapper } from "./versionQuotation.mapper";
 import type { VersionQuotationReport } from "./versionQuotation.report";
+
 
 export class VersionQuotationService {
   constructor(
     private readonly versionQuotationMapper: VersionQuotationMapper,
     private readonly versionQuotationReport: VersionQuotationReport,
-    private readonly pdfService: PdfService,
-    private readonly emailService: EmailService
+    private readonly versionQuotationMailer: VersionQuotationMailer
   ) {}
 
   public async updateVersionQuotation(
@@ -449,7 +448,6 @@ export class VersionQuotationService {
   public async archiveVersionQuotation({
     archiveReason,
     id,
-    official,
   }: ArchiveVersionQuotationDto) {
     const archivedVersionQuotation = await VersionQuotationModel.update({
       where: {
@@ -463,7 +461,6 @@ export class VersionQuotationService {
         is_archived: true,
         archived_at: new Date(),
         archive_reason: archiveReason,
-        official,
       },
       include: this.versionQuotationMapper.toSelectInclude,
     }).catch((error) => {
@@ -484,6 +481,40 @@ export class VersionQuotationService {
   public async unArchiveVersionQuotation({
     versionQuotationId,
   }: VersionQuotationIDDto) {
+    const quotation = await QuotationModel.findUnique({
+      where: { id_quotation: versionQuotationId!.quotationId },
+      include: {
+        version_quotation: {
+          select: {
+            version_number: true,
+            official: true,
+            is_archived: true,
+          },
+        },
+      },
+    });
+
+    const existOfficialArchived = quotation?.version_quotation.find(
+      (version) => version.official && version.is_archived
+    );
+
+
+    if (existOfficialArchived) {
+      await VersionQuotationModel.update({
+        where: {
+          version_number_quotation_id: {
+            version_number: existOfficialArchived.version_number,
+            quotation_id: versionQuotationId!.quotationId,
+          },
+          is_archived: true,
+          official: true,
+        },
+        data: {
+          official: false,
+        },
+      });
+    }
+
     const unArchivedVersionQuotation = await VersionQuotationModel.update({
       where: {
         version_number_quotation_id: {
@@ -493,6 +524,7 @@ export class VersionQuotationService {
         is_archived: true,
       },
       data: {
+        official: !!existOfficialArchived,
         is_archived: false,
         archived_at: null,
         archive_reason: null,
@@ -506,10 +538,23 @@ export class VersionQuotationService {
       throw error;
     });
 
-    return new ApiResponse<VersionQuotationEntity>(
+    return new ApiResponse<{
+      newUnOfficial?: VersionQuotationEntity["id"];
+      unArchivedVersionQuotation: VersionQuotationEntity;
+    }>(
       200,
       `Versión de cotización "${unArchivedVersionQuotation.name}" desarchivada correctamente`,
-      await VersionQuotationEntity.fromObject(unArchivedVersionQuotation)
+      {
+        newUnOfficial: existOfficialArchived
+          ? {
+              quotationId: versionQuotationId!.quotationId,
+              versionNumber: existOfficialArchived.version_number,
+            }
+          : undefined,
+        unArchivedVersionQuotation: await VersionQuotationEntity.fromObject(
+          unArchivedVersionQuotation
+        ),
+      }
     );
   }
 
@@ -537,8 +582,6 @@ export class VersionQuotationService {
       await VersionQuotationEntity.fromObject(versionsQuotation)
     );
   }
-
-
 
   public async getVersionsQuotation(
     getVersionQuotationsDto: GetVersionQuotationsDto
@@ -629,13 +672,11 @@ export class VersionQuotationService {
         "Versión de cotización no encontrada o no completado"
       );
 
-    const pdfGenerated = await this.versionQuotationReport.generateReport({
+    return await this.versionQuotationReport.generateReport({
       title: "",
       subTitle: "",
       dataQuey: versionQuotation,
     });
-
-    return await this.pdfService.createPdf(pdfGenerated);
   }
 
   public async sendEmailAndGenerateReport({
@@ -643,10 +684,10 @@ export class VersionQuotationService {
     versionQuotationId,
     ...data
   }: SendEmailAndGenerateReportDto) {
-    const [document, versionQuotation] = await new Promise(
+    const [pdfBuffer, versionQuotation] = await new Promise(
       async (
         resolve: ([document, versionQuotation]: [
-          TDocumentDefinitions,
+          Buffer<ArrayBufferLike>,
           VersionQuotation
         ]) => void,
         reject: (error: string) => void
@@ -706,13 +747,14 @@ export class VersionQuotationService {
             if (!versionQuotation)
               reject("No se encontró la versión de cotización");
 
-            const document = await this.versionQuotationReport.generateReport({
-              title: "",
-              subTitle: "",
-              dataQuey: versionQuotation as VersionQuotation,
-            });
+            const pdfBuffer =
+              await this.versionQuotationReport.generateReportForEmail({
+                title: "",
+                subTitle: "",
+                dataQuey: versionQuotation as VersionQuotation,
+              });
 
-            resolve([document, versionQuotation as VersionQuotation]);
+            resolve([pdfBuffer, versionQuotation as VersionQuotation]);
             break;
         }
       }
@@ -720,9 +762,7 @@ export class VersionQuotationService {
       throw CustomError.badRequest(`${error}`);
     });
 
-    const pdfBuffer = await this.pdfService.createPdfEmail(document);
-
-    await this.emailService.sendEmailForVersionQuotation(
+    await this.versionQuotationMailer.sendEmailVQ(
       {
         serviceType: resources,
         versionQuotation,

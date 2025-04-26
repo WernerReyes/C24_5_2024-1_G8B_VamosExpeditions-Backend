@@ -21,8 +21,6 @@ export class AuthSocket {
     connections.delete(socket.id);
 
     if (connections.size === 0) {
-      console.log("User disconnected:", socket.data.id);
-
       UserContext.removeConnection(socket.data.id, socket.id);
       this._socketService.io.emit("userDisconnected", socket.data.id);
     }

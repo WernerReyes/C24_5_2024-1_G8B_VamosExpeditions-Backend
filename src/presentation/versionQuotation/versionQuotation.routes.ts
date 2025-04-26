@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { Middleware, type RequestAuth } from "../middleware";
-import { VersionQuotationMapper } from "./versionQuotation.mapper";
-import { VersionQuotationService } from "./versionQuotation.service";
 import { VersionQuotationController } from "./versionQuotation.controller";
+import { VersionQuotationMailer } from "./versionQuotation.mailer";
+import { VersionQuotationMapper } from "./versionQuotation.mapper";
 import { VersionQuotationReport } from "./versionQuotation.report";
-import { EmailService, PdfService } from "@/lib";
+import { VersionQuotationService } from "./versionQuotation.service";
 
 export class VersionQuotationRoutes {
   static get routes(): Router {
@@ -12,14 +12,12 @@ export class VersionQuotationRoutes {
 
     const versionQuotationMapper = new VersionQuotationMapper();
     const versionQuotationReport = new VersionQuotationReport();
-    const pdfService = new PdfService();
-    const emailService = new EmailService();
-    
+    const versionQuotationMailer = new VersionQuotationMailer();
+
     const versionQuotationService = new VersionQuotationService(
       versionQuotationMapper,
       versionQuotationReport,
-      pdfService,
-      emailService,
+      versionQuotationMailer
     );
     const versionQuotationController = new VersionQuotationController(
       versionQuotationService
@@ -62,9 +60,10 @@ export class VersionQuotationRoutes {
       versionQuotationController.getVersionsQuotationById
     );
 
-
-     router.post("/send-email-pdf", versionQuotationController.sendEmailAndGenerateReport);
-
+    router.post(
+      "/send-email-pdf",
+      versionQuotationController.sendEmailAndGenerateReport
+    );
 
     return router;
   }

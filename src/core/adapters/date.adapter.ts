@@ -12,15 +12,22 @@ import {
   startOfMonth,
   endOfMonth,
   startOfDay,
+  isFirstDayOfMonth,
+  isLastDayOfMonth,
+  lastDayOfMonth,
+  setDate,
+  min,
+  getDate,
 } from "date-fns";
-import { toZonedTime, fromZonedTime, } from "date-fns-tz";
+import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import { es } from "date-fns/locale/es";
 
 type FormatDateType =
   | "dd/MM/yyyy"
   | "dd/MM/yyyy HH:mm"
   | "yyyy-MM-dd"
-  | "EEEE, d 'de' MMMM 'de' yyyy";
+  | "EEEE, d 'de' MMMM 'de' yyyy"
+  | "EEE, MMM dd, yyyy";
 
 export class DateAdapter {
   static parse(
@@ -32,14 +39,17 @@ export class DateAdapter {
     });
     return toZonedTime(date, "UTC");
   }
+
   static parseISO(dateString: string | Date): Date {
     const date = dateString instanceof Date ? dateString : parseISO(dateString);
     return startOfDay(toZonedTime(date, "UTC"));
   }
+
   static toISO(date: Date): string {
     // Convert a date to the specified timezone, then format as ISO 8601
     return fromZonedTime(date, "UTC").toISOString();
   }
+
   static format(value: Date, pattern: FormatDateType = "dd/MM/yyyy"): string {
     let date;
     if (typeof value === "string") {
@@ -83,12 +93,29 @@ export class DateAdapter {
   static getMonthRange(offset: number = 0): { start: Date; end: Date } {
     const targetDate =
       offset < 0
-        ? subMonths(new Date(), Math.abs(offset))
-        : addMonths(new Date(), offset);
+        ? subMonths(toZonedTime(new Date(), "UTC"), Math.abs(offset))
+        : addMonths(toZonedTime(new Date(), "UTC"), offset);
 
     return {
       start: startOfMonth(targetDate),
       end: endOfMonth(targetDate),
     };
+  }
+
+  static isLastDayOfMonth(date: Date = new Date()): boolean {
+    return isLastDayOfMonth(toZonedTime(date, "UTC"));
+  }
+
+  static getLastDayOfMonth(date: Date = new Date()): Date {
+    const zonedDate = toZonedTime(date, "UTC");
+    return endOfMonth(zonedDate);
+  }
+
+  static getOneMonthAgo(): Date {
+    const now = toZonedTime(new Date(), "UTC")
+    const oneMonthAgo = subMonths(now, 1);
+    const endOfMonth = lastDayOfMonth(oneMonthAgo);
+
+    return min([setDate(oneMonthAgo, getDate(now)), endOfMonth]);
   }
 }

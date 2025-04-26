@@ -1,4 +1,5 @@
 import { DateAdapter } from "@/core/adapters";
+import type { User } from "@/domain/entities";
 import { Content, ContextPageSize } from "pdfmake/interfaces";
 
 const footerText: Content = {
@@ -9,7 +10,7 @@ export const footerSection = (
   currentPage: number,
   pageCount: number,
   pageSize: ContextPageSize,
-  user: any
+  user: User
 ): Content => {
   return {
     layout: "noBorders",
@@ -27,7 +28,7 @@ export const footerSection = (
                 style: "footerText",
               },
               {
-                text: `Prepared By: ${user}`,
+                text: `Prepared By: ${user.fullname}`,
                 alignment: "left",
                 style: "footerText",
               },

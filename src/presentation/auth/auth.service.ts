@@ -1,15 +1,15 @@
-import { BcryptAdapter, JwtAdapter } from "../../core/adapters";
+import { EnvsConst } from "@/core/constants";
 import { UserModel } from "@/data/postgres";
 import { LoginDto, ResetPasswordDto } from "@/domain/dtos";
 import { UserEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
+import { BcryptAdapter, JwtAdapter } from "../../core/adapters";
 import { ApiResponse } from "../response";
 import { AuthContext, AuthUser } from "./auth.context";
-import { EmailService } from "@/lib";
-import { EnvsConst } from "@/core/constants";
+import type { AuthMailer } from "./auth.mailer";
 
 export class AuthService {
-  constructor(private readonly emailService: EmailService) {}
+  constructor(private readonly authMailer: AuthMailer) {}
 
   public async login(loginDto: LoginDto, deviceId: string) {
     const user = await UserModel.findFirst({
@@ -36,8 +36,6 @@ export class AuthService {
       deviceId,
     })) as string;
     if (!token) throw CustomError.internalServer("Error generating token");
-
-    console.log({ token, "login": "d", deviceId });
 
     //* Save user in redis
     AuthContext.authenticateUser({
@@ -71,7 +69,7 @@ export class AuthService {
     );
     if (!token) throw CustomError.internalServer("Error generating token");
 
-    await this.emailService
+    await this.authMailer
       .sendEmailForResetPassword(
         email,
         user.fullname,
@@ -105,7 +103,7 @@ export class AuthService {
     }>(token);
     if (!decodedToken) throw CustomError.unauthorized("Token inválido");
     if (!decodedToken.id) throw CustomError.unauthorized("Token inválido");
-     
+
     await UserModel.update({
       where: {
         id_user: decodedToken.id,

@@ -1,15 +1,15 @@
 import { Router } from "express";
 import { Middleware, type RequestAuth } from "../middleware";
 import { AuthController } from "./auth.controller";
+import { AuthMailer } from "./auth.mailer";
 import { AuthService } from "./auth.service";
-import { EmailService } from "@/lib";
 export class AuthRoutes {
   static get routes(): Router {
     const router = Router();
 
-    const emailService = new EmailService();
+    const authMailer = new AuthMailer();
 
-    const authService = new AuthService(emailService);
+    const authService = new AuthService(authMailer);
     const authController = new AuthController(authService);
 
     router.post("/login", authController.login);

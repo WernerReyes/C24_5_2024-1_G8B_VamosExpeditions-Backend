@@ -158,14 +158,5 @@ export class AuthController extends AppController {
         });
       })
       .catch((error) => this.handleResponseError(res, error));
-
-    // return res.status(200).json({
-    //   message: "Usuario autenticado correctamente",
-    //   status: 200,
-    //   data: {
-    //     user: req.user,
-    //     expiresAt,
-    //   },
-    // });
   };
 }

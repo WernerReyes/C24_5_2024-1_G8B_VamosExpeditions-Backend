@@ -7,8 +7,7 @@ export class ArchiveVersionQuotationDto extends VersionQuotationIDDto {
       versionNumber: number;
       quotationId: number;
     },
-    public readonly archiveReason?: string,
-    public readonly official?: boolean
+    public readonly archiveReason?: string
   ) {
     super(id);
   }
@@ -16,7 +15,7 @@ export class ArchiveVersionQuotationDto extends VersionQuotationIDDto {
   public static create(props: {
     [key: string]: any;
   }): [string?, ArchiveVersionQuotationDto?] {
-    const { archiveReason, id, official } = props;
+    const { archiveReason, id } = props;
 
     const [idError, idValidated] = VersionQuotationIDDto.create(id);
     if (idError) return [idError];
@@ -28,17 +27,11 @@ export class ArchiveVersionQuotationDto extends VersionQuotationIDDto {
       if (error) return [error];
     }
 
-    if (official) {
-      const error = Validations.validateBooleanFields({ official });
-      if (error) return [error];
-    }
-
     return [
       undefined,
       new ArchiveVersionQuotationDto(
         idValidated?.versionQuotationId!,
-        archiveReason,
-        official ? (official === "false" ? false : undefined) : undefined
+        archiveReason
       ),
     ];
   }
