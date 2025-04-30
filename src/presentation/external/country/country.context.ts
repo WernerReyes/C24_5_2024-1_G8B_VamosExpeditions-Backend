@@ -1,7 +1,7 @@
 import type { CacheAdapter } from "@/core/adapters";
 import { CacheConst, EnvsConst } from "@/core/constants";
 import { ExternalCountryEntity } from "./country.entity";
-import { ExternalCountryModel } from "./country.model";
+import type { ExternalCountryModel } from "./country.model";
 
 export class ExternalCountryContext {
   private static _externalCountries: ExternalCountryEntity[] = [];
@@ -18,7 +18,7 @@ export class ExternalCountryContext {
       this._externalCountries = data.map((c: ExternalCountryModel) =>
         ExternalCountryEntity.fromObject(c)
       );
-      await cache.set(CacheConst.COUNTRIES, JSON.stringify(this._externalCountries));
+      await cache.set(CacheConst.COUNTRIES, this._externalCountries);
     }
   }
 
@@ -35,6 +35,6 @@ export class ExternalCountryContext {
   public static getCountryByName(
     name: string
   ): ExternalCountryEntity | undefined {
-    return this._externalCountries.find((country) => country.name === name);
+    return this._externalCountries.find( (country) => country.name === name);
   }
 }
