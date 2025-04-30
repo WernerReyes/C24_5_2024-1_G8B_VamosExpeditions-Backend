@@ -7,7 +7,7 @@ export class GetReservationsDto extends PaginationDto {
     public readonly limit: number,
     public readonly page: number,
     public readonly status?: ReservationStatus[],
-    public readonly isArchived?: boolean,
+    public readonly isDeleted?: boolean,
     public readonly createdAt?: Date,
     public readonly updatedAt?: Date
   ) {
@@ -21,7 +21,7 @@ export class GetReservationsDto extends PaginationDto {
       status,
       createdAt,
       updatedAt,
-      isArchived,
+      isDeleted,
     } = props;
 
     const [errorPagination, paginationDto] = PaginationDto.create({
@@ -39,8 +39,8 @@ export class GetReservationsDto extends PaginationDto {
       if (error) return [error, undefined];
     }
 
-    if (isArchived) {
-      const error = Validations.validateBooleanFields({ isArchived });
+    if (isDeleted) {
+      const error = Validations.validateBooleanFields({ isDeleted });
       if (error) return [error, undefined];
     }
 
@@ -60,7 +60,7 @@ export class GetReservationsDto extends PaginationDto {
         paginationDto!.limit!,
         paginationDto!.page!,
         status ? ParamsUtils.parseArray(status) : undefined,
-        isArchived ? isArchived === "true" : undefined,
+        isDeleted ? isDeleted === "true" : undefined,
         createdAt ? new Date(createdAt) : undefined,
         updatedAt ? new Date(updatedAt) : undefined
       ),

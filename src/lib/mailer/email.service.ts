@@ -33,25 +33,4 @@ export class EmailService {
     }
   }
 
-  public async sendEmailForVersionQuotation(
-    data: {
-      versionQuotation: VersionQuotation;
-      serviceType: AllowVersionQuotationType;
-      description?: string;
-    },
-    options: Options
-  ): Promise<boolean> {
-    this.sendEmail({
-      html: await EmailTemplate.renderVersionQuotation({
-        quotationId: `Q${data.versionQuotation.quotation_id}-V${data.versionQuotation.version_number}`,
-        quotationName: data.versionQuotation.name,
-        serviceType: data.serviceType,
-
-        description: data.description,
-      }),
-      subject: `Cotización ${data.versionQuotation.name}`,
-      ...options,
-    });
-    return true;
-  }
 }

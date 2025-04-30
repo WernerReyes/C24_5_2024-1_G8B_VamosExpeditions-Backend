@@ -10,12 +10,12 @@ export type AuthUser = {
   deviceId: string;
 };
 
-const MAX_DEVICES = 1;
+const MAX_DEVICES = EnvsConst.MAX_DEVICES;
 
 export class AuthContext {
   private static _socketService?: SocketService = undefined;
 
-  private static _expirationTime: number = Math.floor(EnvsConst.COOKIE_EXPIRATION / 1000) + 1000 * 60; // 24 hours + 1 minute in case of re-login
+  private static _expirationTime: number = EnvsConst.REDIS_USER_EXPIRATION;
 
   private static cache?: CacheAdapter = undefined;
 
@@ -71,7 +71,6 @@ export class AuthContext {
       }
     }
 
-    // Guardar nuevo token con expiración
     await this.cache?.set(
       key,
       { ...user },

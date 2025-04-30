@@ -51,7 +51,7 @@ export class VersionQuotationMapper {
           quotation_id: this.dto.id.quotationId,
         },
         AND: { // TODO: Check if this is needed and if it breaks anything
-          is_archived: false,
+          is_deleted: false,
         },
       },
     };
@@ -93,7 +93,7 @@ export class VersionQuotationMapper {
         mode: "insensitive",
       },
       quotation_id: this.dto.quotationId,
-      is_archived: this.dto.isArchived,
+      is_deleted: this.dto.isDeleted,
       trip_details: {
         client_id: this.dto.clientsIds
           ? { in: this.dto.clientsIds }

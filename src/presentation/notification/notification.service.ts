@@ -85,7 +85,7 @@ export class NotificationService {
     );
   }
 
-  public async NotificationMessage(notifications: NotificationMessage) {
+  public async notificationMessage(notifications: NotificationMessage) {
     try {
       const resultMessage = notifications.to_user.map((toUser) => ({
         ...notifications,
@@ -106,6 +106,8 @@ export class NotificationService {
           },
         },
       });
+
+      console.log("notificationUsers", notificationUsers);  
       return await Promise.all(
         notificationUsers.map((notification) =>
           NotificationMessageEntity.fromObject(notification)

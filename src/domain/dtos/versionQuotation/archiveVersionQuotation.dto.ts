@@ -7,7 +7,7 @@ export class ArchiveVersionQuotationDto extends VersionQuotationIDDto {
       versionNumber: number;
       quotationId: number;
     },
-    public readonly archiveReason?: string
+    public readonly deleteReason?: string
   ) {
     super(id);
   }
@@ -15,14 +15,14 @@ export class ArchiveVersionQuotationDto extends VersionQuotationIDDto {
   public static create(props: {
     [key: string]: any;
   }): [string?, ArchiveVersionQuotationDto?] {
-    const { archiveReason, id } = props;
+    const { deleteReason, id } = props;
 
     const [idError, idValidated] = VersionQuotationIDDto.create(id);
     if (idError) return [idError];
 
-    if (archiveReason) {
+    if (deleteReason) {
       const error = Validations.validateStringFields({
-        archiveReason,
+        deleteReason,
       });
       if (error) return [error];
     }
@@ -31,7 +31,7 @@ export class ArchiveVersionQuotationDto extends VersionQuotationIDDto {
       undefined,
       new ArchiveVersionQuotationDto(
         idValidated?.versionQuotationId!,
-        archiveReason
+        deleteReason
       ),
     ];
   }

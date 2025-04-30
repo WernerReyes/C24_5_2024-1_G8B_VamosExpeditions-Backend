@@ -46,6 +46,15 @@ export class EnvsConst {
   public static readonly REDIS_URL = get("REDIS_URL")
     .required()
     .asString();
+  public static readonly REDIS_USER_EXPIRATION = get("REDIS_USER_EXPIRATION")
+    .required()
+    .asIntPositive();
+  
+  public static readonly MAX_DEVICES = get(
+    "MAX_DEVICES"
+  )
+    .required()
+    .asIntPositive();
 
 
   /* Cloudinary */

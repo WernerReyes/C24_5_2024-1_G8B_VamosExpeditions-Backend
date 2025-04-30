@@ -18,7 +18,7 @@ export class ExternalCountryContext {
       this._externalCountries = data.map((c: ExternalCountryModel) =>
         ExternalCountryEntity.fromObject(c)
       );
-      await cache.sAdd(CacheConst.COUNTRIES, this._externalCountries);
+      await cache.set(CacheConst.COUNTRIES, JSON.stringify(this._externalCountries));
     }
   }
 

@@ -1,5 +1,5 @@
 import type { Prisma } from "@prisma/client";
-import { GetReservationsDto, ReservationDto } from "@/domain/dtos";
+import type { GetReservationsDto, ReservationDto } from "@/domain/dtos";
 import { ReservationStatus, VersionQuotationStatus } from "@/domain/entities";
 
 type Dto = ReservationDto | GetReservationsDto;
@@ -28,7 +28,7 @@ export class ReservationMapper {
     this.dto = this.dto as GetReservationsDto;
     return {
       status: this.dto.status ? { in: this.dto.status } : undefined,
-      is_archived: this.dto.isArchived,
+      is_deleted: this.dto.isDeleted,
       created_at: this.dto.createdAt ? { gte: this.dto.createdAt } : undefined,
       updated_at: this.dto.updatedAt ? { gte: this.dto.updatedAt } : undefined,
     };

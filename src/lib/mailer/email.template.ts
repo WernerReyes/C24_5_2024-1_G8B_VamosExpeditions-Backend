@@ -4,7 +4,7 @@ import fs from "fs";
 import Handlebars from "handlebars";
 import path from "path";
 
-const TEMPLATE_DIR = path.resolve(__dirname, "../../lib/nodemailer/templates");
+const TEMPLATE_DIR = path.resolve(__dirname, "../../lib/mailer/templates");
 export class EmailTemplate {
   public static render(templateName: string, title: string, data: any): string {
     const layoutPath = path.join(TEMPLATE_DIR, "layout.hbs");

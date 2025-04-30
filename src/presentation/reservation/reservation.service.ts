@@ -215,15 +215,15 @@ export class ReservationService {
   }
 
   public async archiveReservation(
-    { id, archiveReason }: ArchiveReservationDto
+    { id, deleteReason }: ArchiveReservationDto
   ): Promise<ApiResponse<ReservationEntity>> {
   
     const reservationArchived = await ReservationModel.update({
       where: { id },
       data: {
-        is_archived: true,
-        archive_reason: archiveReason,
-        archived_at: new Date(),
+        is_deleted: true,
+        delete_reason: deleteReason,
+        deleted_at: new Date(),
       },
       include: this.reservationMapper.toSelectInclude,
     }).catch((error) => {
@@ -380,7 +380,7 @@ export class ReservationService {
     const currentMonthDrafts = await VersionQuotationModel.count({
       where: {
         status: VersionQuotationStatus.DRAFT,
-        is_archived: false,
+        is_deleted: false,
         created_at: {
           gte: firstDayCurrentMonth,
         },
@@ -391,7 +391,7 @@ export class ReservationService {
     const previousMonthDrafts = await VersionQuotationModel.count({
       where: {
         status: VersionQuotationStatus.DRAFT,
-        is_archived: false,
+        is_deleted: false,
         created_at: {
           gte: firstDayPreviousMonth,
           lte: lastDayPreviousMonth,
@@ -402,7 +402,7 @@ export class ReservationService {
     const totalDrafts = await VersionQuotationModel.count({
       where: {
         status: VersionQuotationStatus.DRAFT,
-        is_archived: false,
+        is_deleted: false,
       },
     });
 

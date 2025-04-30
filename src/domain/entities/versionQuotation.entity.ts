@@ -50,9 +50,9 @@ export class VersionQuotationEntity {
 
     public readonly hasVersions: boolean = false,
 
-    public readonly isArchived: boolean = false,
-    public readonly archivedAt?: Date,
-    public readonly archivedReason?: string
+    public readonly isDeleted: boolean = false,
+    public readonly deletedAt?: Date,
+    public readonly deletedReason?: string
   ) {}
 
   public static async fromObject(
@@ -76,9 +76,9 @@ export class VersionQuotationEntity {
       quotation,
       partners,
 
-      is_archived,
-      archived_at,
-      archive_reason,
+      is_deleted,
+      delete_reason,
+      deleted_at,
     } = versionQuotation;
 
     return new VersionQuotationEntity(
@@ -106,11 +106,11 @@ export class VersionQuotationEntity {
       partners ? PartnerEntity.fromObject(partners) : undefined,
       official &&
         (quotation?.version_quotation ?? []).filter(
-          (version) => !version.official && !version.is_archived
+          (version) => !version.official && !version.is_deleted
         ).length > 0,
-      is_archived,
-      archived_at ? new Date(archived_at) : undefined,
-      archive_reason ? archive_reason : undefined
+      is_deleted,
+      deleted_at ? new Date(deleted_at) : undefined,
+      delete_reason ?? undefined
     );
   }
 }

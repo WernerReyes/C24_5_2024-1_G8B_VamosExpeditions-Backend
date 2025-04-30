@@ -21,9 +21,9 @@ export class ReservationEntity {
     public readonly status: ReservationStatus,
     public readonly versionQuotation?: VersionQuotationEntity,
 
-    public readonly isArchived: boolean = false,
-    public readonly archivedAt?: Date,
-    public readonly archivedReason?: string
+    public readonly isDeleted: boolean = false,
+    public readonly deleteddAt?: Date,
+    public readonly deletedReason?: string
   ) {}
 
   public static async fromObject(
@@ -35,9 +35,9 @@ export class ReservationEntity {
       updated_at,
       status,
       quotation,
-      is_archived,
-      archive_reason,
-      archived_at,
+      is_deleted,
+      delete_reason,
+      deleted_at,
     } = reservation;
     return new ReservationEntity(
       +id,
@@ -49,9 +49,9 @@ export class ReservationEntity {
             quotation.version_quotation[0]
           )
         : undefined,
-      is_archived,
-      archived_at ? DateAdapter.parseISO(archived_at) : undefined,
-      archive_reason ?? undefined
+      is_deleted,
+      deleted_at ? DateAdapter.parseISO(deleted_at) : undefined,
+      delete_reason ?? undefined
     );
   }
 }

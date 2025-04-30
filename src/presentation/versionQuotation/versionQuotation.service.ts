@@ -21,7 +21,6 @@ import type { VersionQuotationMailer } from "./versionQuotation.mailer";
 import type { VersionQuotationMapper } from "./versionQuotation.mapper";
 import type { VersionQuotationReport } from "./versionQuotation.report";
 
-
 export class VersionQuotationService {
   constructor(
     private readonly versionQuotationMapper: VersionQuotationMapper,
@@ -268,9 +267,9 @@ export class VersionQuotationService {
         completion_percentage: v.completion_percentage,
         commission: v.commission,
         partner_id: v.partner_id,
-        archived_at: null,
-        archive_reason: null,
-        is_archived: false,
+        deleted_at: null,
+        delete_reason: null,
+        is_deleted: false,
       });
 
       if (v.trip_details) {
@@ -446,7 +445,7 @@ export class VersionQuotationService {
   }
 
   public async archiveVersionQuotation({
-    archiveReason,
+    deleteReason,
     id,
   }: ArchiveVersionQuotationDto) {
     const archivedVersionQuotation = await VersionQuotationModel.update({
@@ -455,12 +454,12 @@ export class VersionQuotationService {
           version_number: id.versionNumber,
           quotation_id: id.quotationId,
         },
-        is_archived: false,
+        is_deleted: false,
       },
       data: {
-        is_archived: true,
-        archived_at: new Date(),
-        archive_reason: archiveReason,
+        is_deleted: true,
+        deleted_at: new Date(),
+        delete_reason: deleteReason,
       },
       include: this.versionQuotationMapper.toSelectInclude,
     }).catch((error) => {
@@ -488,16 +487,15 @@ export class VersionQuotationService {
           select: {
             version_number: true,
             official: true,
-            is_archived: true,
+            is_deleted: true,
           },
         },
       },
     });
 
     const existOfficialArchived = quotation?.version_quotation.find(
-      (version) => version.official && version.is_archived
+      (version) => version.official && version.is_deleted
     );
-
 
     if (existOfficialArchived) {
       await VersionQuotationModel.update({
@@ -506,7 +504,7 @@ export class VersionQuotationService {
             version_number: existOfficialArchived.version_number,
             quotation_id: versionQuotationId!.quotationId,
           },
-          is_archived: true,
+          is_deleted: true,
           official: true,
         },
         data: {
@@ -521,13 +519,13 @@ export class VersionQuotationService {
           version_number: versionQuotationId!.versionNumber,
           quotation_id: versionQuotationId!.quotationId,
         },
-        is_archived: true,
+        is_deleted: true,
       },
       data: {
         official: !!existOfficialArchived,
-        is_archived: false,
-        archived_at: null,
-        archive_reason: null,
+        is_deleted: false,
+        deleted_at: null,
+        delete_reason: null,
       },
       include: this.versionQuotationMapper.toSelectInclude,
     }).catch((error) => {
@@ -568,7 +566,7 @@ export class VersionQuotationService {
           version_number: id.versionNumber,
           quotation_id: id.quotationId,
         },
-        is_archived: false,
+        is_deleted: false,
       },
       include: this.versionQuotationMapper.toInclude,
     });
@@ -601,7 +599,7 @@ export class VersionQuotationService {
             version_quotation: {
               select: {
                 official: true,
-                is_archived: true,
+                is_deleted: true,
               },
             },
             reservation: true,
@@ -641,7 +639,7 @@ export class VersionQuotationService {
           version_number: versionQuotationId!.versionNumber,
           quotation_id: versionQuotationId!.quotationId,
         },
-        is_archived: false,
+        is_deleted: false,
         status: {
           not: VersionQuotationStatus.DRAFT,
         },
@@ -703,7 +701,7 @@ export class VersionQuotationService {
                   version_number: versionQuotationId.versionNumber,
                   quotation_id: versionQuotationId.quotationId,
                 },
-                is_archived: false,
+                is_deleted: false,
               },
               omit: {
                 created_at: true,

@@ -214,8 +214,8 @@ CREATE TYPE  version_quotation_status AS ENUM ('DRAFT', 'COMPLETED', 'CANCELATED
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
    -- Soft Delete
-   is_archived BOOLEAN DEFAULT FALSE NOT NULL,
-   archived_at TIMESTAMP NULL DEFAULT NULL,
+   is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+   deleted_at TIMESTAMP NULL DEFAULT NULL,
    archive_reason TEXT,
     
     PRIMARY KEY (version_number, quotation_id),

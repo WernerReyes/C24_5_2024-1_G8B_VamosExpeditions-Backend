@@ -8,8 +8,8 @@ export class VersionQuotationCron implements CronJob {
       // Obtener versiones a eliminar
       const versionsToDelete = await tx.version_quotation.findMany({
         where: {
-          is_archived: true,
-          archived_at: {
+          is_deleted: true,
+          deleted_at: {
             lte: date,
           },
         },
@@ -28,8 +28,8 @@ export class VersionQuotationCron implements CronJob {
       // Eliminar versiones
       const deleteResult = await tx.version_quotation.deleteMany({
         where: {
-          is_archived: true,
-          archived_at: {
+          is_deleted: true,
+          deleted_at: {
             lte: date,
           },
         },
