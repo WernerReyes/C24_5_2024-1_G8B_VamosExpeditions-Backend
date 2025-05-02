@@ -1,6 +1,6 @@
 import { prisma, QuotationModel, VersionQuotationModel } from "@/data/postgres";
 import type {
-  ArchiveVersionQuotationDto,
+  TrashDto,
   DuplicateMultipleVersionQuotationDto,
   GetVersionQuotationsDto,
   SendEmailAndGenerateReportDto,
@@ -444,10 +444,10 @@ export class VersionQuotationService {
     });
   }
 
-  public async archiveVersionQuotation({
+  public async trashVersionQuotation({
     deleteReason,
     id,
-  }: ArchiveVersionQuotationDto) {
+  }: TrashDto<{ versionNumber: number; quotationId: number }>) {
     const archivedVersionQuotation = await VersionQuotationModel.update({
       where: {
         version_number_quotation_id: {
@@ -477,7 +477,7 @@ export class VersionQuotationService {
     );
   }
 
-  public async unArchiveVersionQuotation({
+  public async restoreVersionQuotation({
     versionQuotationId,
   }: VersionQuotationIDDto) {
     const quotation = await QuotationModel.findUnique({
@@ -513,7 +513,7 @@ export class VersionQuotationService {
       });
     }
 
-    const unArchivedVersionQuotation = await VersionQuotationModel.update({
+    const restoreVersionQuotation = await VersionQuotationModel.update({
       where: {
         version_number_quotation_id: {
           version_number: versionQuotationId!.versionNumber,
@@ -538,10 +538,10 @@ export class VersionQuotationService {
 
     return new ApiResponse<{
       newUnOfficial?: VersionQuotationEntity["id"];
-      unArchivedVersionQuotation: VersionQuotationEntity;
+      restoreVersionQuotation: VersionQuotationEntity;
     }>(
       200,
-      `Versión de cotización "${unArchivedVersionQuotation.name}" desarchivada correctamente`,
+      `Versión de cotización "${restoreVersionQuotation.name}" desarchivada correctamente`,
       {
         newUnOfficial: existOfficialArchived
           ? {
@@ -549,8 +549,8 @@ export class VersionQuotationService {
               versionNumber: existOfficialArchived.version_number,
             }
           : undefined,
-        unArchivedVersionQuotation: await VersionQuotationEntity.fromObject(
-          unArchivedVersionQuotation
+        restoreVersionQuotation: await VersionQuotationEntity.fromObject(
+          restoreVersionQuotation
         ),
       }
     );

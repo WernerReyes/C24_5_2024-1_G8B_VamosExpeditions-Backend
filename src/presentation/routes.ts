@@ -12,6 +12,7 @@ import { HotelRoomTripDetailsRoutes } from "./hotelRoomTripDetails/hotelRoomTrip
 import { TripDetailsRoutes } from "./tripDetails/tripDetails.routes";
 import { NotificationRoutes } from "./notification/notification.routes";
 import { DistritRoutes } from "./distrit/distrit.routes";
+import { Middleware } from "./middleware";
 
 export class AppRoutes {
   private static prefix: string = "/api/v1";
@@ -19,10 +20,12 @@ export class AppRoutes {
   static get routes(): Router {
     const router = Router();
 
+    router.use(Middleware.timeZoneContextMiddleware); // TimeZone
+
     router.use(`${this.prefix}/auth`, AuthRoutes.routes);
     router.use(`${this.prefix}/user`, UserRoutes.routes);
     router.use(`${this.prefix}/notification`, NotificationRoutes.routes);
-    
+
     router.use(`${this.prefix}/hotel`, HotelRoutes.routes);
     router.use(`${this.prefix}/client`, ClientRoutes.routes);
     router.use(`${this.prefix}/quotation`, QuotationRoutes.routes);

@@ -1,6 +1,7 @@
 import { ParamsUtils, Validations } from "@/core/utils";
 import { PaginationDto } from "../common/pagination.dto";
 import { VersionQuotationStatus } from "@/domain/entities";
+import { DateAdapter } from "@/core/adapters";
 
 export class GetVersionQuotationsDto extends PaginationDto {
   private constructor(
@@ -94,17 +95,17 @@ export class GetVersionQuotationsDto extends PaginationDto {
         paginationDto!.limit!,
         name === "null" ? undefined : name,
         clientsIds ? ParamsUtils.parseArray(clientsIds) : undefined,
-        startDate ? new Date(startDate) : undefined,
-        endDate ? new Date(endDate) : undefined,
+        startDate ? DateAdapter.startOfDay(startDate) : undefined,
+        endDate ? DateAdapter.startOfDay(endDate) : undefined,
         status ? ParamsUtils.parseArray(status) : undefined,
         representativesIds
           ? ParamsUtils.parseArray(representativesIds)
           : undefined,
         quotationId ? Number(quotationId) : undefined,
-        official ? official === "true"  : undefined,
+        official ? official === "true" : undefined,
         isDeleted ? isDeleted === "true" : undefined,
-        createdAt ? new Date(createdAt) : undefined,
-        updatedAt ? new Date(updatedAt) : undefined
+        createdAt ? DateAdapter.startOfDay(createdAt) : undefined,
+        updatedAt ? DateAdapter.startOfDay(updatedAt) : undefined
       ),
     ];
   }

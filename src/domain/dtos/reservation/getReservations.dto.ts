@@ -1,6 +1,7 @@
 import { ReservationStatus } from "@/domain/entities";
 import { PaginationDto } from "../common/pagination.dto";
 import { ParamsUtils, Validations } from "@/core/utils";
+import { DateAdapter } from "@/core/adapters";
 
 export class GetReservationsDto extends PaginationDto {
   constructor(
@@ -8,6 +9,7 @@ export class GetReservationsDto extends PaginationDto {
     public readonly page: number,
     public readonly status?: ReservationStatus[],
     public readonly isDeleted?: boolean,
+    public readonly quotationName?: string,
     public readonly createdAt?: Date,
     public readonly updatedAt?: Date
   ) {
@@ -22,6 +24,7 @@ export class GetReservationsDto extends PaginationDto {
       createdAt,
       updatedAt,
       isDeleted,
+      quotationName,
     } = props;
 
     const [errorPagination, paginationDto] = PaginationDto.create({
@@ -44,6 +47,11 @@ export class GetReservationsDto extends PaginationDto {
       if (error) return [error, undefined];
     }
 
+    if (quotationName) {
+      const error = Validations.validateStringFields({ quotationName });
+      if (error) return [error, undefined];
+    }
+
     if (createdAt) {
       const error = Validations.validateDateFields({ createdAt });
       if (error) return [error, undefined];
@@ -61,8 +69,9 @@ export class GetReservationsDto extends PaginationDto {
         paginationDto!.page!,
         status ? ParamsUtils.parseArray(status) : undefined,
         isDeleted ? isDeleted === "true" : undefined,
-        createdAt ? new Date(createdAt) : undefined,
-        updatedAt ? new Date(updatedAt) : undefined
+        quotationName,
+        createdAt ? DateAdapter.startOfDay(createdAt) : undefined,
+        updatedAt ? DateAdapter.startOfDay(updatedAt) : undefined
       ),
     ];
   }

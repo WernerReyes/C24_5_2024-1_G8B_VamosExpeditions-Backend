@@ -5,6 +5,10 @@ export class EnvsConst {
   public static readonly NODE_ENV = get("NODE_ENV").required().asString();
   public static readonly PORT = get("PORT").required().asPortNumber();
 
+  public static readonly TIME_ZONE_NAME = get("TIME_ZONE_NAME")
+    .required()
+    .asString();
+
   public static readonly TOKEN_COOKIE_NAME = get("TOKEN_COOKIE_NAME")
     .required()
     .asString();

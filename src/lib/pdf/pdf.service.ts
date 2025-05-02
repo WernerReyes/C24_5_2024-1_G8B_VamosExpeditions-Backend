@@ -5,7 +5,7 @@ import type {
   BufferOptions,
   Content,
   CustomTableLayout,
-  StyleDictionary,
+  StyleDictionary as StyleDictionaryPdfmake,
   TDocumentDefinitions
 } from "pdfmake/interfaces";
 import stream from "stream";
@@ -60,6 +60,8 @@ interface ReportOptions {
   styles?: StyleDictionary;
   user: User;
 }
+
+export interface StyleDictionary extends StyleDictionaryPdfmake {}
 
 export class PdfService {
   private printer = new PdfPrinter(fonts);

@@ -1,9 +1,9 @@
 import { AppController } from "../controller";
 import { CustomError } from "@/domain/error";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 
 import {
-  ArchiveReservationDto,
+  TrashDto,
   GetReservationsDto,
   GetStadisticsDto,
   ReservationDto,
@@ -36,19 +36,6 @@ export class ReservationController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public deleteMultipleReservations = (req: Request, res: Response) => {
-    if (!req.body || !Array.isArray(req.body) || req.body.length === 0)
-      return this.handleResponseError(
-        res,
-        CustomError.badRequest("Reservations must be an array")
-      );
-    this.handleError(
-      this.reservationService.deleteMultipleReservations(req.body)
-    )
-      .then((reservations) => res.status(200).json(reservations))
-      .catch((error) => this.handleResponseError(res, error));
-  };
-
   public getReservations = (req: Request, res: Response) => {
     const [error, getReservationsDto] = GetReservationsDto.create(req.query);
     if (error)
@@ -60,14 +47,22 @@ export class ReservationController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public archiveReservation = (req: Request, res: Response) => {
-    const [error, archiveReservationDto] = ArchiveReservationDto.create(req.body);
+  public trashReservation = (req: Request, res: Response) => {
+    const [error, trashDto] = TrashDto.create({
+      ...req.body,
+      id: req.params.id,
+    });
+
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
-    
-    this.handleError(
-      this.reservationService.archiveReservation(archiveReservationDto!)
-    )
+
+    this.handleError(this.reservationService.trashReservation(trashDto!))
+      .then((reservation) => res.status(200).json(reservation))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public restoreReservation = (req: Request, res: Response) => {
+    this.handleError(this.reservationService.restoreReservation(+req.params.id))
       .then((reservation) => res.status(200).json(reservation))
       .catch((error) => this.handleResponseError(res, error));
   };

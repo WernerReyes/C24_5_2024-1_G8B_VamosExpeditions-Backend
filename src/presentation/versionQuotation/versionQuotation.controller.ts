@@ -1,8 +1,8 @@
 import {
-  ArchiveVersionQuotationDto,
   DuplicateMultipleVersionQuotationDto,
   GetVersionQuotationsDto,
   SendEmailAndGenerateReportDto,
+  TrashDto,
   VersionQuotationDto,
   VersionQuotationIDDto,
 } from "@/domain/dtos";
@@ -90,22 +90,22 @@ export class VersionQuotationController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public archiveVersionQuotation = async (req: Request, res: Response) => {
-    const [error, archiveVersionQuotationDto] =
-      ArchiveVersionQuotationDto.create(req.body);
+  public trashVersionQuotation = async (req: Request, res: Response) => {
+    const [error, trashDto] = TrashDto.create<{
+      versionNumber: number;
+      quotationId: number;
+    }>(req.body);
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
 
     this.handleError(
-      this.versionQuotationService.archiveVersionQuotation(
-        archiveVersionQuotationDto!
-      )
+      this.versionQuotationService.trashVersionQuotation(trashDto!)
     )
       .then((versionQuotation) => res.status(200).json(versionQuotation))
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public unArchiveVersionQuotation = async (req: Request, res: Response) => {
+  public restoreVersionQuotation = async (req: Request, res: Response) => {
     const [error, versionQuotationIDDto] = VersionQuotationIDDto.create(
       req.body
     );
@@ -113,7 +113,9 @@ export class VersionQuotationController extends AppController {
       return this.handleResponseError(res, CustomError.badRequest(error));
 
     this.handleError(
-      this.versionQuotationService.unArchiveVersionQuotation(versionQuotationIDDto!)
+      this.versionQuotationService.restoreVersionQuotation(
+        versionQuotationIDDto!
+      )
     )
       .then((versionQuotation) => res.status(200).json(versionQuotation))
       .catch((error) => this.handleResponseError(res, error));

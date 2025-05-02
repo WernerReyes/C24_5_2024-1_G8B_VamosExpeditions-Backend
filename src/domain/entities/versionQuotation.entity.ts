@@ -52,7 +52,7 @@ export class VersionQuotationEntity {
 
     public readonly isDeleted: boolean = false,
     public readonly deletedAt?: Date,
-    public readonly deletedReason?: string
+    public readonly deleteReason?: string
   ) {}
 
   public static async fromObject(

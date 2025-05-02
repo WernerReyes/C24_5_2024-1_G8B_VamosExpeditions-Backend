@@ -18,4 +18,5 @@ WHERE
   (
     (v.status = 'APPROVED' :: version_quotation_status)
     AND (v.official = TRUE)
+    AND (r.is_deleted = false)
   );

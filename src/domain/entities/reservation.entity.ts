@@ -22,8 +22,8 @@ export class ReservationEntity {
     public readonly versionQuotation?: VersionQuotationEntity,
 
     public readonly isDeleted: boolean = false,
-    public readonly deleteddAt?: Date,
-    public readonly deletedReason?: string
+    public readonly deletedAt?: Date,
+    public readonly deleteReason?: string
   ) {}
 
   public static async fromObject(
@@ -41,8 +41,8 @@ export class ReservationEntity {
     } = reservation;
     return new ReservationEntity(
       +id,
-      DateAdapter.parseISO(created_at),
-      DateAdapter.parseISO(updated_at),
+      new Date(created_at),
+      new Date(updated_at),
       status as ReservationStatus,
       quotation && quotation.version_quotation && quotation.version_quotation[0]
         ? await VersionQuotationEntity.fromObject(
@@ -50,7 +50,7 @@ export class ReservationEntity {
           )
         : undefined,
       is_deleted,
-      deleted_at ? DateAdapter.parseISO(deleted_at) : undefined,
+      deleted_at ? new Date(deleted_at) : undefined,
       delete_reason ?? undefined
     );
   }

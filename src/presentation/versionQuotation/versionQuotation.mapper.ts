@@ -1,12 +1,10 @@
 import { type DefaultArgs } from "@prisma/client/runtime/library";
 import type {
-  hotel_room_trip_details,
   Prisma,
   version_quotation_status,
 } from "@prisma/client";
 import type {
   DuplicateMultipleVersionQuotationDto,
-  DuplicateVersionQuotationDto,
   GetVersionQuotationsDto,
   VersionQuotationDto,
 } from "@/domain/dtos";
@@ -14,7 +12,6 @@ import type { VersionQuotation } from "@/domain/entities";
 import { Validations } from "@/core/utils";
 
 type Dto =
-  | DuplicateVersionQuotationDto
   | DuplicateMultipleVersionQuotationDto
   | VersionQuotationDto
   | GetVersionQuotationsDto;
@@ -42,7 +39,7 @@ export class VersionQuotationMapper {
 
   public get findById(): Prisma.version_quotationFindUniqueArgs {
     this.validateModelInstance(this.dto, "findById");
-    this.dto = this.dto as VersionQuotationDto | DuplicateVersionQuotationDto;
+    this.dto = this.dto as VersionQuotationDto;
 
     return {
       where: {
@@ -86,6 +83,7 @@ export class VersionQuotationMapper {
   public get getVersionsQuotationsWhere(): Prisma.version_quotationWhereInput {
     this.validateModelInstance(this.dto, "getVersionsQuotationsWhere");
     this.dto = this.dto as GetVersionQuotationsDto;
+
     return {
       official: this.dto.official,
       name: {

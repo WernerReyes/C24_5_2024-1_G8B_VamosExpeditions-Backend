@@ -8,6 +8,7 @@ import { UserModel } from "@/data/postgres";
 import * as cookie from "cookie";
 import { Socket } from "socket.io";
 import { AuthContext, type AuthUser } from "./auth/auth.context";
+import { TimeZoneContext } from "@/core/context";
 
 export interface RequestAuth extends Request {
   user: AuthUser;
@@ -131,4 +132,15 @@ export class Middleware {
       next(new Error("Invalid token"));
     }
   }
+
+  public static timeZoneContextMiddleware = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const tz = req.headers[EnvsConst.TIME_ZONE_NAME]?.toString() ?? "UTC";
+    TimeZoneContext.getInstance().run({ timeZone: tz }, () => {
+      next();
+    });
+  };
 }

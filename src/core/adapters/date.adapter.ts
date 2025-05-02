@@ -1,26 +1,28 @@
 import {
-  parseISO,
+  addDays,
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfYear,
   format,
-  parse,
+  getDate,
+  getHours,
+  isLastDayOfMonth,
   isSameDay,
   isWithinInterval,
-  getHours,
-  eachDayOfInterval,
-  addDays,
-  subMonths,
-  addMonths,
-  startOfMonth,
-  endOfMonth,
-  startOfDay,
-  isFirstDayOfMonth,
-  isLastDayOfMonth,
   lastDayOfMonth,
-  setDate,
   min,
-  getDate,
+  parse,
+  parseISO,
+  setDate,
+  startOfDay,
+  startOfMonth,
+  startOfYear,
+  subMonths
 } from "date-fns";
-import { toZonedTime, fromZonedTime } from "date-fns-tz";
+import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import { es } from "date-fns/locale/es";
+import { TimeZoneContext } from "../context";
 
 type FormatDateType =
   | "dd/MM/yyyy"
@@ -30,6 +32,10 @@ type FormatDateType =
   | "EEE, MMM dd, yyyy";
 
 export class DateAdapter {
+  private static get timeZone() {
+    return TimeZoneContext.getInstance().getTimeZone;
+  }
+
   static parse(
     dateString: string,
     pattern: FormatDateType = "dd/MM/yyyy"
@@ -37,17 +43,21 @@ export class DateAdapter {
     const date = parse(dateString, pattern, new Date(), {
       locale: es,
     });
-    return toZonedTime(date, "UTC");
+    return toZonedTime(date, this.timeZone);
   }
 
   static parseISO(dateString: string | Date): Date {
     const date = dateString instanceof Date ? dateString : parseISO(dateString);
-    return startOfDay(toZonedTime(date, "UTC"));
+    return fromZonedTime(startOfDay(date), "UTC");
+  }
+
+  static startOfDay(date: Date): Date {
+    return fromZonedTime(startOfDay(date), "UTC");
   }
 
   static toISO(date: Date): string {
     // Convert a date to the specified timezone, then format as ISO 8601
-    return fromZonedTime(date, "UTC").toISOString();
+    return fromZonedTime(date, this.timeZone).toISOString();
   }
 
   static format(value: Date, pattern: FormatDateType = "dd/MM/yyyy"): string {
@@ -91,31 +101,40 @@ export class DateAdapter {
 
   //* @param offset: number - The number of months to offset from the current date. Positive values move forward, negative values move backward.
   static getMonthRange(offset: number = 0): { start: Date; end: Date } {
+    const now = toZonedTime(new Date(), this.timeZone);
     const targetDate =
-      offset < 0
-        ? subMonths(toZonedTime(new Date(), "UTC"), Math.abs(offset))
-        : addMonths(toZonedTime(new Date(), "UTC"), offset);
+      offset < 0 ? subMonths(now, Math.abs(offset)) : addMonths(now, offset);
 
     return {
-      start: startOfMonth(targetDate),
-      end: endOfMonth(targetDate),
+      start: fromZonedTime(startOfMonth(targetDate), this.timeZone),
+      end: fromZonedTime(endOfMonth(targetDate), this.timeZone),
     };
   }
 
   static isLastDayOfMonth(date: Date = new Date()): boolean {
-    return isLastDayOfMonth(toZonedTime(date, "UTC"));
+    return isLastDayOfMonth(toZonedTime(date, this.timeZone));
   }
 
   static getLastDayOfMonth(date: Date = new Date()): Date {
-    const zonedDate = toZonedTime(date, "UTC");
-    return endOfMonth(zonedDate);
+    const zonedDate = toZonedTime(date, this.timeZone);
+    return fromZonedTime(endOfMonth(zonedDate), this.timeZone);
   }
 
   static getOneMonthAgo(): Date {
-    const now = toZonedTime(new Date(), "UTC")
+    const now = toZonedTime(new Date(), this.timeZone);
     const oneMonthAgo = subMonths(now, 1);
     const endOfMonth = lastDayOfMonth(oneMonthAgo);
 
     return min([setDate(oneMonthAgo, getDate(now)), endOfMonth]);
+  }
+
+  static startOfYear(date: Date = new Date()): Date {
+    const zonedDate = toZonedTime(date, this.timeZone);
+    return fromZonedTime(startOfYear(zonedDate), this.timeZone);
+  }
+
+  static endOfYear(date: Date = new Date()): Date {
+    const zonedDate = toZonedTime(date, this.timeZone);
+    return fromZonedTime(endOfYear(zonedDate), this.timeZone);
   }
 }

@@ -7,7 +7,7 @@ import {
   VersionQuotationModel,
 } from "@/data/postgres";
 import {
-  ArchiveReservationDto,
+  TrashDto,
   GetReservationsDto,
   GetStadisticsDto,
   ReservationDto,
@@ -214,11 +214,11 @@ export class ReservationService {
     );
   }
 
-  public async archiveReservation(
-    { id, deleteReason }: ArchiveReservationDto
-  ): Promise<ApiResponse<ReservationEntity>> {
-  
-    const reservationArchived = await ReservationModel.update({
+  public async trashReservation({
+    id,
+    deleteReason,
+  }: TrashDto): Promise<ApiResponse<ReservationEntity>> {
+    const trashReservation = await ReservationModel.update({
       where: { id },
       data: {
         is_deleted: true,
@@ -231,56 +231,37 @@ export class ReservationService {
         throw CustomError.notFound("Reservación no encontrada");
       }
       throw CustomError.internalServer(error.message);
-    })
+    });
 
     return new ApiResponse<ReservationEntity>(
       200,
-      "Reservación archivada correctamente",
-      await ReservationEntity.fromObject(reservationArchived)
+      "Reserva movida a la papelera correctamente",
+      await ReservationEntity.fromObject(trashReservation)
     );
   }
 
-  public async deleteMultipleReservations(ids: number[]) {
-    const reservations = await ReservationModel.findMany({
-      where: { id: { in: ids } },
+  public async restoreReservation(
+    id: ReservationEntity["id"]
+  ): Promise<ApiResponse<ReservationEntity>> {
+    const reservationRestored = await ReservationModel.update({
+      where: { id },
+      data: {
+        is_deleted: false,
+        delete_reason: null,
+        deleted_at: null,
+      },
       include: this.reservationMapper.toSelectInclude,
+    }).catch((error) => {
+      if (error.code === "P2025") {
+        throw CustomError.notFound("Reservación no encontrada");
+      }
+      throw CustomError.internalServer(error.message);
     });
 
-    if (reservations.length === 0)
-      throw CustomError.notFound("Reservaciones no encontradas");
-
-    await prisma.$transaction(async () => {
-      await ReservationModel.deleteMany({
-        where: { id: { in: ids } },
-      });
-
-      await VersionQuotationModel.deleteMany({
-        where: {
-          quotation_id: {
-            in: reservations.map(
-              (reservation) => reservation.quotation.id_quotation
-            ),
-          },
-        },
-      });
-
-      await QuotationModel.deleteMany({
-        where: {
-          id_quotation: {
-            in: reservations.map(
-              (reservation) => reservation.quotation.id_quotation
-            ),
-          },
-        },
-      });
-    });
-
-    return new ApiResponse<ReservationEntity[]>(
-      204,
-      `${
-        reservations.length === 1 ? "Reservación" : "Reservaciones"
-      } eliminada${reservations.length === 1 ? "" : "s"} correctamente`,
-      await Promise.all(reservations.map(ReservationEntity.fromObject))
+    return new ApiResponse<ReservationEntity>(
+      200,
+      "Reservación restaurada correctamente",
+      await ReservationEntity.fromObject(reservationRestored)
     );
   }
 
@@ -291,8 +272,8 @@ export class ReservationService {
         reservation_status: ReservationStatus.ACTIVE,
         reservation_date: year
           ? {
-              gte: new Date(year, 0, 1),
-              lte: new Date(year, 11, 31),
+              gte: DateAdapter.startOfYear(new Date(year, 0, 1)),
+              lte: DateAdapter.endOfYear(new Date(year, 11, 31)),
             }
           : undefined,
       },
@@ -337,7 +318,6 @@ export class ReservationService {
       return price!.reservation_date!.getFullYear();
     });
 
-  
     return new ApiResponse<{
       pricesPerMonth: {
         month: string;

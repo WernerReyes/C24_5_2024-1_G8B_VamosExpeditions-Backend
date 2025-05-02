@@ -28,6 +28,19 @@ export class ReservationMapper {
     this.dto = this.dto as GetReservationsDto;
     return {
       status: this.dto.status ? { in: this.dto.status } : undefined,
+      quotation: this.dto.quotationName
+        ? {
+            version_quotation: {
+              some: {
+                name: {
+                  contains: this.dto.quotationName,
+                  mode: "insensitive",
+                },
+                official: true,
+              },
+            },
+          }
+        : undefined,
       is_deleted: this.dto.isDeleted,
       created_at: this.dto.createdAt ? { gte: this.dto.createdAt } : undefined,
       updated_at: this.dto.updatedAt ? { gte: this.dto.updatedAt } : undefined,
@@ -80,7 +93,7 @@ export class ReservationMapper {
                   id_user: true,
                   fullname: true,
                 },
-              }
+              },
             },
           },
         },

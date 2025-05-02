@@ -1,7 +1,7 @@
-import type { HotelRoomTripDetails, VersionQuotation } from "@/domain/entities";
-import type { StyleDictionary } from "pdfmake/interfaces";
-import { PdfService } from "@/lib";
 import { DateAdapter } from "@/core/adapters";
+import type { HotelRoomTripDetails, VersionQuotation } from "@/domain/entities";
+import { PdfService } from "@/lib";
+import type { StyleDictionary } from "pdfmake/interfaces";
 
 interface ReportOptions {
   title?: string;

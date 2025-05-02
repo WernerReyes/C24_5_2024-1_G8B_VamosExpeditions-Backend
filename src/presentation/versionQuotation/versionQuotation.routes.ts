@@ -48,11 +48,11 @@ export class VersionQuotationRoutes {
       )
     );
 
-    router.put("/archive", versionQuotationController.archiveVersionQuotation);
+    router.put("/trash", versionQuotationController.trashVersionQuotation);
 
     router.put(
-      "/unarchive",
-      versionQuotationController.unArchiveVersionQuotation
+      "/restore",
+      versionQuotationController.restoreVersionQuotation
     );
 
     router.get(
