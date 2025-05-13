@@ -1,27 +1,56 @@
-import { UserModel } from "@/data/postgres";
-import { ApiResponse } from "../response";
-import { type User, UserEntity } from "@/domain/entities";
-import type { ChangePasswordDto, UserDto } from "@/domain/dtos";
+import { ApiResponse, PaginatedResponse } from "../response";
+import { UserEntity } from "@/domain/entities";
+import type { ChangePasswordDto, GetUsersDto, UserDto } from "@/domain/dtos";
 import { UserMapper } from "./user.mapper";
 import { CustomError } from "@/domain/error";
 import { BcryptAdapter } from "@/core/adapters";
+import { type IUserModel, UserModel } from "@/infrastructure/models";
 
 export class UserService {
   constructor(private readonly userMapper: UserMapper) {}
 
-  public async getUsers() {
-    const users = await UserModel.findMany();
-    return new ApiResponse<UserEntity[]>(
+  public async getUsers(getUsersDto: GetUsersDto) {
+    const { page, limit } = getUsersDto;
+    this.userMapper.setDto = getUsersDto;
+
+    const users = await UserModel.findMany({
+      select: this.userMapper.toSelect,
+      where: this.userMapper.filters,
+      orderBy: {
+        created_at: "desc",
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const totalUsers = await UserModel.count({
+      where: this.userMapper.filters,
+    });
+
+    return new ApiResponse<PaginatedResponse<UserEntity>>(
       200,
       "Usuarios encontrados",
-      await Promise.all(users.map((user) => UserEntity.fromObject(user)))
+      new PaginatedResponse(
+        await Promise.all(
+          users.map((user) =>
+            UserEntity.fromObject({
+              ...user,
+              showDevices: getUsersDto.showDevices,
+            })
+          )
+        ),
+        page,
+        Math.ceil(totalUsers / limit),
+        totalUsers,
+        limit
+      )
     );
   }
 
   public async upsertUser(userDto: UserDto) {
     this.userMapper.setDto = userDto;
 
-    let user: User;
+    let user: IUserModel;
     const existingUser = await UserModel.findUnique({
       where: {
         id_user: userDto.id,

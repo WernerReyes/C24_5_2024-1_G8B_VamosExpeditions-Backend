@@ -1,6 +1,6 @@
-import { AllowVersionQuotationType, VersionQuotation } from "@/domain/entities";
-import { EmailService, type Options } from "@/lib";
-import { EmailTemplate } from "@/lib/mailer/email.template";
+import { EmailService, type Options } from "@/infrastructure";
+import { EmailTemplate } from "@/infrastructure/mailer/email.template";
+import type { AllowVersionQuotationType, IVersionQuotationModel } from "@/infrastructure/models";
 
 export class VersionQuotationMailer extends EmailService {
   constructor() {
@@ -18,7 +18,7 @@ export class VersionQuotationMailer extends EmailService {
 
   public async sendEmailVQ(
     data: {
-      versionQuotation: VersionQuotation;
+      versionQuotation: IVersionQuotationModel;
       serviceType: AllowVersionQuotationType;
       description?: string;
     },

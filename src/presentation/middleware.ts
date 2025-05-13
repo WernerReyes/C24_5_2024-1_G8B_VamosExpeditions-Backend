@@ -2,13 +2,12 @@ import type { NextFunction, Request, Response } from "express";
 import { JwtAdapter } from "../core/adapters";
 
 import { EnvsConst, ErrorCodeConst } from "@/core/constants";
-import { RoleEnum, User } from "../domain/entities";
 
-import { UserModel } from "@/data/postgres";
 import * as cookie from "cookie";
 import { Socket } from "socket.io";
 import { AuthContext, type AuthUser } from "./auth/auth.context";
 import { TimeZoneContext } from "@/core/context";
+import { type RoleEnum, UserModel } from "@/infrastructure/models";
 
 export interface RequestAuth extends Request {
   user: AuthUser;
@@ -65,7 +64,7 @@ export class Middleware {
       (req as RequestAuth).user = AuthContext.isInitialized
         ? (user as AuthUser)
         : (function () {
-            const { id_user, role } = user as User;
+            const { id_user, role } = user as UserModel;
             return {
               id: id_user,
               role: role?.name,

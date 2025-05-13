@@ -1,4 +1,5 @@
-import { CityModel, CountryModel, DistritModel } from "@/data/postgres";
+
+import { DistrictModel } from "@/infrastructure/models";
 import { ApiResponse } from "../response";
 import { DistritEntity } from "@/domain/entities";
 
@@ -6,13 +7,8 @@ import { DistritEntity } from "@/domain/entities";
 export class DistritService {
   constructor() {}
 
-
-
-  
-
-
   public async getAllDistrit() {
-    const distrits = await DistritModel.findMany({
+    const distrits = await DistrictModel.findMany({
       omit: {
         city_id: true,
       },
@@ -28,14 +24,6 @@ export class DistritService {
       
     });
     
-    /* const city= await CityModel.findMany({
-        include: {
-            distrit: true,
-        },
-    })
-    return{
-        city,
-    } */
     return new ApiResponse<DistritEntity[]>(
       200,
       "Lista de distritos",

@@ -1,12 +1,13 @@
 import { createServer } from "http";
 import { EnvsConst } from "./core/constants";
-import { SocketService } from "./lib";
+import { SocketService } from "./infrastructure";
 import { AppRoutes } from "./presentation/routes";
 import { Server } from "./presentation/server";
 import { AppSocket } from "./presentation/socket";
 import { AppCacheContext } from "./presentation/context";
 
 import { AppCron } from "./presentation/cron";
+
 
 
 const ORIGINS = [
@@ -44,12 +45,12 @@ async function main() {
     AppCron.runJobs();
   } catch (error) {
     console.error(error);
-
   }
 
   httpServer.listen(EnvsConst.PORT, () => {
     console.log(`Server listening on port ${EnvsConst.PORT}`);
   });
-
 }
+
+
 

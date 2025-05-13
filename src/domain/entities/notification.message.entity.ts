@@ -1,10 +1,7 @@
-import { Validations } from "@/core/utils";
-import { CustomError } from "../error";
-import type { user, notification } from "@prisma/client";
+import type {
+  INotificationModel
+} from "@/infrastructure/models";
 import { UserEntity } from "./user.entity";
-interface NotificationMessage extends Omit<notification, "updated_at"> {
-  user_notification_from_userTouser?: Omit<user, "password" | "id_role">;
-}
 
 export class NotificationMessageEntity {
   private constructor(
@@ -17,9 +14,9 @@ export class NotificationMessageEntity {
     public readonly user?: UserEntity
   ) {}
 
-  public static async fromObject(
-    notification: NotificationMessage
-  ): Promise<NotificationMessageEntity> {
+  public static async fromObject(notification: {
+    [key: string]: any;
+  }): Promise<NotificationMessageEntity> {
     const {
       id,
       from_user,
@@ -28,8 +25,8 @@ export class NotificationMessageEntity {
       message,
       created_at,
       user_notification_from_userTouser,
-    } = notification;
-  
+    } = notification as INotificationModel;
+
     return new NotificationMessageEntity(
       id,
       from_user,

@@ -1,13 +1,7 @@
-import {
-  Image,
-} from "@/presentation/external/country/country.entity";
-import type { city, country } from "@prisma/client";
-import { CityEntity } from "./city.entity";
+import type { ICountryModel } from "@/infrastructure/models";
 import { ExternalCountryContext } from "@/presentation/external/country/country.context";
-
-type Country = country & {
-  city?: city[];
-};
+import type { Image } from "@/presentation/external/country/country.entity";
+import { CityEntity } from "./city.entity";
 
 export class CountryEntity {
   private constructor(
@@ -18,8 +12,10 @@ export class CountryEntity {
     public readonly cities?: CityEntity[]
   ) {}
 
-  public static async fromObject(object: Country): Promise<CountryEntity> {
-    const { id_country, name, code, city } = object;
+  public static async fromObject(object: {
+    [key: string]: any;
+  }): Promise<CountryEntity> {
+    const { id_country, name, code, city } = object as ICountryModel;
 
     return new CountryEntity(
       id_country,

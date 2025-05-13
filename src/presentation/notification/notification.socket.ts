@@ -1,4 +1,4 @@
-import { SocketService } from "@/lib";
+import { SocketService } from "@/infrastructure";
 import type { Socket } from "socket.io";
 import { NotificationService } from "./notification.service";
 import type { NotificationMessageEntity } from "@/domain/entities";

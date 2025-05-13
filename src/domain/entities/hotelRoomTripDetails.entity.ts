@@ -1,11 +1,6 @@
-import type { hotel_room_trip_details } from "@prisma/client";
-import { HotelRoom, HotelRoomEntity } from "./hotelRoom.entity";
-import { TripDetails, TripDetailsEntity } from "./tripDetails.entity";
-
-export type HotelRoomTripDetails = hotel_room_trip_details & {
-  hotel_room?: HotelRoom;
-  trip_details?: TripDetails;
-};
+import type { IHotelRoomTripDetailsModel } from "@/infrastructure/models";
+import { HotelRoomEntity } from "./hotelRoom.entity";
+import { TripDetailsEntity } from "./tripDetails.entity";
 
 export class HotelRoomTripDetailsEntity {
   constructor(
@@ -16,18 +11,19 @@ export class HotelRoomTripDetailsEntity {
     public readonly tripDetails?: TripDetailsEntity
   ) {}
 
-  public static async fromObject(
-    HotelRoomTripDetails: HotelRoomTripDetails
-  ): Promise<HotelRoomTripDetailsEntity> {
+  public static async fromObject(HotelRoomTripDetails: {
+    [key: string]: any;
+  }): Promise<HotelRoomTripDetailsEntity> {
     const { id, date, cost_person, hotel_room, trip_details } =
-      HotelRoomTripDetails;
-
+      HotelRoomTripDetails as IHotelRoomTripDetailsModel;
     return new HotelRoomTripDetailsEntity(
       id,
       Number(cost_person),
       date,
       hotel_room ? await HotelRoomEntity.fromObject(hotel_room) : undefined,
-      trip_details ? await TripDetailsEntity.fromObject(trip_details) : undefined
+      trip_details
+        ? await TripDetailsEntity.fromObject(trip_details)
+        : undefined
     );
   }
 }

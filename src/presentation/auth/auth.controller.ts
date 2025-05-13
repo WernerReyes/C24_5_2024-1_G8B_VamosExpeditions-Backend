@@ -62,11 +62,11 @@ export class AuthController extends AppController {
       return this.handleResponseError(res, CustomError.badRequest(error));
 
     const userAgent = req.headers["user-agent"];
-    const secChUa = req.headers["sec-ch-ua"];
+    const browserName = req.headers["browser-name"];
 
     const deviceId = UAParserAdapter.generateDeviceId(
       userAgent as string,
-      secChUa as string
+      browserName as string
     );
 
     this.handleError(this.authService.login(loginDto!, deviceId))

@@ -1,10 +1,10 @@
-import { ClientModel } from "@/data/postgres";
 import { ClientDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 import type { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { ClientMapper } from "./client.mapper";
 import { ApiResponse } from "../response";
 import { ClientEntity } from "@/domain/entities";
+import { ClientModel } from "@/infrastructure/models";
 
 export class ClientService {
   constructor(private readonly clientMapper: ClientMapper) {}
@@ -34,7 +34,7 @@ export class ClientService {
   }
 
   public async getClientsAlls() {
-    const clients = await ClientModel.findMany();
+    const clients = await ClientModel.findMany({});
     return new ApiResponse<ClientEntity[]>(
       200,
       "lista de clientes",

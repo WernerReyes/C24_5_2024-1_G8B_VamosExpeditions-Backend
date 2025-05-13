@@ -1,4 +1,4 @@
-import { User } from "@/domain/entities";
+import type { IUserModel } from "@/infrastructure/models";
 import path from "path";
 import PdfPrinter from "pdfmake";
 import type {
@@ -58,7 +58,7 @@ interface ReportOptions {
   subTitle: string;
   content: Content;
   styles?: StyleDictionary;
-  user: User;
+  user: IUserModel;
 }
 
 export interface StyleDictionary extends StyleDictionaryPdfmake {}

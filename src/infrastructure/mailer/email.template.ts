@@ -1,8 +1,7 @@
-// utils/emailTemplate.ts
-import type { AllowVersionQuotationType } from "@/domain/entities";
 import fs from "fs";
 import Handlebars from "handlebars";
 import path from "path";
+import { AllowVersionQuotationType } from "../models";
 
 const TEMPLATE_DIR = path.resolve(__dirname, "../../lib/mailer/templates");
 export class EmailTemplate {

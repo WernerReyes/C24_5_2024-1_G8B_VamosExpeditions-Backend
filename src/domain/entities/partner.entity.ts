@@ -1,11 +1,12 @@
-import { partner } from "@prisma/client";
-
-type Partner = partner & {};
-
+import type { IPartnerModel } from "@/infrastructure/models";
 export class PartnerEntity {
-  private constructor(public id: number, public name: string) {}
+  private constructor(
+    public readonly id: number,
+    public readonly name: string
+  ) {}
 
-  public static fromObject({ id, name }: Partner): PartnerEntity {
+  public static fromObject(partner: { [key: string]: any }): PartnerEntity {
+    const { id, name } = partner as IPartnerModel;
     return new PartnerEntity(id, name);
   }
 }

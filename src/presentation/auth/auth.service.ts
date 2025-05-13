@@ -1,5 +1,4 @@
 import { EnvsConst } from "@/core/constants";
-import { UserModel } from "@/data/postgres";
 import { LoginDto, ResetPasswordDto } from "@/domain/dtos";
 import { UserEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
@@ -7,6 +6,8 @@ import { BcryptAdapter, JwtAdapter } from "../../core/adapters";
 import { ApiResponse } from "../response";
 import { AuthContext, AuthUser } from "./auth.context";
 import type { AuthMailer } from "./auth.mailer";
+import { UserModel } from "@/infrastructure/models";
+
 
 export class AuthService {
   constructor(private readonly authMailer: AuthMailer) {}

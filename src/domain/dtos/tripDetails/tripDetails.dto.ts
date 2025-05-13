@@ -1,9 +1,6 @@
 import { Validations } from "@/core/utils";
-import {
-  OrderType,
-  TravelerStyle
-} from "@/domain/entities";
 import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
+import { TripDetailsOrderTypeEnum, TripDetailsTravelerStyleEnum } from "@/infrastructure/models";
 
 const FROM = "TripDetailsDto";
 export class TripDetailsDto extends VersionQuotationIDDto {
@@ -17,8 +14,8 @@ export class TripDetailsDto extends VersionQuotationIDDto {
     public readonly startDate: Date,
     public readonly endDate: Date,
     public readonly code: string,
-    public readonly travelerStyle: TravelerStyle,
-    public readonly orderType: OrderType,
+    public readonly travelerStyle: TripDetailsTravelerStyleEnum,
+    public readonly orderType: TripDetailsOrderTypeEnum,
     public readonly destination: { [key: number]: boolean },
     public readonly specialSpecifications?: string,
     public readonly id?: number
@@ -70,13 +67,13 @@ export class TripDetailsDto extends VersionQuotationIDDto {
 
     const errorTravelerStyle = Validations.validateEnumValue(
       travelerStyle,
-      Object.values(TravelerStyle)
+      Object.values(TripDetailsTravelerStyleEnum)
     );
     if (errorTravelerStyle) return [errorTravelerStyle, undefined];
 
     const errorOrderType = Validations.validateEnumValue(
       orderType,
-      Object.values(OrderType)
+      Object.values(TripDetailsOrderTypeEnum)
     );
     if (errorOrderType) return [errorOrderType, undefined];
 

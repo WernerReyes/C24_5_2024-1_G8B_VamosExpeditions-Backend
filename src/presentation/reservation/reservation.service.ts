@@ -1,26 +1,24 @@
 import { Month } from "@/core/constants";
 import {
-  prisma,
-  QuotationModel,
-  ReservationModel,
-  ReservationVersionSummaryView,
-  VersionQuotationModel,
-} from "@/data/postgres";
-import {
   TrashDto,
   GetReservationsDto,
   GetStadisticsDto,
   ReservationDto,
 } from "@/domain/dtos";
-import {
-  ReservationEntity,
-  ReservationStatus,
-  VersionQuotationStatus,
-} from "@/domain/entities";
+import { ReservationEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
 import { ApiResponse, PaginatedResponse } from "../response";
 import { ReservationMapper } from "./reservation.mapper";
 import { DateAdapter } from "@/core/adapters";
+import {
+  prisma,
+  QuotationModel,
+  ReservationModel,
+  ReservationStatusEnum,
+  ReservationVersionSummaryView,
+  VersionQuotationModel,
+  VersionQuotationStatusEnum,
+} from "@/infrastructure/models";
 
 export class ReservationService {
   constructor(private reservationMapper: ReservationMapper) {}
@@ -39,13 +37,13 @@ export class ReservationService {
               // status: VersionQuotationStatus.COMPLETED,
               OR: [
                 {
-                  status: VersionQuotationStatus.APPROVED,
+                  status: VersionQuotationStatusEnum.APPROVED,
                 },
                 {
-                  status: VersionQuotationStatus.COMPLETED,
+                  status: VersionQuotationStatusEnum.COMPLETED,
                 },
                 {
-                  status: VersionQuotationStatus.CANCELATED,
+                  status: VersionQuotationStatusEnum.CANCELATED,
                 },
               ],
               //  VersionQuotationStatus.APPROVED
@@ -100,7 +98,7 @@ export class ReservationService {
             quotation_id: version.quotation_id,
           },
         },
-        data: { status: VersionQuotationStatus.APPROVED },
+        data: { status: VersionQuotationStatusEnum.APPROVED },
         include: {
           user: true,
           trip_details: {
@@ -137,13 +135,13 @@ export class ReservationService {
       include: this.reservationMapper.toSelectInclude,
     });
     if (!reservation) throw CustomError.notFound("Reservación no encontrada");
-    if (reservation.status === ReservationStatus.REJECTED)
+    if (reservation.status === ReservationStatusEnum.REJECTED)
       throw CustomError.badRequest("La reservación ya fue rechazada");
 
     const reservationCanceled = await prisma.$transaction(async () => {
       const reservationCanceled = await ReservationModel.update({
         where: { id },
-        data: { status: ReservationStatus.REJECTED },
+        data: { status: ReservationStatusEnum.REJECTED },
         include: this.reservationMapper.toSelectInclude,
       });
 
@@ -157,7 +155,7 @@ export class ReservationService {
             quotation_id: versionToCancel.quotation_id,
           },
         },
-        data: { status: VersionQuotationStatus.CANCELATED },
+        data: { status: VersionQuotationStatusEnum.CANCELATED },
       });
 
       return {
@@ -167,7 +165,7 @@ export class ReservationService {
           version_quotation: [
             {
               ...(reservationCanceled.quotation as any).version_quotation[0],
-              status: VersionQuotationStatus.CANCELATED,
+              status: VersionQuotationStatusEnum.CANCELATED,
             },
           ],
         },
@@ -269,7 +267,7 @@ export class ReservationService {
     const totalPricesPerMonth = await ReservationVersionSummaryView.groupBy({
       by: ["reservation_date"],
       where: {
-        reservation_status: ReservationStatus.ACTIVE,
+        reservation_status: ReservationStatusEnum.ACTIVE,
         reservation_date: year
           ? {
               gte: DateAdapter.startOfYear(new Date(year, 0, 1)),
@@ -359,7 +357,7 @@ export class ReservationService {
     //* Count drafts for the current month
     const currentMonthDrafts = await VersionQuotationModel.count({
       where: {
-        status: VersionQuotationStatus.DRAFT,
+        status: VersionQuotationStatusEnum.DRAFT,
         is_deleted: false,
         created_at: {
           gte: firstDayCurrentMonth,
@@ -370,7 +368,7 @@ export class ReservationService {
     //* Count drafts for the previous month
     const previousMonthDrafts = await VersionQuotationModel.count({
       where: {
-        status: VersionQuotationStatus.DRAFT,
+        status: VersionQuotationStatusEnum.DRAFT,
         is_deleted: false,
         created_at: {
           gte: firstDayPreviousMonth,
@@ -381,7 +379,7 @@ export class ReservationService {
 
     const totalDrafts = await VersionQuotationModel.count({
       where: {
-        status: VersionQuotationStatus.DRAFT,
+        status: VersionQuotationStatusEnum.DRAFT,
         is_deleted: false,
       },
     });
@@ -405,7 +403,7 @@ export class ReservationService {
     const finalPriceCurrentMonth =
       await ReservationVersionSummaryView.aggregate({
         where: {
-          reservation_status: ReservationStatus.ACTIVE,
+          reservation_status: ReservationStatusEnum.ACTIVE,
           reservation_date: {
             gte: firstDayCurrentMonth,
           },
@@ -419,7 +417,7 @@ export class ReservationService {
     const finalPriceMonthDrafts = await ReservationVersionSummaryView.aggregate(
       {
         where: {
-          reservation_status: ReservationStatus.ACTIVE,
+          reservation_status: ReservationStatusEnum.ACTIVE,
           reservation_date: {
             gte: firstDayPreviousMonth,
             lte: lastDayPreviousMonth,
@@ -433,7 +431,7 @@ export class ReservationService {
 
     const total = await ReservationVersionSummaryView.aggregate({
       where: {
-        reservation_status: ReservationStatus.ACTIVE,
+        reservation_status: ReservationStatusEnum.ACTIVE,
       },
       _count: { id: true },
       _avg: { profit_margin: true },

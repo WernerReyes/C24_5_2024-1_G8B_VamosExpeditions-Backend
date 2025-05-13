@@ -6,14 +6,7 @@ import {
   hotel,
   hotel_room,
 } from "@prisma/client";
-import {
-  CityModel,
-  CountryModel,
-  DistritModel,
-  HotelModel,
-  HotelRoomModel,
-  prisma,
-} from "@/data/postgres";
+
 import { GetHotelsDto, HotelDto, PaginationDto, RoomDto } from "@/domain/dtos";
 import { HotelMapper } from "./hotel.mapper";
 import { CustomError } from "@/domain/error";
@@ -27,6 +20,7 @@ import { HotelRoomType } from "@/domain/enum";
 import { InsertManyHotelAndRoomExcelDto } from "@/domain/dtos/hotel/insertManyHotelAndRoomExcel.dto";
 import { HotelData, RoomData } from "@/domain/type";
 import ExcelJS from "exceljs";
+import { HotelModel, prisma } from "@/infrastructure/models";
 
 type ExelCountry = {
   Pais: number;

@@ -1,9 +1,6 @@
-import type { distrit } from "@prisma/client";
-import { City, CityEntity } from "./city.entity";
+import type { IDistrictModel } from "@/infrastructure/models";
+import { CityEntity } from "./city.entity";
 
-export type Distrit = Omit<distrit, "city_id"> & {
-  city?: City;
-};
 
 export class DistritEntity {
   public constructor(
@@ -12,8 +9,10 @@ export class DistritEntity {
     public readonly city?: CityEntity
   ) {}
 
-  public static async fromObject(distrit: Distrit): Promise<DistritEntity> {
-    const { id_distrit, name, city } = distrit;
+  public static async fromObject(distrit: {
+    [key: string]: any;
+  }): Promise<DistritEntity> {
+    const { id_distrit, name, city } = distrit as IDistrictModel;
 
     return new DistritEntity(
       id_distrit,

@@ -1,4 +1,3 @@
-import { prisma, QuotationModel, VersionQuotationModel } from "@/data/postgres";
 import type {
   TrashDto,
   DuplicateMultipleVersionQuotationDto,
@@ -7,19 +6,21 @@ import type {
   VersionQuotationDto,
   VersionQuotationIDDto,
 } from "@/domain/dtos";
-import {
-  AllowVersionQuotationType,
-  UserEntity,
-  type VersionQuotation,
-  VersionQuotationEntity,
-  VersionQuotationStatus,
-} from "@/domain/entities";
+import { UserEntity, VersionQuotationEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { ApiResponse, PaginatedResponse } from "../response";
 import type { VersionQuotationMailer } from "./versionQuotation.mailer";
 import type { VersionQuotationMapper } from "./versionQuotation.mapper";
 import type { VersionQuotationReport } from "./versionQuotation.report";
+import {
+  AllowVersionQuotationType,
+  type IVersionQuotationModel,
+  prisma,
+  QuotationModel,
+  VersionQuotationModel,
+  VersionQuotationStatusEnum,
+} from "@/infrastructure/models";
 
 export class VersionQuotationService {
   constructor(
@@ -45,16 +46,16 @@ export class VersionQuotationService {
     const { trip_details, ...restFields } = existVersionQuotation;
 
     if (
-      existVersionQuotation.status !== VersionQuotationStatus.APPROVED &&
-      existVersionQuotation.status !== VersionQuotationStatus.CANCELATED &&
-      (versionQuotationDto.status === VersionQuotationStatus.APPROVED ||
-        versionQuotationDto.status === VersionQuotationStatus.CANCELATED)
+      existVersionQuotation.status !== VersionQuotationStatusEnum.APPROVED &&
+      existVersionQuotation.status !== VersionQuotationStatusEnum.CANCELATED &&
+      (versionQuotationDto.status === VersionQuotationStatusEnum.APPROVED ||
+        versionQuotationDto.status === VersionQuotationStatusEnum.CANCELATED)
     ) {
       await this.approveVersionQuotation(existVersionQuotation);
     }
 
     if (
-      existVersionQuotation.status === VersionQuotationStatus.APPROVED &&
+      existVersionQuotation.status === VersionQuotationStatusEnum.APPROVED &&
       existVersionQuotation.official
     ) {
       throw CustomError.badRequest(
@@ -87,15 +88,17 @@ export class VersionQuotationService {
     );
   }
 
-  private async approveVersionQuotation(versionQuotation: VersionQuotation) {
-    if (versionQuotation.status === VersionQuotationStatus.APPROVED)
+  private async approveVersionQuotation(
+    versionQuotation: IVersionQuotationModel
+  ) {
+    if (versionQuotation.status === VersionQuotationStatusEnum.APPROVED)
       throw CustomError.badRequest(
         "La cotización ya está aprobada, no se puede aprobar nuevamente"
       );
 
     if (
       !versionQuotation.trip_details?.id ||
-      versionQuotation.status !== VersionQuotationStatus.COMPLETED ||
+      versionQuotation.status !== VersionQuotationStatusEnum.COMPLETED ||
       versionQuotation.completion_percentage !== 100 ||
       !versionQuotation.final_price ||
       !versionQuotation.indirect_cost_margin ||
@@ -142,7 +145,7 @@ export class VersionQuotationService {
 
     const newVersionsDuplicated = await prisma
       .$transaction(async (tx) => {
-        let newVersionsDuplicated =
+        const newVersionsDuplicated =
           await tx.version_quotation.createManyAndReturn({
             data: versionToInsert,
             include: {
@@ -150,7 +153,7 @@ export class VersionQuotationService {
             },
           });
 
-        let insertedTripDetails = await tx.trip_details.createManyAndReturn({
+        const insertedTripDetails = await tx.trip_details.createManyAndReturn({
           data: tripDetailsToInsert,
           include: {
             client: true,
@@ -181,20 +184,18 @@ export class VersionQuotationService {
           });
         }
 
-        insertedTripDetails = insertedTripDetails.map((trip) => {
-          return {
-            ...trip,
-            trip_details_has_city: tripDetailsHasCityFinal.filter(
-              (c) => c.trip_details_id === trip.id
-            ),
-            hotel_room_trip_details: hotelRoomTripFinal.filter(
-              (h) => h.trip_details_id === trip.id
-            ),
-          };
-        });
+        const updatedTripDetails = insertedTripDetails.map((trip) => ({
+          ...trip,
+          trip_details_has_city: tripDetailsHasCityFinal.filter(
+            (c) => c.trip_details_id === trip.id
+          ),
+          hotel_room_trip_details: hotelRoomTripFinal.filter(
+            (h) => h.trip_details_id === trip.id
+          ),
+        }));
 
-        newVersionsDuplicated = newVersionsDuplicated.map((version) => {
-          const trip_details = insertedTripDetails.find(
+        return newVersionsDuplicated.map((version) => {
+          const trip_details = updatedTripDetails.find(
             (trip) =>
               trip.quotation_id === version.quotation_id &&
               trip.version_number === version.version_number
@@ -204,8 +205,6 @@ export class VersionQuotationService {
             trip_details,
           };
         });
-
-        return newVersionsDuplicated;
       })
       .catch((error) => {
         throw CustomError.internalServer(
@@ -225,10 +224,10 @@ export class VersionQuotationService {
   }
 
   private async getDuplicateVersionQuotation(
-    versions: VersionQuotation[],
+    versions: IVersionQuotationModel[],
     userId: UserEntity["id"]
   ) {
-    const versionToInsert: VersionQuotation[] = [];
+    const versionToInsert: IVersionQuotationModel[] = [];
     const tripDetailsToInsert: any[] = [];
     const tripDetailsHasCityToInsert: any[] = [];
     const hotelRoomTripToInsert: any[] = [];
@@ -326,13 +325,13 @@ export class VersionQuotationService {
     });
     if (!versionQuotation)
       throw CustomError.notFound("Versión de cotización no encontrada");
-    if (versionQuotation.status === VersionQuotationStatus.APPROVED)
+    if (versionQuotation.status === VersionQuotationStatusEnum.APPROVED)
       throw CustomError.badRequest(
         "La cotización ya tiene una reserva aprobada, no se puede cambiar la versión oficial"
       );
 
-    const [unOfficial, newOfficial] = await prisma.$transaction([
-      VersionQuotationModel.update({
+    const [unOfficial, newOfficial] = await prisma.$transaction(async (tx) => {
+      const unOfficial = await tx.version_quotation.update({
         where: {
           version_number_quotation_id: {
             version_number: versionQuotation.version_number,
@@ -343,8 +342,9 @@ export class VersionQuotationService {
           official: false,
         },
         include: this.versionQuotationMapper.toSelectInclude,
-      }),
-      VersionQuotationModel.update({
+      });
+
+      const newOfficial = await tx.version_quotation.update({
         where: {
           version_number_quotation_id: {
             version_number: versionQuotationId!.versionNumber,
@@ -355,8 +355,10 @@ export class VersionQuotationService {
           official: true,
         },
         include: this.versionQuotationMapper.toSelectInclude,
-      }),
-    ]);
+      });
+
+      return [unOfficial, newOfficial];
+    });
 
     return new ApiResponse<{
       unOfficial: VersionQuotationEntity;
@@ -387,7 +389,8 @@ export class VersionQuotationService {
 
     const approveVersion = existVersionQuotation.version_quotation.find(
       (version) =>
-        version.official && version.status === VersionQuotationStatus.APPROVED
+        version.official &&
+        version.status === VersionQuotationStatusEnum.APPROVED
     );
     if (!approveVersion)
       throw CustomError.badRequest(
@@ -413,7 +416,7 @@ export class VersionQuotationService {
           },
         },
         data: {
-          status: VersionQuotationStatus.CANCELATED,
+          status: VersionQuotationStatusEnum.CANCELATED,
           official: false,
         },
         include: this.versionQuotationMapper.toSelectInclude,
@@ -426,7 +429,7 @@ export class VersionQuotationService {
           },
         },
         data: {
-          status: VersionQuotationStatus.APPROVED,
+          status: VersionQuotationStatusEnum.APPROVED,
           official: true,
         },
         include: this.versionQuotationMapper.toSelectInclude,
@@ -641,7 +644,7 @@ export class VersionQuotationService {
         },
         is_deleted: false,
         status: {
-          not: VersionQuotationStatus.DRAFT,
+          not: VersionQuotationStatusEnum.DRAFT,
         },
       },
       include: {
@@ -686,7 +689,7 @@ export class VersionQuotationService {
       async (
         resolve: ([document, versionQuotation]: [
           Buffer<ArrayBufferLike>,
-          VersionQuotation
+          IVersionQuotationModel
         ]) => void,
         reject: (error: string) => void
       ) => {
@@ -749,10 +752,10 @@ export class VersionQuotationService {
               await this.versionQuotationReport.generateReportForEmail({
                 title: "",
                 subTitle: "",
-                dataQuey: versionQuotation as VersionQuotation,
+                dataQuey: versionQuotation as IVersionQuotationModel,
               });
 
-            resolve([pdfBuffer, versionQuotation as VersionQuotation]);
+            resolve([pdfBuffer, versionQuotation as IVersionQuotationModel]);
             break;
         }
       }

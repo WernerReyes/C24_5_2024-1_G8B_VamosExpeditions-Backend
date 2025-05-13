@@ -1,6 +1,6 @@
 import { Validations } from "@/core/utils";
 import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
-import { AllowVersionQuotationType } from "@/domain/entities";
+import { AllowVersionQuotationType } from "@/infrastructure/models";
 
 export class SendEmailAndGenerateReportDto extends VersionQuotationIDDto {
   constructor(

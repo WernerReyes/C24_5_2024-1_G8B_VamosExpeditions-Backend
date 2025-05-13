@@ -5,6 +5,7 @@ import { UserContext } from "../../presentation/user/user.context";
 
 import { Server } from "http";
 import { Socket, Server as SocketServer } from "socket.io";
+import { UAParserAdapter } from "@/core/adapters";
 
 export class SocketService {
   private static _instance: SocketService;
@@ -37,13 +38,26 @@ export class SocketService {
     return SocketService._instance;
   }
 
+  private getDeviceId(socket: Socket) {
+    const userAgent = socket.request.headers["user-agent"];
+    const browserName = socket.handshake.auth.browserName;
+
+    const deviceId = UAParserAdapter.generateDeviceId(
+      userAgent as string,
+      browserName as string
+    );
+
+    return deviceId;
+  }
+
   initEvents() {
     this.io.on("connection", async (socket: Socket) => {
       try {
         const userId = socket.data.id;
 
+        const deviceId = this.getDeviceId(socket);
         if (!UserContext.isOnline(userId)) {
-          UserContext.addConnection(userId, socket.id);
+          UserContext.addConnection(userId, deviceId);
         }
 
         const [authSocket, notificationSocket] = this.appSocket.sockets;
@@ -53,7 +67,7 @@ export class SocketService {
         socket.on("disconnect", () => {
           authSocket.logoutSocket(socket);
         });
-        console.log(`🔗 User ${userId} connected with socket ID: ${socket.id}`);
+        console.log(`🔗 User ${userId} connected with socket ID: ${deviceId}`);
       } catch (error) {
         console.error("⚠️ Error durante la conexión:", error);
         socket.disconnect();

@@ -34,7 +34,7 @@ export class Server {
         origin: this.origins,
         credentials: true,
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization", "X-Time-Zone"],
+        allowedHeaders: ["Content-Type", "Authorization", "X-Time-Zone", "Browser-Name"],
       })
     );
 

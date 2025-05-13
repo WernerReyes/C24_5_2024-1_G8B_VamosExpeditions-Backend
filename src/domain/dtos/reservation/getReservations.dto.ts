@@ -1,13 +1,13 @@
-import { ReservationStatus } from "@/domain/entities";
-import { PaginationDto } from "../common/pagination.dto";
-import { ParamsUtils, Validations } from "@/core/utils";
 import { DateAdapter } from "@/core/adapters";
+import { ParamsUtils, Validations } from "@/core/utils";
+import { ReservationStatusEnum } from "@/infrastructure/models";
+import { PaginationDto } from "../common/pagination.dto";
 
 export class GetReservationsDto extends PaginationDto {
   constructor(
     public readonly limit: number,
     public readonly page: number,
-    public readonly status?: ReservationStatus[],
+    public readonly status?: ReservationStatusEnum[],
     public readonly isDeleted?: boolean,
     public readonly quotationName?: string,
     public readonly createdAt?: Date,
@@ -36,7 +36,7 @@ export class GetReservationsDto extends PaginationDto {
     if (status) {
       const error = Validations.validateEnumValues(
         ParamsUtils.parseArray(status),
-        Object.values(ReservationStatus),
+        Object.values(ReservationStatusEnum),
         "status"
       );
       if (error) return [error, undefined];

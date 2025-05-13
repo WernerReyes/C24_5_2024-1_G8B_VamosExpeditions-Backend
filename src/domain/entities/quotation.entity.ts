@@ -1,16 +1,7 @@
-import type { quotation } from "@prisma/client";
-import {
-  type VersionQuotation,
-  VersionQuotationEntity,
-} from "./versionQuotation.entity";
+import { VersionQuotationEntity } from "./versionQuotation.entity";
 
-import { type Reservation, ReservationEntity } from "./reservation.entity";
-
-export type Quotation = quotation & {
-  version_quotation?: VersionQuotation[];
-  reservation?: Reservation | null;
-};
-
+import type { IQuotationModel } from "@/infrastructure/models";
+import { ReservationEntity } from "./reservation.entity";
 export class QuotationEntity {
   private constructor(
     public readonly id: number,
@@ -20,21 +11,25 @@ export class QuotationEntity {
     public readonly reservation?: ReservationEntity
   ) {}
 
-  public static async fromObject(quotation: Quotation): Promise<QuotationEntity> {
+  public static async fromObject(quotation: {
+    [key: string]: any;
+  }): Promise<QuotationEntity> {
     const {
       id_quotation,
       created_at,
       updated_at,
       version_quotation,
       reservation,
-    } = quotation;
+    } = quotation as IQuotationModel;
 
     return new QuotationEntity(
       id_quotation,
       created_at,
       updated_at,
       version_quotation
-        ? await Promise.all(version_quotation.map(VersionQuotationEntity.fromObject))
+        ? await Promise.all(
+            version_quotation.map(VersionQuotationEntity.fromObject)
+          )
         : undefined,
       reservation ? await ReservationEntity.fromObject(reservation) : undefined
     );

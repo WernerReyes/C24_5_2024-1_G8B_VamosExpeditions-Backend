@@ -1,4 +1,4 @@
-import { IBrowser, IOS, UAParser } from "ua-parser-js";
+import { IBrowser, IDevice, IOS, UAParser } from "ua-parser-js";
 
 export class UAParserAdapter {
   static getBrowser(userAgent: string): IBrowser {
@@ -13,12 +13,9 @@ export class UAParserAdapter {
     return os;
   }
 
- 
-
-  static generateDeviceId(userAgent: string, secChUa: string): string {
-    const browserName =
-      secChUa?.toString().split('"')[1].toLowerCase().split(" ").join("-");
+  static generateDeviceId(userAgent: string, browserName: string): string {
     const browserVersion = this.getBrowser(userAgent).version ?? "0";
+
 
     const os = this.getOSName(userAgent);
 

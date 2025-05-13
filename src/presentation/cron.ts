@@ -7,5 +7,7 @@ export class AppCron {
   static runJobs() {
     const versionQuotationCron = new VersionQuotationCron();
     CronAdapter.addAndRunJob("0 0 * * *", versionQuotationCron); // Run every day at midnight
+
+    console.log("Cron jobs working");
   }
 }

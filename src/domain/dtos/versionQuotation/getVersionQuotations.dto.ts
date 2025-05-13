@@ -1,7 +1,11 @@
 import { ParamsUtils, Validations } from "@/core/utils";
 import { PaginationDto } from "../common/pagination.dto";
-import { VersionQuotationStatus } from "@/domain/entities";
 import { DateAdapter } from "@/core/adapters";
+import {
+  VersionQuotationModel,
+  type VersionQuotationStatusEnum,
+} from "@/infrastructure/models";
+import { SelectModelFieldsDto } from "../common/selectModelFields.dto";
 
 export class GetVersionQuotationsDto extends PaginationDto {
   private constructor(
@@ -11,13 +15,15 @@ export class GetVersionQuotationsDto extends PaginationDto {
     public readonly clientsIds?: number[],
     public readonly startDate?: Date,
     public readonly endDate?: Date,
-    public readonly status?: VersionQuotationStatus[],
+    public readonly status?: VersionQuotationStatusEnum[],
     public readonly representativesIds?: number[],
     public readonly quotationId?: number,
     public readonly official?: boolean,
     public readonly isDeleted?: boolean,
     public readonly createdAt?: Date,
-    public readonly updatedAt?: Date
+    public readonly updatedAt?: Date,
+
+    public readonly select?: string[]
   ) {
     super(page, limit);
   }
@@ -39,6 +45,7 @@ export class GetVersionQuotationsDto extends PaginationDto {
       isDeleted,
       createdAt,
       updatedAt,
+      select,
     } = props;
 
     const [error, paginationDto] = PaginationDto.create({ page, limit });
@@ -88,6 +95,12 @@ export class GetVersionQuotationsDto extends PaginationDto {
       if (dateError) return [dateError];
     }
 
+    const [selectError, dtoSelect] = SelectModelFieldsDto.create(
+      VersionQuotationModel.modelName,
+      select
+    );
+    if (selectError) return [selectError];
+
     return [
       undefined,
       new GetVersionQuotationsDto(
@@ -105,7 +118,8 @@ export class GetVersionQuotationsDto extends PaginationDto {
         official ? official === "true" : undefined,
         isDeleted ? isDeleted === "true" : undefined,
         createdAt ? DateAdapter.startOfDay(createdAt) : undefined,
-        updatedAt ? DateAdapter.startOfDay(updatedAt) : undefined
+        updatedAt ? DateAdapter.startOfDay(updatedAt) : undefined,
+        dtoSelect?.select
       ),
     ];
   }

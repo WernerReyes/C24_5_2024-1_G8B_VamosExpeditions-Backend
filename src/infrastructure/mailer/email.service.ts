@@ -1,11 +1,7 @@
 import { EnvsConst } from "@/core/constants";
+import type { } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
 import nodemailer, { Transporter } from "nodemailer";
-import { EmailTemplate } from "./email.template";
-import type {
-  AllowVersionQuotationType,
-  VersionQuotation,
-} from "@/domain/entities";
 import type { Options as OptionsNodemailer } from "nodemailer/lib/mailer";
 
 export interface Options extends OptionsNodemailer {}

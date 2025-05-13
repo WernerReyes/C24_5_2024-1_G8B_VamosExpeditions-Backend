@@ -1,8 +1,9 @@
+import { ParamsUtils } from "@/core/utils";
+import type { ChangePasswordDto, GetUsersDto, UserDto } from "@/domain/dtos";
+import { Prisma } from "@prisma/client";
 import { BcryptAdapter } from "../../core/adapters";
-import type { ChangePasswordDto, UserDto } from "@/domain/dtos";
-import type { Prisma } from "@prisma/client";
 
-type Dto = UserDto | ChangePasswordDto;
+type Dto = UserDto | ChangePasswordDto | GetUsersDto;
 export class UserMapper {
   private dto: Dto;
 
@@ -12,6 +13,53 @@ export class UserMapper {
 
   public set setDto(dto: Dto) {
     this.dto = dto;
+  }
+
+  public get toSelect(): Prisma.userSelect | undefined {
+    const { select } = this.dto as GetUsersDto;
+    if (!select) return this.select;
+
+    return ParamsUtils.parseDBSelect(select);
+  }
+
+  private get select(): Prisma.userSelect {
+    return {
+      id_user: true,
+      fullname: true,
+      email: true,
+      password: true,
+      created_at: true,
+      updated_at: true,
+      is_deleted: true,
+      description: true,
+      phone_number: true,
+      id_role: true,
+      deleted_at: true,
+      delete_reason: true,
+      role: true,
+    };
+  }
+
+  public get filters(): Prisma.userWhereInput {
+    this.dto = this.dto as GetUsersDto;
+    return {
+      fullname: this.dto.fullname
+        ? { contains: this.dto.fullname, mode: "insensitive" }
+        : undefined,
+      email: this.dto.email
+        ? { contains: this.dto.email, mode: "insensitive" }
+        : undefined,
+      phone_number: this.dto.phoneNumber
+        ? { contains: this.dto.phoneNumber }
+        : undefined,
+      role: this.dto.role ? { name: this.dto.role } : undefined,
+      created_at: this.dto.createdAt
+        ? { gte: new Date(this.dto.createdAt) }
+        : undefined,
+      updated_at: this.dto.updatedAt
+        ? { gte: new Date(this.dto.updatedAt) }
+        : undefined,
+    };
   }
 
   public get createUser(): Prisma.userUncheckedCreateInput {

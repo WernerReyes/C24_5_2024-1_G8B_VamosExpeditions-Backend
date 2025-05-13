@@ -1,11 +1,11 @@
 import { Validations } from "@/core/utils";
-import { ReservationStatus } from "@/domain/entities";
+import { ReservationStatusEnum } from "@/infrastructure/models";
 
 const FROM = "ReservationDto";
 export class ReservationDto {
   private constructor(
     public readonly quotationId: number,
-    public readonly status: ReservationStatus,
+    public readonly status: ReservationStatusEnum,
     public readonly id?: number
   ) {}
 
@@ -28,7 +28,7 @@ export class ReservationDto {
 
     const errorStatus = Validations.validateEnumValue(
       status,
-      Object.values(ReservationStatus)
+      Object.values(ReservationStatusEnum)
     );
     if (errorStatus) return [errorStatus, undefined];
 

@@ -1,12 +1,13 @@
 import type { CacheAdapter } from "@/core/adapters";
 import { EnvsConst } from "@/core/constants";
-import { RoleEntity, UserEntity } from "@/domain/entities";
-import { SocketService } from "@/lib";
-import { role } from "@prisma/client";
+import type { UserEntity } from "@/domain/entities";
+import type { RoleEnum } from "@/infrastructure/models";
+import { SocketService } from "@/infrastructure";
+
 
 export type AuthUser = {
   id: UserEntity["id"];
-  role: RoleEntity["name"] | role["name"];
+  role: RoleEnum;
   deviceId: string;
 };
 
@@ -117,6 +118,14 @@ export class AuthContext {
     }
 
     return activeDeviceIds;
+  }
+
+  public static async getActiveDevices(
+    userId: UserEntity["id"]
+  ): Promise<string[]> {
+    const devicesKey = `user:${userId}:devices`;
+    const devices = (await this.cache?.sMembers<string>(devicesKey)) ?? [];
+    return devices;
   }
 
   public static async deauthenticateUser(user: AuthUser) {

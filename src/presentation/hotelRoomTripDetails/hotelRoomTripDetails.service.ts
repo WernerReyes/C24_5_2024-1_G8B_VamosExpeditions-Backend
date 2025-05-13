@@ -1,21 +1,19 @@
-import {
-  HotelRoomTripDetailsModel,
-  prisma,
-  TripDetailsModel,
-} from "@/data/postgres";
 import type {
   InsertManyHotelRoomTripDetailsDto,
   UpdateManyHotelRoomTripDetailsByDateDto,
 } from "@/domain/dtos";
-import {
-  HotelRoomTripDetails,
-  HotelRoomTripDetailsEntity,
-} from "@/domain/entities";
+import { HotelRoomTripDetailsEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
 import type { HotelRoomTripDetailsMapper } from "./hotelRoomTripDetails.mapper";
 import { ApiResponse } from "../response";
 import type { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { DateAdapter } from "@/core/adapters";
+import {
+  HotelRoomTripDetailsModel,
+  prisma,
+  TripDetailsModel,
+  type IHotelRoomTripDetailsModel,
+} from "@/infrastructure/models";
 
 export class HotelRoomTripDetailsService {
   constructor(
@@ -108,16 +106,19 @@ export class HotelRoomTripDetailsService {
     //   );
     // }
 
-    const [currentStartDate, currentEndDate] = dateRange;
+    const [currentStartDate, currentEndDate] = [
+      DateAdapter.startOfDay(dateRange[0]),
+      DateAdapter.startOfDay(dateRange[1]),
+    ];
 
     // const startDate = DateUtils.resetTimeToMidnight(tripDetails.start_date);
-    const startDate = DateAdapter.parseISO(tripDetails.start_date);
+    const startDate = DateAdapter.startOfDay(tripDetails.start_date);
     // const endDate = DateUtils.resetTimeToMidnight(tripDetails.end_date);
-    const endDate = DateAdapter.parseISO(tripDetails.end_date);
+    const endDate = DateAdapter.startOfDay(tripDetails.end_date);
 
     if (
-      currentStartDate.getTime() < startDate.getTime() ||
-      currentEndDate.getTime() > endDate.getTime()
+      currentStartDate.getTime() < tripDetails.start_date.getTime() ||
+      currentEndDate.getTime() > tripDetails.end_date.getTime()
     ) {
       throw CustomError.badRequest(
         "La fecha no puede ser menor a la fecha de inicio o mayor a la fecha de fin de la cotización"
@@ -146,7 +147,7 @@ export class HotelRoomTripDetailsService {
         "No se encontraron cotizaciones de habitación"
       );
 
-    const updatedManyHotelRoomTripDetails: HotelRoomTripDetails[] = [];
+    const updatedManyHotelRoomTripDetails: IHotelRoomTripDetailsModel[] = [];
 
     await prisma
       .$transaction(async () => {

@@ -1,10 +1,6 @@
-
-import type { city, country } from "@prisma/client";
+import type { ICityModel } from "@/infrastructure/models";
 import { CountryEntity } from "./country.entity";
 
-export type City = city & {
-  country?: country;
-};
 export class CityEntity {
   constructor(
     public readonly id: number,
@@ -12,8 +8,10 @@ export class CityEntity {
     public readonly country?: CountryEntity
   ) {}
 
-  public static async fromObject(city: City): Promise<CityEntity> {
-    const { id_city, name, country } = city;
+  public static async fromObject(city: {
+    [key: string]: any;
+  }): Promise<CityEntity> {
+    const { id_city, name, country } = city as ICityModel;
 
     return new CityEntity(
       id_city,
@@ -21,6 +19,4 @@ export class CityEntity {
       country ? await CountryEntity.fromObject(country) : undefined
     );
   }
-
-  
 }

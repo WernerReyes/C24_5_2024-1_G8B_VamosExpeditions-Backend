@@ -48,7 +48,7 @@ export class DateAdapter {
 
   static parseISO(dateString: string | Date): Date {
     const date = dateString instanceof Date ? dateString : parseISO(dateString);
-    return fromZonedTime(startOfDay(date), "UTC");
+    return fromZonedTime(date, "UTC");
   }
 
   static startOfDay(date: Date): Date {
@@ -88,8 +88,8 @@ export class DateAdapter {
 
   static eachDayOfInterval(startDate: Date, endDate: Date): Date[] {
     return eachDayOfInterval({
-      start: DateAdapter.parseISO(startDate),
-      end: DateAdapter.parseISO(endDate),
+      start: new Date(startDate),
+      end: new Date(endDate),
     });
   }
   static rangeFromStartDate(startDate: Date, days: number): Date[] {

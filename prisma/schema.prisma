@@ -65,6 +65,11 @@ model user {
   id_role                                   Int
   description                               String?
   phone_number                              String?             @db.VarChar(20)
+  created_at                                DateTime            @default(now()) @db.Timestamp(6)
+  updated_at                                DateTime            @default(now()) @db.Timestamp(6)
+  is_deleted                                Boolean             @default(false)
+  deleted_at                                DateTime?           @db.Timestamp(6)
+  delete_reason                             String?
   notification_notification_from_userTouser notification[]      @relation("notification_from_userTouser")
   notification_notification_to_userTouser   notification[]      @relation("notification_to_userTouser")
   role                                      role                @relation(fields: [id_role], references: [id_role], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_role")

@@ -1,9 +1,5 @@
-import { hotel_room } from "@prisma/client";
-import { Hotel, HotelEntity } from "./hotel.entity";
-
-export type HotelRoom = hotel_room & {
-  hotel?: Hotel;
-};
+import type { IHotelRoomModel } from "@/infrastructure/models";
+import { HotelEntity } from "./hotel.entity";
 
 export class HotelRoomEntity {
   public constructor(
@@ -18,7 +14,11 @@ export class HotelRoomEntity {
     public readonly hotel?: HotelEntity
   ) {}
 
-  public static async fromObject(hotelRoom: HotelRoom): Promise<HotelRoomEntity> {
+  public static async fromObject(
+    hotelRoom: {
+      [key: string]: any;
+    }
+  ): Promise<HotelRoomEntity> {
     const {
       id_hotel_room,
       room_type,
@@ -30,7 +30,7 @@ export class HotelRoomEntity {
       capacity,
 
       hotel,
-    } = hotelRoom;
+    } = hotelRoom as IHotelRoomModel;
 
     return new HotelRoomEntity(
       id_hotel_room,

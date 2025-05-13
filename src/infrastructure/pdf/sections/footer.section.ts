@@ -1,16 +1,13 @@
 import { DateAdapter } from "@/core/adapters";
-import type { User } from "@/domain/entities";
+import type { IUserModel } from "@/infrastructure/models";
 import { Content, ContextPageSize } from "pdfmake/interfaces";
 
-const footerText: Content = {
-  stack: [],
-};
 
 export const footerSection = (
   currentPage: number,
   pageCount: number,
   pageSize: ContextPageSize,
-  user: User
+  user: IUserModel
 ): Content => {
   return {
     layout: "noBorders",

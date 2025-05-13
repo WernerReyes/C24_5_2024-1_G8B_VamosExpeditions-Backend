@@ -1,13 +1,8 @@
+import type { IClientModel } from "@/infrastructure/models";
 import { ExternalCountryContext } from "@/presentation/external/country/country.context";
-import type {
-  Image
-} from "@/presentation/external/country/country.entity";
-import type { client } from "@prisma/client";
-
-export type Client = client & {};
+import type { Image } from "@/presentation/external/country/country.entity";
 
 export class ClientEntity {
- 
   private constructor(
     public readonly id: number,
     public readonly fullName: string,
@@ -22,7 +17,9 @@ export class ClientEntity {
     public readonly updatedAt: Date
   ) {}
 
-  public static async fromObject(client: Client): Promise<ClientEntity> {
+  public static async fromObject(client: {
+    [key: string]: any;
+  }): Promise<ClientEntity> {
     const {
       id,
       fullName,
@@ -32,9 +29,7 @@ export class ClientEntity {
       subregion,
       createdAt,
       updatedAt,
-    } = client;
-
-   
+    } = client as IClientModel;
 
     return new ClientEntity(
       id,

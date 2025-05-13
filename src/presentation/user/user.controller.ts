@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { AppController } from "../controller";
 import { UserService } from "./user.service";
-import { ChangePasswordDto, UserDto } from "@/domain/dtos";
+import { ChangePasswordDto, GetUsersDto, UserDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 
 export class UserController extends AppController {
@@ -10,7 +10,11 @@ export class UserController extends AppController {
   }
 
   public getUsers = async (req: Request, res: Response) => {
-    this.handleError(this.userService.getUsers())
+    const [error, getUsersDto] = GetUsersDto.create({
+      ...req.query,
+    });
+    if (error) return this.handleResponseError(res, CustomError.badRequest(error));
+    this.handleError(this.userService.getUsers(getUsersDto!))
       .then((users) => res.status(200).json(users))
       .catch((error) => this.handleResponseError(res, error));
   };

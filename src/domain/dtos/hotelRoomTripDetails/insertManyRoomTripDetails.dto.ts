@@ -53,7 +53,7 @@ export class InsertManyHotelRoomTripDetailsDto {
         +hotelRoomId,
         +tripDetailsId,
         // [DateUtils.parseISO(dateRange[0]), DateUtils.parseISO(dateRange[1])],
-        [DateAdapter.parseISO(dateRange[0]), DateAdapter.parseISO(dateRange[1])],
+        [new Date(dateRange[0]), new Date(dateRange[1])],
         +countPerDay < 1 ? 1 : +countPerDay,
         +costPerson
       ),

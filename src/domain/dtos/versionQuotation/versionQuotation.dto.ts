@@ -1,6 +1,6 @@
 import { Validations } from "@/core/utils";
-import { VersionQuotationStatus } from "@/domain/entities";
 import { VersionQuotationIDDto } from "../common/versionQuotationID.dto";
+import { VersionQuotationStatusEnum } from "@/infrastructure/models";
 
 export class VersionQuotationDto extends VersionQuotationIDDto {
   private constructor(
@@ -11,7 +11,7 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
     public readonly name: string = `Q-${new Date().getFullYear()}-${
       id.quotationId
     }`, // Q-2025-1
-    public readonly status: VersionQuotationStatus = VersionQuotationStatus.DRAFT,
+    public readonly status: VersionQuotationStatusEnum = VersionQuotationStatusEnum.DRAFT,
     public readonly completionPercentage: number,
     public readonly partnerId?: number,
     public readonly commission?: number,
@@ -26,7 +26,7 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
     [key: string]: any;
   }): [string?, VersionQuotationDto?] {
     const {
-      status = VersionQuotationStatus.DRAFT,
+      status = VersionQuotationStatusEnum.DRAFT,
       indirectCostMargin,
       profitMargin,
       finalPrice,
@@ -42,7 +42,7 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
 
     const statusError = Validations.validateEnumValue(
       status,
-      Object.values(VersionQuotationStatus)
+      Object.values(VersionQuotationStatusEnum)
     );
     if (statusError) return [statusError, undefined];
 

@@ -1,14 +1,11 @@
 import { type DefaultArgs } from "@prisma/client/runtime/library";
-import type {
-  Prisma,
-  version_quotation_status,
-} from "@prisma/client";
+import type { Prisma, version_quotation_status } from "@prisma/client";
 import type {
   DuplicateMultipleVersionQuotationDto,
   GetVersionQuotationsDto,
   VersionQuotationDto,
 } from "@/domain/dtos";
-import type { VersionQuotation } from "@/domain/entities";
+import type { IVersionQuotationModel } from "@/infrastructure/models";
 import { Validations } from "@/core/utils";
 
 type Dto =
@@ -16,7 +13,9 @@ type Dto =
   | VersionQuotationDto
   | GetVersionQuotationsDto;
 
-type Model = Partial<VersionQuotation> | Partial<VersionQuotation>[];
+type Model =
+  | Partial<IVersionQuotationModel>
+  | Partial<IVersionQuotationModel>[];
 
 const FROM = "VersionQuotationMapper";
 
@@ -47,7 +46,8 @@ export class VersionQuotationMapper {
           version_number: this.dto.id.versionNumber,
           quotation_id: this.dto.id.quotationId,
         },
-        AND: { // TODO: Check if this is needed and if it breaks anything
+        AND: {
+          // TODO: Check if this is needed and if it breaks anything
           is_deleted: false,
         },
       },

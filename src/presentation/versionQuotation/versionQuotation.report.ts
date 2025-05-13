@@ -1,12 +1,12 @@
 import { DateAdapter } from "@/core/adapters";
-import type { HotelRoomTripDetails, VersionQuotation } from "@/domain/entities";
-import { PdfService } from "@/lib";
+import { PdfService } from "@/infrastructure";
+import type { IHotelRoomTripDetailsModel, IVersionQuotationModel } from "@/infrastructure/models";
 import type { StyleDictionary } from "pdfmake/interfaces";
 
 interface ReportOptions {
   title?: string;
   subTitle?: string;
-  dataQuey: VersionQuotation;
+  dataQuey: IVersionQuotationModel;
 }
 
 export class VersionQuotationReport extends PdfService {
@@ -17,7 +17,7 @@ export class VersionQuotationReport extends PdfService {
   private generateTableContent({
     trip_details,
     final_price,
-  }: VersionQuotation) {
+  }: IVersionQuotationModel) {
     // Group hotels by date
     const groupedData: Record<string, any[]> = {};
 
@@ -41,7 +41,7 @@ export class VersionQuotationReport extends PdfService {
 
     // **Step 2: Add hotel room details to correct date**
     trip_details?.hotel_room_trip_details?.forEach(
-      (db: HotelRoomTripDetails) => {
+      (db: IHotelRoomTripDetailsModel) => {
         const dayLabel = DateAdapter.format(db.date, "EEE, MMM dd, yyyy"); // Format date to match the label
 
         groupedData[dayLabel]?.push([

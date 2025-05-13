@@ -3,7 +3,7 @@ import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import { Middleware } from "../middleware";
 import { UserMapper } from "./user.mapper";
-import { RoleEnum } from "@/domain/entities";
+import { RoleEnum } from "@/infrastructure/models";
 
 export class UserRoutes {
   public static get routes(): Router {

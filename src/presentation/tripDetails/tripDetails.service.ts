@@ -1,12 +1,8 @@
-import {
-  ClientModel,
-  prisma,
-  TripDetailsHasCityModel,
-  TripDetailsModel,
-} from "@/data/postgres";
+
 import type { TripDetailsDto } from "@/domain/dtos";
 import { TripDetailsEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
+import { ClientModel, prisma } from "@/infrastructure/models";
 import { ApiResponse } from "../response";
 import { TripDetailsMapper } from "./tripDetails.mapper";
 
@@ -24,26 +20,25 @@ export class TripDetailsService {
 
     this.tripDetailsMapper.setDto = tripDetailsDto;
 
-    const [_, tripDetails] = await prisma
-      .$transaction([
-        TripDetailsHasCityModel.deleteMany({
-          where: { trip_details_id: tripDetailsDto.id },
-        }),
-        TripDetailsModel.upsert({
-          where: {
-            version_number_quotation_id: {
-              version_number: tripDetailsDto.versionQuotationId!.versionNumber,
-              quotation_id: tripDetailsDto.versionQuotationId!.quotationId,
-            },
-          },
-          create: this.tripDetailsMapper.toUpsert,
-          update: this.tripDetailsMapper.toUpsert,
-          include: this.tripDetailsMapper.toSelectInclude,
-        }),
-      ])
-      .catch((error) => {
-        throw CustomError.internalServer(`${error}`);
+    const tripDetails = await prisma.$transaction(async (tx) => {
+      await tx.trip_details_has_city.deleteMany({
+        where: { trip_details_id: tripDetailsDto.id },
       });
+
+      return tx.trip_details.upsert({
+        where: {
+          version_number_quotation_id: {
+            version_number: tripDetailsDto.versionQuotationId!.versionNumber,
+            quotation_id: tripDetailsDto.versionQuotationId!.quotationId,
+          },
+        },
+        create: this.tripDetailsMapper.toUpsert,
+        update: this.tripDetailsMapper.toUpsert,
+        include: this.tripDetailsMapper.toSelectInclude,
+      });
+    }).catch((error) => {
+      throw CustomError.internalServer(`${error}`);
+    });
 
     return new ApiResponse<TripDetailsEntity>(
       200,

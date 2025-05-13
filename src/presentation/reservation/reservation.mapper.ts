@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import type { GetReservationsDto, ReservationDto } from "@/domain/dtos";
-import { ReservationStatus, VersionQuotationStatus } from "@/domain/entities";
+import { ReservationStatusEnum, VersionQuotationStatusEnum } from "@/infrastructure/models";
 
 type Dto = ReservationDto | GetReservationsDto;
 
@@ -18,7 +18,7 @@ export class ReservationMapper {
   public get createReservation(): Prisma.reservationCreateInput {
     this.dto = this.dto as ReservationDto;
     return {
-      status: ReservationStatus.PENDING,
+      status: ReservationStatusEnum.PENDING,
       quotation: { connect: { id_quotation: this.dto.quotationId } },
       updated_at: new Date(),
     };
@@ -55,9 +55,9 @@ export class ReservationMapper {
             where: {
               official: true,
               OR: [
-                { status: VersionQuotationStatus.APPROVED },
+                { status: VersionQuotationStatusEnum.APPROVED },
                 {
-                  status: VersionQuotationStatus.CANCELATED,
+                  status: VersionQuotationStatusEnum.CANCELATED,
                 },
               ],
             },

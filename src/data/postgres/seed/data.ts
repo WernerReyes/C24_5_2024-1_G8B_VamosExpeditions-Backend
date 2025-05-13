@@ -30,6 +30,12 @@ export const USERS: user[] = [
     id_role: 1,
     description: "description 1",
     phone_number: "+51123456789",
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_deleted: false,
+    deleted_at: null,
+    delete_reason: null,
+
   },
   {
     id_user: 2,
@@ -39,6 +45,11 @@ export const USERS: user[] = [
     id_role: 2,
     description: "description 2",
     phone_number: "+51123456789",
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_deleted: false,
+    deleted_at: null,
+    delete_reason: null,
   },
   {
     id_user: 3,
@@ -48,6 +59,11 @@ export const USERS: user[] = [
     id_role: 1,
     description: "description 3",
     phone_number: "+51123456789",
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_deleted: false,
+    deleted_at: null,
+    delete_reason: null,
   },
   {
     id_user: 4,
@@ -57,6 +73,11 @@ export const USERS: user[] = [
     id_role: 2,
     description: "description 4",
     phone_number: "+51123456789",
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_deleted: false,
+    deleted_at: null,
+    delete_reason: null,
   },
   {
     id_user: 5,
@@ -66,6 +87,11 @@ export const USERS: user[] = [
     id_role: 1,
     description: "description 5",
     phone_number: "+51123456789",
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_deleted: false,
+    deleted_at: null,
+    delete_reason: null,
   },
   {
     id_user: 6,
@@ -75,6 +101,11 @@ export const USERS: user[] = [
     id_role: 2,
     description: "description 6",
     phone_number: "+51123456789",
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_deleted: false,
+    deleted_at: null,
+    delete_reason: null,
   },
 ];
 

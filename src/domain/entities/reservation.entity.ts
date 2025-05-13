@@ -1,24 +1,15 @@
-import type { reservation } from "@prisma/client";
+import {
+  IReservationModel,
+  ReservationStatusEnum,
+} from "@/infrastructure/models";
 import { VersionQuotationEntity } from "./versionQuotation.entity";
-import { Quotation } from "./quotation.entity";
-import { DateAdapter } from "@/core/adapters";
-
-export type Reservation = reservation & {
-  quotation?: Quotation;
-};
-
-export enum ReservationStatus {
-  PENDING = "PENDING",
-  ACTIVE = "ACTIVE",
-  REJECTED = "REJECTED",
-}
 
 export class ReservationEntity {
   constructor(
     public readonly id: number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
-    public readonly status: ReservationStatus,
+    public readonly status: ReservationStatusEnum,
     public readonly versionQuotation?: VersionQuotationEntity,
 
     public readonly isDeleted: boolean = false,
@@ -26,9 +17,9 @@ export class ReservationEntity {
     public readonly deleteReason?: string
   ) {}
 
-  public static async fromObject(
-    reservation: Reservation
-  ): Promise<ReservationEntity> {
+  public static async fromObject(reservation: {
+    [key: string]: any;
+  }): Promise<ReservationEntity> {
     const {
       id,
       created_at,
@@ -38,12 +29,12 @@ export class ReservationEntity {
       is_deleted,
       delete_reason,
       deleted_at,
-    } = reservation;
+    } = reservation as IReservationModel;
     return new ReservationEntity(
       +id,
       new Date(created_at),
       new Date(updated_at),
-      status as ReservationStatus,
+      status,
       quotation && quotation.version_quotation && quotation.version_quotation[0]
         ? await VersionQuotationEntity.fromObject(
             quotation.version_quotation[0]

@@ -10,6 +10,7 @@ export * from './client/client.dto';
 export * from './common/pagination.dto';
 export * from './common/versionQuotationID.dto';
 export * from './common/trash.dto';
+export * from './common/selectModelFields.dto';
 
 //* HOTEL
 export * from './hotel/getHotels.dto';
@@ -57,4 +58,5 @@ export * from './reservation/reservation.dto';
 //* USER
 export * from './user/changePassword.dto';
 export * from './user/user.dto';
+export * from './user/getUsers.dto';
 

@@ -1,6 +1,6 @@
-import { CountryModel, DistritModel } from "@/data/postgres";
+import { CountryEntity } from "@/domain/entities";
+import { CountryModel } from "@/infrastructure/models";
 import { ApiResponse } from "../response";
-import { CountryEntity, DistritEntity } from "@/domain/entities";
 
 export class CountryService {
   constructor() {}
@@ -20,19 +20,5 @@ export class CountryService {
     );
   }
 
-  public async getAllDistritAnd() {
-    const distrits = await DistritModel.findMany({
-      omit: {
-        city_id: true,
-      },
-    });
-
-    return new ApiResponse<DistritEntity[]>(
-      200,
-      "Lista de distritos",
-      await Promise.all(
-        distrits.map((distrit) => DistritEntity.fromObject(distrit))
-      )
-    );
-  }
+ 
 }

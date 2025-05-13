@@ -1,6 +1,6 @@
 import { DateAdapter } from "@/core/adapters/date.adapter";
-import { prisma } from "@/data/postgres";
 import type { CronJob } from "../cron";
+import { prisma } from "@/infrastructure/models";
 
 export class VersionQuotationCron implements CronJob {
   private async deleteOldArchivedVersions(date: Date) {

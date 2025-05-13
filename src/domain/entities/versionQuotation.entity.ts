@@ -1,31 +1,11 @@
-import { type version_quotation, type partner } from "@prisma/client";
-import { type Quotation } from "./quotation.entity";
-import { TripDetails, TripDetailsEntity } from "./tripDetails.entity";
-import { type User, UserEntity } from "./user.entity";
-import { ReservationEntity } from "./reservation.entity";
+import type {
+  IVersionQuotationModel,
+  VersionQuotationStatusEnum,
+} from "@/infrastructure/models";
 import { PartnerEntity } from "./partner.entity";
-
-export enum VersionQuotationStatus {
-  DRAFT = "DRAFT",
-  COMPLETED = "COMPLETED",
-  CANCELATED = "CANCELATED",
-  APPROVED = "APPROVED",
-}
-
-export enum AllowVersionQuotationType {
-  TRANSPORTATION = "TRANSPORTATION",
-  ACTIVITY = "ACTIVITY",
-  ACCOMMODATION = "ACCOMMODATION",
-  FOOD = "FOOD",
-  GUIDE = "GUIDE",
-}
-
-export type VersionQuotation = version_quotation & {
-  user?: User;
-  trip_details?: TripDetails | null;
-  quotation?: Quotation;
-  partners?: partner | null;
-};
+import { ReservationEntity } from "./reservation.entity";
+import { TripDetailsEntity } from "./tripDetails.entity";
+import { UserEntity } from "./user.entity";
 
 export class VersionQuotationEntity {
   constructor(
@@ -34,7 +14,7 @@ export class VersionQuotationEntity {
       quotationId: number;
     },
     public readonly name: string,
-    public readonly status: VersionQuotationStatus,
+    public readonly status: VersionQuotationStatusEnum,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly official: boolean,
@@ -55,9 +35,9 @@ export class VersionQuotationEntity {
     public readonly deleteReason?: string
   ) {}
 
-  public static async fromObject(
-    versionQuotation: VersionQuotation
-  ): Promise<VersionQuotationEntity> {
+  public static async fromObject(versionQuotation: {
+    [key: string]: any;
+  }): Promise<VersionQuotationEntity> {
     const {
       version_number,
       name,
@@ -79,7 +59,7 @@ export class VersionQuotationEntity {
       is_deleted,
       delete_reason,
       deleted_at,
-    } = versionQuotation;
+    } = versionQuotation as IVersionQuotationModel;
 
     return new VersionQuotationEntity(
       {
@@ -87,7 +67,7 @@ export class VersionQuotationEntity {
         quotationId: +quotation_id,
       },
       name,
-      status as VersionQuotationStatus,
+      status,
       created_at,
       updated_at,
       official,
@@ -99,10 +79,12 @@ export class VersionQuotationEntity {
       trip_details
         ? await TripDetailsEntity.fromObject(trip_details)
         : undefined,
-      user ? await UserEntity.fromObject(user) : undefined,
-      official ? quotation?.reservation
-        ? await ReservationEntity.fromObject(quotation.reservation)
-        : undefined : undefined,
+      user ? ((await UserEntity.fromObject(user)) as UserEntity) : undefined,
+      official
+        ? quotation?.reservation
+          ? await ReservationEntity.fromObject(quotation.reservation)
+          : undefined
+        : undefined,
       partners ? PartnerEntity.fromObject(partners) : undefined,
       official &&
         (quotation?.version_quotation ?? []).filter(

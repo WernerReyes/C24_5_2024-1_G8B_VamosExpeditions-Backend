@@ -1,15 +1,10 @@
-
-
-export enum RoleEnum {
-  MANAGER_ROLE = "MANAGER_ROLE",
-  EMPLOYEE_ROLE = "EMPLOYEE_ROLE",
-}
+import type { IRoleModel, RoleEnum } from "@/infrastructure/models";
 
 export class RoleEntity {
-  private constructor(public id: number, public name: RoleEnum) {}
+  constructor(public id: number, public name: RoleEnum) {}
 
-  public static fromObject(object: { [key: string]: any }): RoleEntity {
-    const { id_role, name } = object;
+  public static fromObject(role: { [key: string]: any }): RoleEntity {
+    const { id_role, name } = role as IRoleModel;
     return new RoleEntity(id_role, name);
   }
 }

@@ -1,8 +1,8 @@
-import { prisma } from "@/data/postgres";
 import { QuotationEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
 import { ApiResponse } from "../response";
 import type { QuotationMapper } from "./quotation.mapper";
+import { prisma } from "@/infrastructure/models";
 
 export class QuotationService {
   constructor(private readonly quotationMapper: QuotationMapper) {}

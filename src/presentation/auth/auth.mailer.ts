@@ -1,6 +1,6 @@
 import { EnvsConst } from "@/core/constants";
-import { EmailService } from "@/lib";
-import { EmailTemplate } from "@/lib/mailer/email.template";
+import { EmailService } from "@/infrastructure";
+import { EmailTemplate } from "@/infrastructure/mailer/email.template";
 
 export class AuthMailer extends EmailService {
   constructor() {

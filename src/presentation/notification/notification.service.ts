@@ -1,6 +1,6 @@
-import { NotificationModel } from "@/data/postgres";
 import { NotificationMessageEntity } from "@/domain/entities";
 import { ApiResponse } from "../response";
+import { NotificationModel } from "@/infrastructure/models";
 
 interface NotificationMessage {
   to_user: number[];
@@ -106,8 +106,7 @@ export class NotificationService {
           },
         },
       });
-
-      console.log("notificationUsers", notificationUsers);  
+ 
       return await Promise.all(
         notificationUsers.map((notification) =>
           NotificationMessageEntity.fromObject(notification)

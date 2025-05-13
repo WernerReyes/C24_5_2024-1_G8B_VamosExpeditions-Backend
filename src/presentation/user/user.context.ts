@@ -20,7 +20,11 @@ export class UserContext {
     return this._onlineUsers.has(userId);
   }
 
-  public static getConnections(userId: number): Set<string> | undefined {
+  public static getConnections(){
+    return this._onlineUsers
+  }
+
+  public static getConnectionsByUser(userId: number): Set<string> | undefined {
     return this._onlineUsers.get(userId);
   }
 
@@ -31,15 +35,12 @@ export class UserContext {
     }
 
     this._onlineUsers.get(userId)?.add(connectionId);
+    
   }
 
-  public static async removeConnection(userId: number, connectionId: string) {
-    const connections = this._onlineUsers.get(userId);
-    if (!connections) return;
 
-    if (connections.size === 0) {
-      this._onlineUsers.delete(userId);
-      await this.cache?.sRem(CacheConst.ONLINE_USERS, userId);
-    }
+  public static async removeConnection(userId: number) {
+    this._onlineUsers.delete(userId);
+    await this.cache?.sRem(CacheConst.ONLINE_USERS, userId);
   }
 }

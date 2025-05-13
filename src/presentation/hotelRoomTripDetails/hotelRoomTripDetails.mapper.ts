@@ -30,6 +30,8 @@ export class HotelRoomTripDetailsMapper {
       dto.dateRange[1]
     );
 
+    console.log("dates", dates);
+
     const dataToInsert = dates.flatMap((date) => {
       return Array.from({ length: dto.countPerDay }, () => ({
         hotel_room_id: dto.hotelRoomId,
