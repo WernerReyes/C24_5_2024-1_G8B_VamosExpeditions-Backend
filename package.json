@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "tsnd --respawn --clear -r tsconfig-paths/register src/app.ts",
     "build": "rimraf ./dist && tsc",
-    "copy:templates": "cpx \"src/infraestructure/mailer/templates/**/*\" dist/infraestructure/mailer/templates",
-    "copy:fonts": "cpx \"src/infraestructure/pdf/fonts/**/*\" dist/infraestructure/pdf/fonts",
+    "copy:templates": "cpx \"src/infrastructure/mailer/templates/**/*\" dist/infrastructure/mailer/templates",
+    "copy:fonts": "cpx \"src/infrastructure/pdf/fonts/**/*\" dist/infrastructure/pdf/fonts",
     "start:dev": "pnpm build && pnpm copy:templates && pnpm copy:fonts && pnpm start:prod",
     "start:prod": "node -r tsconfig-paths/register dist/app.js",
     "seed": "tsnd --respawn --clear -r tsconfig-paths/register src/data/postgres/seed/seed.ts",
