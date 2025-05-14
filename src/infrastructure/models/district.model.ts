@@ -12,7 +12,7 @@ export class DistrictModel
 {
   private static distrit = new PrismaClient().distrit;
 
-  private static _instance: DistrictModel = new DistrictModel(0, "", 0);
+  private static _instance: DistrictModel
 
   protected override get getEmpty(): DistrictModel {
     return DistrictModel._instance;
@@ -27,8 +27,20 @@ export class DistrictModel
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new DistrictModel(0, "", 0);
+  }
+
   public static get instance(): DistrictModel {
     return this._instance;
+  }
+
+  public static get partialInstance(): DistrictModel {
+    return new DistrictModel(
+      this._instance.id_distrit,
+      this._instance.name,
+      this._instance.city_id
+    );
   }
 
   public static set setCity(city: ICityModel) {

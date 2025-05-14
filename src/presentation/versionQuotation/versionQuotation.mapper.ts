@@ -6,7 +6,7 @@ import type {
   VersionQuotationDto,
 } from "@/domain/dtos";
 import type { IVersionQuotationModel } from "@/infrastructure/models";
-import { Validations } from "@/core/utils";
+import { ParamsUtils, Validations } from "@/core/utils";
 
 type Dto =
   | DuplicateMultipleVersionQuotationDto
@@ -34,6 +34,80 @@ export class VersionQuotationMapper {
 
   public set setVersionQuotation(versionQuotation: Model) {
     this.versionQuotation = versionQuotation;
+  }
+
+  public get toSelect(): Prisma.version_quotationSelect | undefined {
+    const { select } = this.dto as GetVersionQuotationsDto;
+    if (!select) return this.select;
+
+    return ParamsUtils.parseDBSelect(select);
+  }
+
+  private get select(): Prisma.version_quotationSelect {
+    return {
+      version_number: true,
+      quotation_id: true,
+      name: true,
+      indirect_cost_margin: true,
+      profit_margin: true,
+      final_price: true,
+      completion_percentage: true,
+      status: true,
+      commission: true,
+      created_at: true,
+      updated_at: true,
+      is_deleted: true,
+      trip_details: {
+        select: {
+          id: true,
+          start_date: true,
+          end_date: true,
+          number_of_people: true,
+          code: true,
+          traveler_style: true,
+          order_type: true,
+          client: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              phone: true,
+              subregion: true,
+              country: true,
+            },
+          },
+        },
+      },
+      user: {
+        select: {
+          id_user: true,
+          fullname: true,
+        },
+      },
+      quotation: {
+        select: {
+          reservation: {
+            select: {
+              id: true,
+              status: true,
+              
+            },
+          },
+        },
+      },
+      partners: {
+        select: {
+          id: true,
+          name: true,
+          created_at: true,
+        },
+      },
+      delete_reason: true,
+      deleted_at: true,
+      official: true,
+      partner_id: true,
+      user_id: true,
+    };
   }
 
   public get findById(): Prisma.version_quotationFindUniqueArgs {

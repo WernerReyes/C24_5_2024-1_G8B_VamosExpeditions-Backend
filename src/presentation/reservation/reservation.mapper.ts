@@ -1,6 +1,10 @@
 import type { Prisma } from "@prisma/client";
 import type { GetReservationsDto, ReservationDto } from "@/domain/dtos";
-import { ReservationStatusEnum, VersionQuotationStatusEnum } from "@/infrastructure/models";
+import {
+  ReservationStatusEnum,
+  VersionQuotationStatusEnum,
+} from "@/infrastructure/models";
+import { ParamsUtils } from "@/core/utils";
 
 type Dto = ReservationDto | GetReservationsDto;
 
@@ -13,6 +17,120 @@ export class ReservationMapper {
 
   public set setDto(dto: Dto) {
     this.dto = dto;
+  }
+
+  public get toSelect(): Prisma.reservationSelect | undefined {
+    const { select } = this.dto as GetReservationsDto;
+    if (!select) return this.select;
+
+    return this.parseDBSelectAdapted(select);
+  }
+
+  private parseDBSelectAdapted(
+    select: string[]
+  ): Prisma.reservationSelect | undefined {
+    const parsedSelect =
+      ParamsUtils.parseDBSelect<Prisma.reservationSelect>(select);
+
+    if (parsedSelect) {
+      return {
+        ...parsedSelect,
+        quotation: {
+          ...(typeof parsedSelect.quotation === "object" &&
+          parsedSelect.quotation.select != null
+            ? {
+                ...parsedSelect.quotation,
+                select: {
+                  ...parsedSelect.quotation.select,
+                  version_quotation: {
+                    ...(parsedSelect.quotation as any).select.version_quotation,
+
+                    where: {
+                      official: true,
+                      OR: [
+                        { status: VersionQuotationStatusEnum.APPROVED },
+                        {
+                          status: VersionQuotationStatusEnum.CANCELATED,
+                        },
+                      ],
+                    },
+                    orderBy: { version_number: "desc" },
+                    take: 1,
+                  },
+                },
+              }
+            : {}),
+        },
+      };
+    }
+    return undefined;
+  }
+
+  private get select(): Prisma.reservationSelect {
+    return {
+      id: true,
+      status: true,
+      created_at: true,
+      updated_at: true,
+      is_deleted: true,
+      deleted_at: true,
+      delete_reason: true,
+      quotation_id: true,
+      quotation: {
+        select: {
+          id_quotation: true,
+          version_quotation: {
+            where: {
+              official: true,
+              OR: [
+                { status: VersionQuotationStatusEnum.APPROVED },
+                {
+                  status: VersionQuotationStatusEnum.CANCELATED,
+                },
+              ],
+            },
+            orderBy: { version_number: "desc" },
+            take: 1,
+            select: {
+              quotation_id: true,
+              version_number: true,
+              name: true,
+              indirect_cost_margin: true,
+              profit_margin: true,
+              final_price: true,
+              completion_percentage: true,
+              status: true,
+              commission: true,
+              created_at: true,
+              updated_at: true,
+              is_deleted: true,
+              trip_details: {
+                select: {
+                  id: true,
+                  client_id: true,
+                  client: {
+                    select: {
+                      id: true,
+                      fullName: true,
+                      country: true,
+                      subregion: true,
+                      email: true,
+                      phone: true,
+                    },
+                  },
+                },
+              },
+              user: {
+                select: {
+                  id_user: true,
+                  fullname: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    };
   }
 
   public get createReservation(): Prisma.reservationCreateInput {

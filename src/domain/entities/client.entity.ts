@@ -8,13 +8,13 @@ export class ClientEntity {
     public readonly fullName: string,
     public readonly email: string,
     public readonly phone: string,
-    public readonly country: {
+    public readonly subregion: string,
+    public readonly createdAt?: Date,
+    public readonly updatedAt?: Date,
+    public readonly country?: {
       name: string;
       image?: Image;
-    },
-    public readonly subregion: string,
-    public readonly createdAt: Date,
-    public readonly updatedAt: Date
+    }
   ) {}
 
   public static async fromObject(client: {
@@ -36,13 +36,15 @@ export class ClientEntity {
       fullName,
       email,
       phone,
-      {
-        name: country,
-        image: ExternalCountryContext.getCountryByName(country)?.image,
-      },
       subregion,
-      createdAt!,
-      updatedAt!
+      createdAt ? new Date(createdAt) : undefined,
+      updatedAt ? new Date(updatedAt) : undefined,
+      country
+        ? {
+            name: country,
+            image: ExternalCountryContext.getCountryByName(country)?.image,
+          }
+        : undefined
     );
   }
 }

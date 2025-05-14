@@ -186,13 +186,13 @@ export class ReservationService {
 
     const { page, limit } = getReservationsDto;
     const offset = (page - 1) * limit;
-
     const reservations = await ReservationModel.findMany({
       where: this.reservationMapper.getReservationsWhere,
       orderBy: { created_at: "desc" },
       skip: offset,
       take: limit,
-      include: this.reservationMapper.toSelectInclude,
+      // select: this.reservationMapper.toSelect,
+      select: this.reservationMapper.toSelect,
     });
 
     const totalReservations = await ReservationModel.count({

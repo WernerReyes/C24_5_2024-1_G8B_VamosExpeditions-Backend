@@ -12,7 +12,7 @@ export class CountryModel
 {
   private static country = new PrismaClient().country;
 
-  private static _instance: CountryModel = new CountryModel(0, "", "", []);
+  private static _instance: CountryModel
 
   protected override get getEmpty(): CountryModel {
     return CountryModel._instance;
@@ -27,8 +27,21 @@ export class CountryModel
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new CountryModel(0, "", "", []);
+  }
+
   public static get instance(): CountryModel {
     return this._instance;
+  }
+
+  public static get partialInstance(): CountryModel {
+    return new CountryModel(
+      this._instance.id_country,
+      this._instance.name,
+      this._instance.code,
+      this._instance.city
+    );
   }
 
   public static set setCities(cities: ICityModel[]) {

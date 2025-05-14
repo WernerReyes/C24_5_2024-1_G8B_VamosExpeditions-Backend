@@ -18,6 +18,8 @@ export class VersionQuotationEntity {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly official: boolean,
+    public readonly isDeleted: boolean,
+    public readonly hasVersions: boolean,
     public readonly completionPercentage: number,
     public readonly indirectCostMargin?: number,
     public readonly profitMargin?: number,
@@ -28,9 +30,6 @@ export class VersionQuotationEntity {
     public readonly reservation?: ReservationEntity,
     public readonly partner?: PartnerEntity,
 
-    public readonly hasVersions: boolean = false,
-
-    public readonly isDeleted: boolean = false,
     public readonly deletedAt?: Date,
     public readonly deleteReason?: string
   ) {}
@@ -71,7 +70,12 @@ export class VersionQuotationEntity {
       created_at,
       updated_at,
       official,
-      Number(completion_percentage),
+      is_deleted,
+      official &&
+        (quotation?.version_quotation ?? []).filter(
+          (version) => !version.official && !version.is_deleted
+        ).length > 0,
+      completion_percentage && Number(completion_percentage),
       indirect_cost_margin ? Number(indirect_cost_margin) : undefined,
       profit_margin ? Number(profit_margin) : undefined,
       final_price ? Number(final_price) : undefined,
@@ -86,11 +90,6 @@ export class VersionQuotationEntity {
           : undefined
         : undefined,
       partners ? PartnerEntity.fromObject(partners) : undefined,
-      official &&
-        (quotation?.version_quotation ?? []).filter(
-          (version) => !version.official && !version.is_deleted
-        ).length > 0,
-      is_deleted,
       deleted_at ? new Date(deleted_at) : undefined,
       delete_reason ?? undefined
     );

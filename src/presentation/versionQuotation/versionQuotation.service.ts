@@ -595,20 +595,22 @@ export class VersionQuotationService {
         created_at: "desc",
       },
       where: this.versionQuotationMapper.getVersionsQuotationsWhere,
-      include: {
-        ...this.versionQuotationMapper.toSelectInclude,
-        quotation: {
-          include: {
-            version_quotation: {
-              select: {
-                official: true,
-                is_deleted: true,
-              },
-            },
-            reservation: true,
-          },
-        },
-      },
+      select: this.versionQuotationMapper.toSelect,
+
+      // include: {
+      //   ...this.versionQuotationMapper.toSelectInclude,
+      //   quotation: {
+      //     include: {
+      //       version_quotation: {
+      //         select: {
+      //           official: true,
+      //           is_deleted: true,
+      //         },
+      //       },
+      //       reservation: true,
+      //     },
+      //   },
+      // },
     }).catch((error) => {
       throw CustomError.internalServer(error.message);
     });
@@ -624,7 +626,7 @@ export class VersionQuotationService {
       new PaginatedResponse(
         await Promise.all(
           versionsQuotation.map((versionQuotation) =>
-            VersionQuotationEntity.fromObject(versionQuotation as any)
+            VersionQuotationEntity.fromObject(versionQuotation)
           )
         ),
         getVersionQuotationsDto.page,

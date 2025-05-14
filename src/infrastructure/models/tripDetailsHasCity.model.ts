@@ -12,8 +12,7 @@ export class TripDetailsHasCityModel
 {
   private static trip_details_has_city = prisma.trip_details_has_city;
 
-  private static _instance: TripDetailsHasCityModel =
-    new TripDetailsHasCityModel(0, 0);
+  private static _instance: TripDetailsHasCityModel
 
   protected override get getEmpty(): TripDetailsHasCityModel {
     return TripDetailsHasCityModel._instance;
@@ -26,8 +25,19 @@ export class TripDetailsHasCityModel
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new TripDetailsHasCityModel(0, 0);
+  }
+
   public static get instance(): TripDetailsHasCityModel {
     return this._instance;
+  }
+
+  public static get partialInstance(): TripDetailsHasCityModel {
+    return new TripDetailsHasCityModel(
+      this._instance.trip_details_id,
+      this._instance.city_id
+    );
   }
 
   public static set setCity(city: ICityModel) {

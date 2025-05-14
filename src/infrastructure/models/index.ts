@@ -5,6 +5,7 @@ export * from './district.model';
 export * from './hotel.model';
 export * from './hotelRoom.model';
 export * from './hotelRoomTripDetails.model';
+export * from './initializer';
 export * from './model';
 export * from './notification.model';
 export * from './partner.model';

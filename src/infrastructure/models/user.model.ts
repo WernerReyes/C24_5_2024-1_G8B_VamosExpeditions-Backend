@@ -2,7 +2,6 @@ import { Prisma, PrismaClient, type user } from "@prisma/client";
 import { Model } from "./model";
 import { type IRoleModel, RoleModel } from "./role.model";
 
-
 export interface IUserModel extends user {
   role?: IRoleModel;
 }
@@ -12,20 +11,7 @@ export class UserModel extends Model<IUserModel> implements IUserModel {
 
   public static modelName = Prisma.ModelName.user;
 
-  private static _instance: UserModel = new UserModel(
-    0,
-    "",
-    "",
-    "",
-    new Date(0),
-    new Date(0),
-    false,
-    null,
-    null,
-    0,
-    null,
-    null
-  );
+  private static _instance: UserModel;
 
   protected override get getEmpty(): UserModel {
     return UserModel._instance;
@@ -49,15 +35,53 @@ export class UserModel extends Model<IUserModel> implements IUserModel {
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new UserModel(
+      0,
+      "",
+      "",
+      "",
+      new Date(0),
+      new Date(0),
+      false,
+      null,
+      null,
+      0,
+      null,
+      null
+    );
+  }
+
   public static get instance(): UserModel {
     return this._instance;
   }
 
-  public static set role(role: RoleModel) {
+  public static get partialInstance(): UserModel {
+    return new UserModel(
+      this._instance.id_user,
+      this._instance.fullname,
+      this._instance.email,
+      this._instance.password,
+      this._instance.created_at,
+      this._instance.updated_at,
+      this._instance.is_deleted,
+      this._instance.description,
+      this._instance.phone_number,
+      this._instance.id_role,
+      this._instance.deleted_at,
+      this._instance.delete_reason
+    );
+  }
+
+  public static set setRole(role: RoleModel) {
     this._instance.role = role;
   }
 
-  public static getString() {
+  public static set setRelationship(relationship: Pick<IUserModel, "role">) {
+    Object.assign(this._instance, relationship);
+  }
+
+  public static get getString() {
     return this._instance.getString();
   }
 

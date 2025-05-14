@@ -10,9 +10,9 @@ export class ReservationEntity {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly status: ReservationStatusEnum,
+    public readonly isDeleted: boolean,
     public readonly versionQuotation?: VersionQuotationEntity,
 
-    public readonly isDeleted: boolean = false,
     public readonly deletedAt?: Date,
     public readonly deleteReason?: string
   ) {}
@@ -31,16 +31,16 @@ export class ReservationEntity {
       deleted_at,
     } = reservation as IReservationModel;
     return new ReservationEntity(
-      +id,
-      new Date(created_at),
-      new Date(updated_at),
+      id && +id,
+      created_at && new Date(created_at),
+      updated_at && new Date(updated_at),
       status,
+      is_deleted,
       quotation && quotation.version_quotation && quotation.version_quotation[0]
         ? await VersionQuotationEntity.fromObject(
             quotation.version_quotation[0]
           )
         : undefined,
-      is_deleted,
       deleted_at ? new Date(deleted_at) : undefined,
       delete_reason ?? undefined
     );

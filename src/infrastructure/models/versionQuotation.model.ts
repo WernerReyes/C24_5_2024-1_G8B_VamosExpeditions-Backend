@@ -8,8 +8,7 @@ import { Model, prisma } from "./model";
 import { type IPartnerModel } from "./partner.model";
 import { type IQuotationModel } from "./quotation.model";
 import { type ITripDetailsModel } from "./tripDetails.model";
-import { UserModel, type IUserModel } from "./user.model";
-import { RoleModel } from "./role.model";
+import { type IUserModel } from "./user.model";
 
 export interface IVersionQuotationModel extends version_quotation {
   user?: IUserModel;
@@ -26,25 +25,7 @@ export class VersionQuotationModel
 
   public static modelName = Prisma.ModelName.version_quotation;
 
-  private static _instance: VersionQuotationModel = new VersionQuotationModel(
-    0,
-    0,
-    null,
-    "",
-    null,
-    null,
-    false,
-    0,
-    new Date(0),
-    new Date(0),
-    "" as version_quotation_status,
-    0,
-    null,
-    null,
-    false,
-    null,
-    null
-  );
+  private static _instance: VersionQuotationModel;
 
   protected override get getEmpty(): VersionQuotationModel {
     return VersionQuotationModel._instance;
@@ -76,28 +57,85 @@ export class VersionQuotationModel
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new VersionQuotationModel(
+      0,
+      0,
+      null,
+      "",
+      null,
+      null,
+      false,
+      0,
+      new Date(0),
+      new Date(0),
+      "" as version_quotation_status,
+      0,
+      null,
+      null,
+      false,
+      null,
+      null
+    );
+  }
+
   public static get instance(): VersionQuotationModel {
     return this._instance;
+  }
+
+  public static get partialInstance(): VersionQuotationModel {
+    return new VersionQuotationModel(
+      this._instance.version_number,
+      this._instance.quotation_id,
+      this._instance.indirect_cost_margin,
+      this._instance.name,
+      this._instance.profit_margin,
+      this._instance.final_price,
+      this._instance.official,
+      this._instance.user_id,
+      this._instance.created_at,
+      this._instance.updated_at,
+      this._instance.status,
+      this._instance.completion_percentage,
+      this._instance.commission,
+      this._instance.partner_id,
+      this._instance.is_deleted,
+      this._instance.deleted_at,
+      this._instance.delete_reason
+    );
   }
 
   public static set user(user: IUserModel) {
     this._instance.user = user;
   }
 
-  public static set tripDetails(tripDetails: ITripDetailsModel) {
+  public static set setTripDetails(tripDetails: ITripDetailsModel) {
     this._instance.trip_details = tripDetails;
   }
 
-  public static set quotation(quotation: IQuotationModel) {
+  public static set setQuotation(quotation: IQuotationModel) {
     this._instance.quotation = quotation;
   }
 
-  public static set partners(partners: IPartnerModel) {
+  public static set setUser(user: IUserModel) {
+    this._instance.user = user;
+  }
+
+  public static set setPartners(partners: IPartnerModel) {
     this._instance.partners = partners;
   }
 
-  public static getString() {
-    return this._instance.getString();
+  public static set setRelationship(
+    relationship: Pick<
+      IVersionQuotationModel,
+      "user" | "trip_details" | "quotation" | "partners"
+    >
+  ) {
+    Object.assign(this._instance, relationship);
+  }
+
+  public static getString(circularPaths: string[] = []) {
+    return this._instance.getString(circularPaths);
   }
 
   public static async findUnique<

@@ -11,7 +11,7 @@ export interface IHotelModel extends hotel {
 export class HotelModel extends Model<IHotelModel> implements IHotelModel {
   private static hotel = new PrismaClient().hotel;
 
-  private static _instance: HotelModel = new HotelModel(0, "", 0, "", null);
+  private static _instance: HotelModel
 
   protected override get getEmpty(): HotelModel {
     return HotelModel._instance;
@@ -28,8 +28,23 @@ export class HotelModel extends Model<IHotelModel> implements IHotelModel {
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new HotelModel(0, "", 0, "", null);
+  }
+
   public static get instance(): HotelModel {
     return this._instance;
+  }
+
+  public static get partialInstance(): HotelModel {
+    return new HotelModel(
+      this._instance.id_hotel,
+      this._instance.name,
+      this._instance.distrit_id,
+      this._instance.category,
+      this._instance.address,
+      this._instance.hotel_room
+    );
   }
 
   public static set setDistrict(district: IDistrictModel) {

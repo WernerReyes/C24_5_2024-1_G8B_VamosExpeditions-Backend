@@ -12,16 +12,9 @@ export class ReservationModel
 {
   public static reservation = prisma.reservation;
 
-  private static _instance: ReservationModel = new ReservationModel(
-    0,
-    0,
-    "" as reservation_status,
-    new Date(0),
-    new Date(0),
-    false,
-    null,
-    null
-  );
+  public static modelName = Prisma.ModelName.reservation;
+
+  private static _instance: ReservationModel
 
   protected override get getEmpty(): ReservationModel {
     return ReservationModel._instance;
@@ -41,17 +34,48 @@ export class ReservationModel
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new ReservationModel(
+      0,
+      0,
+      "" as reservation_status,
+      new Date(0),
+      new Date(0),
+      false,
+      null,
+      null
+    );
+  }
+
   public static get instance(): ReservationModel {
     return this._instance;
   }
 
-  public static set quotation(quotation: IQuotationModel) {
+  public static get partialInstance(): ReservationModel {
+    return new ReservationModel(
+      this._instance.id,
+      this._instance.quotation_id,
+      this._instance.status,
+      this._instance.created_at,
+      this._instance.updated_at,
+      this._instance.is_deleted,
+      this._instance.deleted_at,
+      this._instance.delete_reason
+    );
+  }
+
+  public static set setQuotation(quotation: IQuotationModel) {
     this._instance.quotation = quotation;
+  }
+
+  public static set setRelationship(relationship: Pick<IReservationModel, "quotation">) {
+    Object.assign(this._instance, relationship);
   }
 
   static get getString() {
     return this._instance.getString();
   }
+  
 
   public static async findUnique<T extends Prisma.reservationFindUniqueArgs>(
     args: Prisma.SelectSubset<T, Prisma.reservationFindUniqueArgs>

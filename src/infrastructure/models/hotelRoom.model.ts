@@ -11,18 +11,7 @@ export class HotelRoomModel
   extends Model<IHotelRoomModel>
   implements IHotelRoomModel
 {
-  private static _instance: HotelRoomModel = new HotelRoomModel(
-    0,
-    "",
-    null,
-    null,
-    null,
-    null,
-    null,
-    0,
-    0
-  );
-
+  private static _instance: HotelRoomModel
   protected override get getEmpty(): HotelRoomModel {
     return HotelRoomModel._instance;
   }
@@ -42,8 +31,36 @@ export class HotelRoomModel
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new HotelRoomModel(
+      0,
+      "",
+      null,
+      null,
+      null,
+      null,
+      null,
+      0,
+      0
+    );
+  }
+
   public static get instance(): HotelRoomModel {
     return this._instance;
+  }
+
+  public static get partialInstance(): HotelRoomModel {
+    return new HotelRoomModel(
+      this._instance.id_hotel_room,
+      this._instance.room_type,
+      this._instance.season_type,
+      this._instance.price_usd,
+      this._instance.service_tax,
+      this._instance.rate_usd,
+      this._instance.price_pen,
+      this._instance.capacity,
+      this._instance.hotel_id
+    );
   }
 
   public static set setHotel(hotel: IHotelModel) {

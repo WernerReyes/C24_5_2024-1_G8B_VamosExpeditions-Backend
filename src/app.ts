@@ -7,6 +7,7 @@ import { AppSocket } from "./presentation/socket";
 import { AppCacheContext } from "./presentation/context";
 
 import { AppCron } from "./presentation/cron";
+import { ModelInitializer } from "./infrastructure/models";
 
 
 
@@ -22,6 +23,9 @@ const ORIGINS = [
 })();
 
 async function main() {
+  //* Initialize the models
+  ModelInitializer.initializeModels();
+
   const server = new Server({
     routes: AppRoutes.routes,
     origins: ORIGINS,

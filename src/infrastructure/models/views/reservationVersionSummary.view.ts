@@ -16,16 +16,7 @@ export class ReservationVersionSummaryView
   public static reservation_version_summary =
     prisma.reservation_version_summary;
 
-  private static _instance: ReservationVersionSummaryView =
-    new ReservationVersionSummaryView(
-      0,
-      0,
-      Decimal(0),
-      Decimal(0),
-      0,
-      new Date(0),
-      "" as reservation_status
-    );
+  private static _instance: ReservationVersionSummaryView;
 
   protected override get getEmpty(): ReservationVersionSummaryView {
     return ReservationVersionSummaryView._instance;
@@ -41,6 +32,18 @@ export class ReservationVersionSummaryView
     public readonly reservation_status: reservation_status
   ) {
     super();
+  }
+
+  public static initialize(): void {
+    this._instance = new ReservationVersionSummaryView(
+      null,
+      null,
+      null,
+      null,
+      0,
+      new Date(0),
+      "" as reservation_status
+    );
   }
 
   public static get instance(): ReservationVersionSummaryView {

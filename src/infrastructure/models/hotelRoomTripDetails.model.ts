@@ -17,8 +17,7 @@ export class HotelRoomTripDetailsModel
 
   public static modelName = Prisma.ModelName.hotel_room_trip_details;
 
-  private static _instance: HotelRoomTripDetailsModel =
-    new HotelRoomTripDetailsModel(0, 0, new Date(0), 0, new Decimal(0));
+  private static _instance: HotelRoomTripDetailsModel
 
   protected override get getEmpty(): HotelRoomTripDetailsModel {
     return HotelRoomTripDetailsModel._instance;
@@ -36,8 +35,28 @@ export class HotelRoomTripDetailsModel
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new HotelRoomTripDetailsModel(
+      0,
+      0,
+      new Date(0),
+      0,
+      new Decimal(0)
+    );
+  }
+
   public static get instance(): HotelRoomTripDetailsModel {
     return this._instance;
+  }
+
+  public static get partialInstance(): HotelRoomTripDetailsModel {
+    return new HotelRoomTripDetailsModel(
+      this._instance.id,
+      this._instance.hotel_room_id,
+      this._instance.date,
+      this._instance.trip_details_id,
+      this._instance.cost_person
+    );
   }
 
   public static set setHotelRoom(hotelRoom: IHotelRoomModel) {

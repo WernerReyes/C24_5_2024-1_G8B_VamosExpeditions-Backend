@@ -12,15 +12,7 @@ export class NotificationModel
 {
   private static notification = prisma.notification;
 
-  private static _instance: NotificationModel = new NotificationModel(
-    0,
-    0,
-    0,
-    "",
-    false,
-    new Date(),
-    new Date()
-  );
+  private static _instance: NotificationModel
 
   protected override get getEmpty(): NotificationModel {
     return NotificationModel._instance;
@@ -38,8 +30,34 @@ export class NotificationModel
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new NotificationModel(
+      0,
+      0,
+      0,
+      "",
+      null,
+      new Date(0),
+      new Date(0)
+    );
+  }
+
+
+
   public static get instance(): NotificationModel {
     return this._instance;
+  }
+
+  public static get partialInstance(): NotificationModel {
+    return new NotificationModel(
+      this._instance.id,
+      this._instance.from_user,
+      this._instance.to_user,
+      this._instance.message,
+      this._instance.is_read,
+      this._instance.created_at,
+      this._instance.updated_at
+    );
   }
 
   public static set setUserNotificationFromUser(user: IUserModel) {

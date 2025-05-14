@@ -1,7 +1,11 @@
 import { DateAdapter } from "@/core/adapters";
 import { ParamsUtils, Validations } from "@/core/utils";
-import { ReservationStatusEnum } from "@/infrastructure/models";
+import {
+  ReservationModel,
+  ReservationStatusEnum,
+} from "@/infrastructure/models";
 import { PaginationDto } from "../common/pagination.dto";
+import { SelectModelFieldsDto } from "../common/selectModelFields.dto";
 
 export class GetReservationsDto extends PaginationDto {
   constructor(
@@ -11,7 +15,8 @@ export class GetReservationsDto extends PaginationDto {
     public readonly isDeleted?: boolean,
     public readonly quotationName?: string,
     public readonly createdAt?: Date,
-    public readonly updatedAt?: Date
+    public readonly updatedAt?: Date,
+    public readonly select?: string[]
   ) {
     super(limit, page);
   }
@@ -62,6 +67,13 @@ export class GetReservationsDto extends PaginationDto {
       if (error) return [error, undefined];
     }
 
+    const [selectError, selectDto] = SelectModelFieldsDto.create(
+      ReservationModel.modelName,
+      props.select
+    );
+
+    if (selectError) return [selectError, undefined];
+
     return [
       undefined,
       new GetReservationsDto(
@@ -71,7 +83,8 @@ export class GetReservationsDto extends PaginationDto {
         isDeleted ? isDeleted === "true" : undefined,
         quotationName,
         createdAt ? DateAdapter.startOfDay(createdAt) : undefined,
-        updatedAt ? DateAdapter.startOfDay(updatedAt) : undefined
+        updatedAt ? DateAdapter.startOfDay(updatedAt) : undefined,
+        selectDto?.select
       ),
     ];
   }

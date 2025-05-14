@@ -6,6 +6,8 @@ export interface IClientModel extends client {}
 export class ClientModel extends Model<IClientModel> implements IClientModel {
   private static client = new PrismaClient().client;
 
+  private static _instance: ClientModel
+
   public static modelName = Prisma.ModelName.client;
 
   protected override get getEmpty(): ClientModel {
@@ -25,22 +27,37 @@ export class ClientModel extends Model<IClientModel> implements IClientModel {
     super();
   }
 
-  public static get _instance(): ClientModel {
-    return new ClientModel(0, "", "", "", "", "", new Date(), new Date());
+  public static initialize(): void {
+    this._instance = new ClientModel(
+      0,
+      "",
+      "",
+      "",
+      "",
+      "",
+      new Date(0),
+      new Date(0)
+    );
   }
 
-  public static get getSelectDefault(): Prisma.clientSelect {
-    return {
-      id: true,
-      fullName: true,
-      email: true,
-      phone: true,
-      createdAt: true,
-      country: true,
-      subregion: true,
-      updatedAt: true,
-    };
+  public static get instance(): ClientModel {
+    return this._instance;
   }
+
+  public static get partialInstance(): ClientModel {
+    return new ClientModel(
+      this._instance.id,
+      this._instance.fullName,
+      this._instance.country,
+      this._instance.subregion,
+      this._instance.email,
+      this._instance.phone,
+      this._instance.createdAt,
+      this._instance.updatedAt
+    );
+  }
+
+  
 
   public static getString() {
     return this._instance.getString();

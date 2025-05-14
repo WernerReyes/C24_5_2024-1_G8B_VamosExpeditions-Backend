@@ -11,7 +11,7 @@ export class CityModel extends Model<ICityModel> implements ICityModel {
 
   public static modelName = Prisma.ModelName.city;
 
-  private static _instance: CityModel = new CityModel(0, "", 0);
+  private static _instance: CityModel
 
   protected override get getEmpty(): CityModel {
     return CityModel._instance;
@@ -26,8 +26,20 @@ export class CityModel extends Model<ICityModel> implements ICityModel {
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new CityModel(0, "", 0);
+  }
+
   public static get instance(): CityModel {
     return this._instance;
+  }
+
+  public static get partialInstance(): CityModel {
+    return new CityModel(
+      this._instance.id_city,
+      this._instance.name,
+      this._instance.country_id
+    );
   }
 
   public static set setCountry(country: ICountryModel) {

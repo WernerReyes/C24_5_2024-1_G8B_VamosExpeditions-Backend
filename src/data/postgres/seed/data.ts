@@ -1,14 +1,14 @@
-import { Hotel, HotelCategory } from "@/domain/entities";
 import {
-  city,
-  country,
-  distrit,
-  partner,
-  role,
+  type city,
+  type country,
+  type distrit,
+  type partner,
+  type role,
   role_type,
-  user
+  type user,
 } from "@prisma/client";
-import { BcryptAdapter } from "../../../core/adapters";
+import { BcryptAdapter } from "@/core/adapters";
+import { HotelCategory, type IHotelModel } from "@/infrastructure/models";
 
 export const ROLES: role[] = [
   {
@@ -35,7 +35,6 @@ export const USERS: user[] = [
     is_deleted: false,
     deleted_at: null,
     delete_reason: null,
-
   },
   {
     id_user: 2,
@@ -193,7 +192,7 @@ export const DISTRICTS: distrit[] = [
   },
 ];
 
-export const HOTELS: Hotel[] = [
+export const HOTELS: IHotelModel[] = [
   {
     id_hotel: 1,
     name: "Hotel 1",
@@ -230,8 +229,6 @@ export const HOTELS: Hotel[] = [
     distrit_id: 10,
   },
 ];
-
-
 
 export const PARNERTS: partner[] = [
   {

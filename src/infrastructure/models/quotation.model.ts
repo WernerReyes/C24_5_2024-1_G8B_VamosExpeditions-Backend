@@ -13,11 +13,7 @@ export class QuotationModel
 {
   public static quotation = prisma.quotation;
 
-  private static _instance: QuotationModel = new QuotationModel(
-    0,
-    new Date(0),
-    new Date(0)
-  );
+  private static _instance: QuotationModel
 
   protected override get getEmpty(): QuotationModel {
     return QuotationModel._instance;
@@ -32,17 +28,29 @@ export class QuotationModel
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new QuotationModel(0, new Date(0), new Date(0));
+  }
+
   public static get instance(): QuotationModel {
     return this._instance;
   }
 
-  public static set versionQuotation(
+  public static get partialInstance(): QuotationModel {
+    return new QuotationModel(
+      this._instance.id_quotation,
+      this._instance.created_at,
+      this._instance.updated_at
+    );
+  }
+
+  public static set setVersionQuotation(
     versionQuotation: IVersionQuotationModel[]
   ) {
     this._instance.version_quotation = versionQuotation;
   }
 
-  public static set reservation(reservation: IReservationModel | null) {
+  public static set setReservation(reservation: IReservationModel | null) {
     this._instance.reservation = reservation;
   }
 

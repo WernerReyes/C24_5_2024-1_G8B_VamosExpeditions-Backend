@@ -23,19 +23,8 @@ export class TripDetailsModel
 {
   private static trip_details = prisma.trip_details;
 
-  private static _instance: TripDetailsModel = new TripDetailsModel(
-    0,
-    0,
-    0,
-    new Date(0),
-    new Date(0),
-    0,
-    "" as trip_details_traveler_style,
-    "",
-    "" as trip_details_order_type,
-    null,
-    0
-  );
+  private static _instance: TripDetailsModel
+
   protected override get getEmpty(): TripDetailsModel {
     return TripDetailsModel._instance;
   }
@@ -60,8 +49,40 @@ export class TripDetailsModel
     super();
   }
 
+  public static initialize(): void {
+    this._instance = new TripDetailsModel(
+      0,
+      0,
+      0,
+      new Date(0),
+      new Date(0),
+      0,
+      "" as trip_details_traveler_style,
+      "",
+      "" as trip_details_order_type,
+      null,
+      0
+    );
+  }
+
   public static get instance(): TripDetailsModel {
     return this._instance;
+  }
+
+  public static get partialInstance(): TripDetailsModel {
+    return new TripDetailsModel(
+      this._instance.id,
+      this._instance.version_number,
+      this._instance.quotation_id,
+      this._instance.start_date,
+      this._instance.end_date,
+      this._instance.number_of_people,
+      this._instance.traveler_style,
+      this._instance.code,
+      this._instance.order_type,
+      this._instance.additional_specifications,
+      this._instance.client_id
+    );
   }
 
   public static set setClient(client: IClientModel) {
