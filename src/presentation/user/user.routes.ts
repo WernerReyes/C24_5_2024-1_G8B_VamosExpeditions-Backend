@@ -29,6 +29,23 @@ export class UserRoutes {
       Middleware.validateOwnership as RequestHandler,
       userController.upsertUser
     );
+
+    router.put(
+      "/:id/trash",
+      Middleware.validateActionPermission([
+        RoleEnum.MANAGER_ROLE,
+      ]) as RequestHandler,
+      userController.toogleTrash
+    );
+
+    router.put(
+      "/:id/restore",
+      Middleware.validateActionPermission([
+        RoleEnum.MANAGER_ROLE,
+      ]) as RequestHandler,
+      userController.toogleTrash
+    );
+
     router.put(
       "/:id/change-password",
       Middleware.validateOwnership as RequestHandler,

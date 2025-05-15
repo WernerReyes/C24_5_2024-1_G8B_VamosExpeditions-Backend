@@ -16,6 +16,7 @@ export class GetUsersDto extends PaginationDto {
     public readonly role?: RoleEnum,
     public readonly createdAt?: Date,
     public readonly updatedAt?: Date,
+    public readonly isDeleted?: boolean,
     public readonly select?: string[]
   ) {
     super(page, limit);
@@ -33,6 +34,7 @@ export class GetUsersDto extends PaginationDto {
       createdAt,
       updatedAt,
       showDevices,
+      isDeleted
     } = props;
 
     const [error, dto] = SelectModelFieldsDto.create(
@@ -83,6 +85,11 @@ export class GetUsersDto extends PaginationDto {
       if (errorUpdatedAt) return [errorUpdatedAt, undefined];
     }
 
+    if (isDeleted) {
+      const errorIsDeleted = Validations.validateBooleanFields({ isDeleted });
+      if (errorIsDeleted) return [errorIsDeleted, undefined];
+    }
+
     if (showDevices) {
       const errorShowDevices = Validations.validateBooleanFields({
         showDevices,
@@ -102,6 +109,7 @@ export class GetUsersDto extends PaginationDto {
         role,
         createdAt ? DateAdapter.startOfDay(createdAt) : undefined,
         updatedAt ? DateAdapter.startOfDay(updatedAt) : undefined,
+        isDeleted ? isDeleted === "true" : undefined,
         dto?.select
       ),
     ];

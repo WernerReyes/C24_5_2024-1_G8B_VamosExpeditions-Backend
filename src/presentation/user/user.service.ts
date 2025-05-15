@@ -1,6 +1,6 @@
 import { ApiResponse, PaginatedResponse } from "../response";
 import { UserEntity } from "@/domain/entities";
-import type { ChangePasswordDto, GetUsersDto, UserDto } from "@/domain/dtos";
+import type { ChangePasswordDto, GetUsersDto, TrashDto, UserDto } from "@/domain/dtos";
 import { UserMapper } from "./user.mapper";
 import { CustomError } from "@/domain/error";
 import { BcryptAdapter } from "@/core/adapters";
@@ -76,6 +76,38 @@ export class UserService {
       200,
       "Usuario guardado correctamente",
       await UserEntity.fromObject(user)
+    );
+  }
+
+  public async toogleTrash({ id, deleteReason }: TrashDto) {
+    const user = await UserModel.findUnique({
+      where: {
+        id_user: id,
+      },
+      select: {
+        id_user: true,
+        is_deleted: true,
+      },
+    });
+    if (!user) throw CustomError.notFound("Usuario no encontrado");
+
+    const userUpdated = await UserModel.update({
+      where: {
+        id_user: id,
+      },
+      data: {
+        delete_reason: user.is_deleted ? null : deleteReason,
+        is_deleted: !user.is_deleted,
+        deleted_at: user.is_deleted ? null : new Date(),
+      },
+    });
+
+    return new ApiResponse<UserEntity>(
+      200,
+      user.is_deleted
+        ? "Usuario restaurado correctamente"
+        : "Usuario eliminado correctamente",
+      await UserEntity.fromObject(userUpdated)
     );
   }
 

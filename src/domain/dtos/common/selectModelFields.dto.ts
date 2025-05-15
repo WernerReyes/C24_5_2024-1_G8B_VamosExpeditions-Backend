@@ -1,11 +1,6 @@
 import {
-  CityModel,
-  ClientModel,
-  QuotationModel,
   ReservationModel,
   RoleModel,
-  TripDetailsHasCityModel,
-  TripDetailsModel,
   UserModel,
   VersionQuotationModel,
 } from "@/infrastructure/models";
@@ -25,20 +20,22 @@ export class SelectModelFieldsDto {
       if (selectArray) {
         const invalidFields = selectArray.filter((field: string) => {
           switch (modelName) {
+            case "role":
+              return !RoleModel.getString.includes(
+                field.trim() as keyof RoleModel
+              );
+
             case "user":
-              this.setUser();
               return !UserModel.getString.includes(
                 field.trim() as keyof UserModel
               );
 
             case "version_quotation":
-              this.setVersionQuotation();
               return !VersionQuotationModel.getString([
                 "version_quotation.quotation.version_quotation",
               ]).includes(field.trim() as keyof VersionQuotationModel);
 
             case "reservation":
-              this.setReservation();
               return !ReservationModel.getString.includes(
                 field.trim() as keyof ReservationModel
               );
@@ -66,6 +63,9 @@ export class SelectModelFieldsDto {
 
   private static getCorrectModelAtributes(modelName: Model): string[] {
     switch (modelName) {
+      case "role":
+        return RoleModel.getString as string[];
+        
       case "user":
         return UserModel.getString as string[];
 
@@ -79,40 +79,4 @@ export class SelectModelFieldsDto {
         return [];
     }
   }
-
-  private static setUser() {
-    // UserModel.setRole = RoleModel.partialInstance;
-  }
-
-  private static setVersionQuotation() {
-    // TripDetailsModel.setClient = ClientModel.partialInstance;
-
-    // QuotationModel.setVersionQuotation = [
-    //   VersionQuotationModel.partialInstance,
-    // ];
-    // QuotationModel.setReservation = ReservationModel.partialInstance;
-
-    // VersionQuotationModel.setTripDetails = TripDetailsModel.partialInstance;
-    // VersionQuotationModel.setUser = UserModel.partialInstance;
-    // VersionQuotationModel.setQuotation = QuotationModel.partialInstance;
-  }
-
-  private static setReservation() {
-    // TripDetailsHasCityModel.setCity = CityModel.partialInstance;
-
-    // TripDetailsModel.setTripDetailsHasCity = [
-    //   TripDetailsHasCityModel.partialInstance,
-    // ];
-    // TripDetailsModel.setClient = ClientModel.partialInstance;
-
-    // VersionQuotationModel.setTripDetails = TripDetailsModel.partialInstance;
-    // VersionQuotationModel.setUser = UserModel.partialInstance;
-
-    // QuotationModel.setVersionQuotation = [
-    //   VersionQuotationModel.partialInstance,
-    // ];
-
-    // ReservationModel.setQuotation = QuotationModel.partialInstance;
-  }
 }
-

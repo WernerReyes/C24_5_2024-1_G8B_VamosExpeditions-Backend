@@ -52,9 +52,14 @@ model distrit {
 }
 
 model role {
-  id_role Int       @id @default(autoincrement())
-  name    role_type @unique
-  user    user[]
+  id_role       Int       @id @default(autoincrement())
+  name          role_type @unique
+  created_at    DateTime  @default(now()) @db.Timestamp(6)
+  updated_at    DateTime  @default(now()) @db.Timestamp(6)
+  is_deleted    Boolean   @default(false)
+  deleted_at    DateTime? @db.Timestamp(6)
+  delete_reason String?
+  user          user[]
 }
 
 model user {

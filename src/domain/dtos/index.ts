@@ -60,3 +60,6 @@ export * from './user/changePassword.dto';
 export * from './user/user.dto';
 export * from './user/getUsers.dto';
 
+
+//* ROLES
+export * from './role/getRoles.dto';

@@ -59,6 +59,7 @@ export class UserMapper {
       updated_at: this.dto.updatedAt
         ? { gte: new Date(this.dto.updatedAt) }
         : undefined,
+      is_deleted: this.dto.isDeleted,
     };
   }
 

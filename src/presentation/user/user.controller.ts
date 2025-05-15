@@ -1,7 +1,12 @@
 import type { Request, Response } from "express";
 import { AppController } from "../controller";
 import { UserService } from "./user.service";
-import { ChangePasswordDto, GetUsersDto, UserDto } from "@/domain/dtos";
+import {
+  ChangePasswordDto,
+  GetUsersDto,
+  TrashDto,
+  UserDto,
+} from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 
 export class UserController extends AppController {
@@ -13,7 +18,8 @@ export class UserController extends AppController {
     const [error, getUsersDto] = GetUsersDto.create({
       ...req.query,
     });
-    if (error) return this.handleResponseError(res, CustomError.badRequest(error));
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
     this.handleError(this.userService.getUsers(getUsersDto!))
       .then((users) => res.status(200).json(users))
       .catch((error) => this.handleResponseError(res, error));
@@ -28,6 +34,18 @@ export class UserController extends AppController {
       return this.handleResponseError(res, CustomError.badRequest(error));
 
     this.handleError(this.userService.upsertUser(userDto!))
+      .then((user) => res.status(200).json(user))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public toogleTrash = async (req: Request, res: Response) => {
+    const [error, trashDto] = TrashDto.create({
+      ...req.body,
+      id: req.params.id,
+    });
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+    this.handleError(this.userService.toogleTrash(trashDto!))
       .then((user) => res.status(200).json(user))
       .catch((error) => this.handleResponseError(res, error));
   };

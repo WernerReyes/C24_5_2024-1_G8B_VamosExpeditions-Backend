@@ -52,6 +52,8 @@ export class ModelInitializer {
     };
   }
 
+  
+
   private static setReservationRelationship() {
     ReservationModel.setRelationship = {
       quotation: {

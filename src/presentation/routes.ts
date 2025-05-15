@@ -13,6 +13,7 @@ import { TripDetailsRoutes } from "./tripDetails/tripDetails.routes";
 import { NotificationRoutes } from "./notification/notification.routes";
 import { DistritRoutes } from "./distrit/distrit.routes";
 import { Middleware } from "./middleware";
+import { RoleRoutes } from "./role/role.routes";
 
 export class AppRoutes {
   private static prefix: string = "/api/v1";
@@ -23,6 +24,7 @@ export class AppRoutes {
     router.use(Middleware.timeZoneContextMiddleware); // TimeZone
 
     router.use(`${this.prefix}/auth`, AuthRoutes.routes);
+    router.use(`${this.prefix}/role`, RoleRoutes.routes);
     router.use(`${this.prefix}/user`, UserRoutes.routes);
     router.use(`${this.prefix}/notification`, NotificationRoutes.routes);
 

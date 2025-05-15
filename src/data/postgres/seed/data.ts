@@ -14,10 +14,20 @@ export const ROLES: role[] = [
   {
     id_role: 1,
     name: role_type.MANAGER_ROLE,
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_deleted: false,
+    deleted_at: null,
+    delete_reason: null,
   },
   {
     id_role: 2,
     name: role_type.EMPLOYEE_ROLE,
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_deleted: false,
+    deleted_at: null,
+    delete_reason: null,
   },
 ];
 
