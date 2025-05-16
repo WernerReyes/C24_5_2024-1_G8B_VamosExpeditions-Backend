@@ -1,4 +1,6 @@
 export class ApiResponse<T> {
+
+
   constructor(
     public readonly status: number,
     public readonly message: string,
@@ -6,7 +8,7 @@ export class ApiResponse<T> {
     public readonly headers?: Record<string, string>
   ) {}
 
-  static fileResponse(
+  /* static fileResponse(
     buffer: Buffer,
     filename: string,
     message: string = "File download"
@@ -16,7 +18,7 @@ export class ApiResponse<T> {
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "Content-Disposition": `attachment; filename=${filename}`,
     });
-  }
+  } */
 }
 
 export class PaginatedResponse<T> {

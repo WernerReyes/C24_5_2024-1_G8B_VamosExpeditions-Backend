@@ -22,3 +22,8 @@ Cada paso de su configuración ya se ha realizado previamente en el curso, por l
 ## Llenado de datos en la db
 
 1. Ejecutar ` pnpm seed ` para llenar datos de prueba en la base de datos
+
+
+  /* "_moduleAliases": {
+    "@": "dist"
+  }, */

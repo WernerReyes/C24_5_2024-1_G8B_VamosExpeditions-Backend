@@ -5,7 +5,10 @@ import {
   type partner,
   type role,
   role_type,
+
   type user,
+
+
 } from "@prisma/client";
 import { BcryptAdapter } from "@/core/adapters";
 import { HotelCategory, type IHotelModel } from "@/infrastructure/models";
@@ -123,26 +126,36 @@ export const COUNTRIES: country[] = [
     id_country: 1,
     name: "Colombia",
     code: "CO",
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_country: 2,
     name: "Argentina",
     code: "AR",
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_country: 3,
     name: "Brasil",
     code: "BR",
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_country: 4,
     name: "Peru",
     code: "PE",
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_country: 5,
     name: "Chile",
     code: "CL",
+    created_at: new Date(),
+    updated_at: new Date(),
   },
 ];
 
@@ -151,26 +164,36 @@ export const CITIES: city[] = [
     id_city: 1,
     name: "Bogota",
     country_id: 1,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_city: 2,
     name: "Medellin",
     country_id: 1,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_city: 3,
     name: "Buenos Aires",
     country_id: 2,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_city: 7,
     name: "Lima",
     country_id: 4,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_city: 8,
     name: "Arequipa",
     country_id: 4,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
 ];
 
@@ -179,26 +202,36 @@ export const DISTRICTS: distrit[] = [
     id_distrit: 1,
     name: "Usaquen",
     city_id: 1,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_distrit: 2,
     name: "Chapinero",
     city_id: 1,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_distrit: 3,
     name: "Kennedy",
     city_id: 1,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_distrit: 9,
     name: "Miraflores",
     city_id: 7,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_distrit: 10,
     name: "San Isidro",
     city_id: 7,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
 ];
 
@@ -209,6 +242,8 @@ export const HOTELS: IHotelModel[] = [
     category: HotelCategory.THREE,
     address: "Calle 1",
     distrit_id: 1,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_hotel: 2,
@@ -216,6 +251,8 @@ export const HOTELS: IHotelModel[] = [
     category: HotelCategory.FOUR,
     address: "Calle 2",
     distrit_id: 2,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_hotel: 3,
@@ -223,6 +260,8 @@ export const HOTELS: IHotelModel[] = [
     category: HotelCategory.FIVE,
     address: "Calle 3",
     distrit_id: 3,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_hotel: 4,
@@ -230,6 +269,8 @@ export const HOTELS: IHotelModel[] = [
     category: HotelCategory.BOUTIQUE,
     address: "Calle 4",
     distrit_id: 1,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
   {
     id_hotel: 5,
@@ -237,6 +278,8 @@ export const HOTELS: IHotelModel[] = [
     category: HotelCategory.VILLA,
     address: "Calle 5",
     distrit_id: 10,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
 ];
 

@@ -8,11 +8,14 @@ import type {
 } from "@/domain/dtos";
 import { UserEntity, VersionQuotationEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
+
+
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { ApiResponse, PaginatedResponse } from "../response";
 import type { VersionQuotationMailer } from "./versionQuotation.mailer";
 import type { VersionQuotationMapper } from "./versionQuotation.mapper";
 import type { VersionQuotationReport } from "./versionQuotation.report";
+
 import {
   AllowVersionQuotationType,
   type IVersionQuotationModel,
@@ -22,11 +25,15 @@ import {
   VersionQuotationStatusEnum,
 } from "@/infrastructure/models";
 
+import { VersionQuotationExcel } from "./versionQuotation.excel";
+
 export class VersionQuotationService {
   constructor(
     private readonly versionQuotationMapper: VersionQuotationMapper,
     private readonly versionQuotationReport: VersionQuotationReport,
-    private readonly versionQuotationMailer: VersionQuotationMailer
+    private readonly versionQuotationMailer: VersionQuotationMailer,
+    private readonly versionQuotationExcel: VersionQuotationExcel
+
   ) {}
 
   public async updateVersionQuotation(
@@ -791,5 +798,101 @@ export class VersionQuotationService {
       )}`,
       undefined
     );
+  }
+
+  public async getExcelQuotationById() {
+    const versionQuotation = await VersionQuotationModel.findUnique({
+      where: {
+        version_number_quotation_id: {
+          version_number: 1,
+          quotation_id: 2,
+        },
+        is_deleted: false,
+      },
+      omit: {
+        created_at: true,
+        updated_at: true,
+      },
+      include: {
+        user: {
+          omit: {
+            id_role: true,
+            password: true,
+          },
+        },
+        trip_details: {
+          omit: {
+            client_id: true,
+          },
+          include: {
+            client: {
+              omit: {
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            hotel_room_trip_details: {
+              orderBy: {
+                date: "asc",
+              },
+              include: {
+                hotel_room: {
+                  include: {
+                    hotel: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    this.versionQuotationExcel.generateExcel({
+      dataQuey: versionQuotation as IVersionQuotationModel,
+    });
+
+    return versionQuotation;
+  }
+
+  public async generateExcel({ versionQuotationId }: VersionQuotationIDDto) {
+    const versionQuotation = await VersionQuotationModel.findUnique({
+      where: {
+        version_number_quotation_id: {
+          version_number: versionQuotationId!.versionNumber,
+          quotation_id: versionQuotationId!.quotationId,
+        },
+        is_deleted: false,
+        status: {
+          not: VersionQuotationStatusEnum.DRAFT,
+        },
+      },
+      include: {
+        trip_details: {
+          include: {
+            hotel_room_trip_details: {
+              orderBy: {
+                date: "asc",
+              },
+              include: {
+                hotel_room: {
+                  include: {
+                    hotel: true,
+                  },
+                },
+              },
+            },
+            client: true,
+          },
+        },
+        user: true,
+      },
+    });
+    if (!versionQuotation)
+      throw CustomError.badRequest(
+        "Versión de cotización no encontrada o no completado"
+      );
+    return this.versionQuotationExcel.generateExcel({
+      dataQuey: versionQuotation as IVersionQuotationModel,
+    });
   }
 }

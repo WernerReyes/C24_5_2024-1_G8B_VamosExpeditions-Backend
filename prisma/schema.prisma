@@ -12,6 +12,8 @@ model city {
   id_city               Int                     @id @default(autoincrement())
   name                  String                  @db.VarChar(45)
   country_id            Int
+  created_at            DateTime                @default(now()) @db.Timestamp(6)
+  updated_at            DateTime                @default(now()) @db.Timestamp(6)
   country               country                 @relation(fields: [country_id], references: [id_country], onDelete: NoAction, onUpdate: NoAction, map: "fk_city_country")
   distrit               distrit[]
   trip_details_has_city trip_details_has_city[]
@@ -35,17 +37,21 @@ model client {
 }
 
 model country {
-  id_country Int    @id @default(autoincrement())
-  name       String @unique @db.VarChar(45)
-  code       String @unique @db.VarChar(10)
+  id_country Int      @id @default(autoincrement())
+  name       String   @unique @db.VarChar(45)
+  code       String   @unique @db.VarChar(10)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @db.Timestamp(6)
   city       city[]
 }
 
 model distrit {
-  id_distrit Int     @id @default(autoincrement())
-  name       String  @db.VarChar(45)
+  id_distrit Int      @id @default(autoincrement())
+  name       String   @db.VarChar(45)
   city_id    Int
-  city       city    @relation(fields: [city_id], references: [id_city], onDelete: NoAction, onUpdate: NoAction, map: "fk_distrit_city")
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @db.Timestamp(6)
+  city       city     @relation(fields: [city_id], references: [id_city], onDelete: NoAction, onUpdate: NoAction, map: "fk_distrit_city")
   hotel      hotel[]
 
   @@unique([name, city_id])
@@ -67,9 +73,9 @@ model user {
   fullname                                  String              @db.VarChar(45)
   email                                     String              @db.VarChar(45)
   password                                  String              @db.VarChar(200)
-  id_role                                   Int
   description                               String?
   phone_number                              String?             @db.VarChar(20)
+  id_role                                   Int
   created_at                                DateTime            @default(now()) @db.Timestamp(6)
   updated_at                                DateTime            @default(now()) @db.Timestamp(6)
   is_deleted                                Boolean             @default(false)
@@ -87,6 +93,8 @@ model hotel {
   category   String       @db.VarChar(50)
   address    String?      @db.VarChar(100)
   distrit_id Int
+  created_at DateTime     @default(now()) @db.Timestamp(6)
+  updated_at DateTime     @default(now()) @db.Timestamp(6)
   distrit    distrit      @relation(fields: [distrit_id], references: [id_distrit], onDelete: NoAction, onUpdate: NoAction, map: "fk_hotel_distrit")
   hotel_room hotel_room[]
 }
@@ -101,6 +109,8 @@ model hotel_room {
   price_pen               Decimal?                  @db.Decimal(10, 2)
   capacity                Int
   hotel_id                Int
+  created_at              DateTime                  @default(now()) @db.Timestamp(6)
+  updated_at              DateTime                  @default(now()) @db.Timestamp(6)
   hotel                   hotel                     @relation(fields: [hotel_id], references: [id_hotel], onDelete: NoAction, onUpdate: NoAction, map: "fk_hotel_room_hotel")
   hotel_room_trip_details hotel_room_trip_details[]
 }
@@ -120,14 +130,14 @@ model version_quotation {
   name                  String
   profit_margin         Decimal?                 @db.Decimal(5, 2)
   final_price           Decimal?                 @db.Decimal(10, 2)
+  completion_percentage Int                      @default(0)
+  status                version_quotation_status @default(DRAFT)
   official              Boolean                  @default(false)
   user_id               Int
+  partner_id            Int?
+  commission            Decimal?                 @default(0) @db.Decimal(5, 2)
   created_at            DateTime                 @default(now()) @db.Timestamp(6)
   updated_at            DateTime                 @default(now()) @db.Timestamp(6)
-  status                version_quotation_status @default(DRAFT)
-  completion_percentage Int                      @default(0)
-  commission            Decimal?                 @default(0) @db.Decimal(5, 2)
-  partner_id            Int?
   is_deleted            Boolean                  @default(false)
   deleted_at            DateTime?                @db.Timestamp(6)
   delete_reason         String?
@@ -139,16 +149,10 @@ model version_quotation {
   @@id([version_number, quotation_id])
   @@index([quotation_id, official], map: "idx_quotation_id_official")
   @@index([name(ops: raw("gin_trgm_ops"))], map: "idx_name_trgm", type: Gin)
-}
-
-model hotel_room_trip_details {
-  id              Int          @id @default(autoincrement())
-  hotel_room_id   Int
-  date            DateTime     @db.Date
-  trip_details_id Int
-  cost_person     Decimal      @db.Decimal(8, 2)
-  hotel_room      hotel_room   @relation(fields: [hotel_room_id], references: [id_hotel_room], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_hotel_room")
-  trip_details    trip_details @relation(fields: [trip_details_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_trip_details")
+  @@index([created_at], map: "idx_created_at")
+  @@index([status], map: "idx_status")
+  @@index([updated_at], map: "idx_updated_at")
+  @@index([user_id], map: "idx_user_id")
 }
 
 model trip_details {
@@ -183,6 +187,35 @@ model trip_details_has_city {
   @@id([city_id, trip_details_id])
 }
 
+model notification {
+  id                                Int      @id @default(autoincrement())
+  from_user                         Int
+  to_user                           Int
+  message                           String
+  is_read                           Boolean? @default(false)
+  created_at                        DateTime @default(now()) @db.Timestamp(6)
+  updated_at                        DateTime @default(now()) @db.Timestamp(6)
+  user_notification_from_userTouser user     @relation("notification_from_userTouser", fields: [from_user], references: [id_user], onDelete: Cascade, map: "fk_notifications_from")
+  user_notification_to_userTouser   user     @relation("notification_to_userTouser", fields: [to_user], references: [id_user], onDelete: Cascade, map: "fk_notifications_to")
+}
+
+model partner {
+  id                Int                 @id @default(autoincrement())
+  name              String              @db.VarChar(100)
+  created_at        DateTime            @default(now()) @db.Timestamp(6)
+  version_quotation version_quotation[]
+}
+
+model hotel_room_trip_details {
+  id              Int          @id @default(autoincrement())
+  hotel_room_id   Int
+  date            DateTime     @db.Date
+  trip_details_id Int
+  cost_person     Decimal      @db.Decimal(8, 2)
+  hotel_room      hotel_room   @relation(fields: [hotel_room_id], references: [id_hotel_room], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_hotel_room")
+  trip_details    trip_details @relation(fields: [trip_details_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_hotel_room_quotation_trip_details")
+}
+
 model reservation {
   id            Int                @id @default(autoincrement())
   quotation_id  Int                @unique(map: "unique_reservation")
@@ -194,30 +227,11 @@ model reservation {
   delete_reason String?
   quotation     quotation          @relation(fields: [quotation_id], references: [id_quotation], onDelete: Cascade, onUpdate: NoAction, map: "fk_reservation_quotation")
 
+  @@index([created_at], map: "idx_created_at_r")
   @@index([status], map: "idx_status_r")
-  @@index([is_deleted], map: "idx_is_deleted_r")
+  @@index([updated_at], map: "idx_updated_at_r")
 }
 
-model notification {
-  id                                Int       @id @default(autoincrement())
-  from_user                         Int
-  to_user                           Int
-  message                           String
-  is_read                           Boolean?  @default(false)
-  created_at                        DateTime? @default(now()) @db.Timestamp(6)
-  updated_at                        DateTime? @default(now()) @db.Timestamp(6)
-  user_notification_from_userTouser user      @relation("notification_from_userTouser", fields: [from_user], references: [id_user], onDelete: Cascade, map: "fk_notifications_from")
-  user_notification_to_userTouser   user      @relation("notification_to_userTouser", fields: [to_user], references: [id_user], onDelete: Cascade, map: "fk_notifications_to")
-}
-
-model partner {
-  id                Int                 @id(map: "partners_pkey") @default(autoincrement())
-  name              String              @db.VarChar(100)
-  created_at        DateTime            @default(now()) @db.Timestamp(6)
-  version_quotation version_quotation[]
-}
-
-/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view reservation_version_summary {
   reservation_date   DateTime?           @db.Timestamp(6)
   final_price        Decimal?            @db.Decimal(10, 2)
@@ -226,6 +240,12 @@ view reservation_version_summary {
   version_number     Int?
   reservation_status reservation_status?
   id                 Int                 @id
+}
+
+enum reservation_status {
+  PENDING
+  ACTIVE
+  REJECTED
 }
 
 enum role_type {
@@ -246,13 +266,7 @@ enum trip_details_traveler_style {
 
 enum version_quotation_status {
   DRAFT
-  APPROVED
   COMPLETED
   CANCELATED
-}
-
-enum reservation_status {
-  PENDING
-  ACTIVE
-  REJECTED
+  APPROVED
 }

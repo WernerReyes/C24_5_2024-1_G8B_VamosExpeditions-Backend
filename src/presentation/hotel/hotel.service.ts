@@ -7,20 +7,23 @@ import {
   hotel_room,
 } from "@prisma/client";
 
-import { GetHotelsDto, HotelDto, PaginationDto, RoomDto } from "@/domain/dtos";
-import { HotelMapper } from "./hotel.mapper";
-import { CustomError } from "@/domain/error";
-import { ApiResponse, PaginatedResponse } from "../response";
-import { HotelEntity } from "@/domain/entities";
-import { InsertManyHotelExcelDto } from "../../domain/dtos/hotel/insertManyHotelExcel.dto";
-import * as XLSX from "xlsx";
-import { Decimal } from "@prisma/client/runtime/library";
-import { HotelAndRoomInterface } from "@/domain/interfaces";
-import { HotelRoomType } from "@/domain/enum";
+import { GetHotelsDto, GetHotelsPageDto, HotelDto } from "@/domain/dtos";
+
+
 import { InsertManyHotelAndRoomExcelDto } from "@/domain/dtos/hotel/insertManyHotelAndRoomExcel.dto";
+import { HotelEntity } from "@/domain/entities";
+import { CustomError } from "@/domain/error";
 import { HotelData, RoomData } from "@/domain/type";
-import ExcelJS from "exceljs";
+import { Decimal } from "@prisma/client/runtime/library";
+import * as XLSX from "xlsx";
+import { InsertManyHotelExcelDto } from "../../domain/dtos/hotel/insertManyHotelExcel.dto";
+import { ApiResponse, PaginatedResponse } from "../response";
+import { HotelMapper } from "./hotel.mapper";
+
+
 import { HotelModel, prisma } from "@/infrastructure/models";
+
+import * as ExcelJS from "exceljs";
 
 type ExelCountry = {
   Pais: number;
@@ -58,6 +61,10 @@ type ExelHotelRoom = {
   __EMPTY_5: number | undefined;
   __EMPTY_6: number | undefined;
 };
+
+type UploadExcelHotelRoomResponse =
+  | { success: true; buffer: Buffer }
+  | { success: false; status: number; message: string };
 
 export class HotelService {
   constructor(private readonly hotelMapper: HotelMapper) {}
@@ -215,6 +222,8 @@ export class HotelService {
         id_country: country.Pais,
         name: country.__EMPTY,
         code: country.__EMPTY_1,
+        created_at: new Date(),
+        updated_at: new Date(),
       }));
   }
 
@@ -225,6 +234,8 @@ export class HotelService {
         id_city: city.__EMPTY,
         name: city.Ciudad,
         country_id: city.__EMPTY_1,
+        created_at: new Date(),
+        updated_at: new Date(),
       }));
   }
 
@@ -235,6 +246,8 @@ export class HotelService {
         id_distrit: distrit.__EMPTY,
         name: distrit.Distrito,
         city_id: distrit.__EMPTY_1,
+        created_at: new Date(),
+        updated_at: new Date(),
       }));
   }
 
@@ -247,6 +260,8 @@ export class HotelService {
         name: hotel.__EMPTY_1,
         address: hotel.__EMPTY_2 || null,
         distrit_id: hotel.__EMPTY_3,
+        created_at: new Date(),
+        updated_at: new Date(),
       }));
   }
 
@@ -269,6 +284,8 @@ export class HotelService {
           ? new Decimal(hotelRoom.__EMPTY_6)
           : null,
         capacity: Math.floor(Math.random() * 10) + 1,
+        created_at: new Date(),
+        updated_at: new Date(),
       }));
   }
 
@@ -351,45 +368,6 @@ export class HotelService {
     });
   }
 
-  public async registerHotelandRoom(
-    data: HotelAndRoomInterface | HotelDto | RoomDto,
-    type: HotelRoomType
-  ) {
-    switch (type) {
-      case HotelRoomType.HOTEL:
-        return this.registerHotel(data as HotelDto);
-      case HotelRoomType.ROOM:
-        return this.registerRoom(data as RoomDto);
-      case HotelRoomType.HOTELANDROOM:
-        return this.registerHotelandRooms(data as HotelAndRoomInterface);
-      default:
-        throw CustomError.badRequest("Tipo de registro no valido");
-    }
-  }
-
-  private registerHotel(data: HotelDto) {
-    console.log("HotelDto ----------", data);
-    return {
-      status: 200,
-      message: "Hotel registrado correctamente",
-    };
-  }
-  private registerRoom(data: RoomDto) {
-    console.log("RoomDto ----------", data);
-    return {
-      status: 200,
-      message: "Habitacion registrada correctamente",
-    };
-  }
-
-  private registerHotelandRooms(data: HotelAndRoomInterface) {
-    console.log("HotelAndRoomInterface ----------", data);
-    return {
-      status: 200,
-      message: "Hotel y habitaciones registrados correctamente",
-    };
-  }
-
   public async getAllHotel() {
     const hotels = await HotelModel.findMany({
       omit: {
@@ -408,17 +386,24 @@ export class HotelService {
     );
   }
 
-  public async getAllHotelsRoomsAndDistricts(PaginationDto: PaginationDto) {
-    const { limit = 10, page = 1 } = PaginationDto;
-
+  //List of hotels, rooms and districts
+  public async getAllHotelsRoomsAndDistricts(
+    getHotelsPageDto: GetHotelsPageDto
+  ) {
+    this.hotelMapper.setDto = getHotelsPageDto;
     const hotels = await HotelModel.findMany({
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: [{ name: "asc" }],
+      take: getHotelsPageDto.limit,
+      skip: (getHotelsPageDto.page - 1) * getHotelsPageDto.limit,
+      orderBy: [
+        { created_at: "desc" }
+      ],
+      where: this.hotelMapper.getHotelWhere,
       include: this.hotelMapper.toSelectInclude,
     });
 
-    const totalCount = await HotelModel.count({});
+    const totalCount = await HotelModel.count({
+      where: this.hotelMapper.getHotelWhere,
+    });
     const content = await Promise.all(
       hotels.map((hotel) => HotelEntity.fromObject(hotel))
     );
@@ -429,17 +414,18 @@ export class HotelService {
       {
         content: content,
         total: totalCount,
-        page: PaginationDto.page ?? 1,
-        limit: PaginationDto.limit ?? 10,
-        totalPages: Math.ceil(totalCount / (PaginationDto.limit ?? 10)),
+        page: getHotelsPageDto.page,
+        limit: getHotelsPageDto.limit,
+        totalPages: Math.ceil(totalCount / getHotelsPageDto.limit),
       }
     );
   }
+  //List of hotels, rooms and districts
 
   public async uploadExcelHotelRoom(
     insertManyHotelAndRoomExcelDto: InsertManyHotelAndRoomExcelDto,
     workbook: XLSX.WorkBook
-  ) {
+  ): Promise<UploadExcelHotelRoomResponse> {
     try {
       const keys = Object.keys(insertManyHotelAndRoomExcelDto);
 
@@ -450,11 +436,11 @@ export class HotelService {
         !workbook.SheetNames.includes(sheetNameHabitaciones) ||
         !workbook.SheetNames.includes(sheetNameHoteles)
       ) {
-        return new ApiResponse<any>(
-          400,
-          "No se encontraron las hojas necesarias",
-          ""
-        );
+        return {
+          success: false,
+          status: 400,
+          message: "No se encontraron las hojas necesarias",
+        };
       }
 
       const [hotels, hotelRooms] = await Promise.all([
@@ -467,53 +453,126 @@ export class HotelService {
       ]);
 
       return await prisma.$transaction(async (prisma) => {
-        const [existingHotels, existingRooms] = await Promise.all([
-          prisma.hotel.findMany({
-            where: { id_hotel: { in: hotels.map((h) => h.id_hotel) } },
-          }),
-          prisma.hotel_room.findMany({
-            where: {
-              id_hotel_room: { in: hotelRooms.map((r) => r.id_hotel_room) },
+        // start Distrit
+        const existingDistritDB: number[] = (
+          await prisma.distrit.findMany({
+            where: { id_distrit: { in: hotels.map((h) => h.distrit_id) } },
+            select: {
+              id_distrit: true,
             },
-          }),
-        ]);
+          })
+        ).map((distrit) => distrit.id_distrit);
 
-        if (
-          existingHotels.length > 0 &&
-          existingHotels.length === hotels.length &&
-          existingRooms.length > 0 &&
-          existingRooms.length === hotelRooms.length
-          /* &&
-        hotels.every((h) => h.id_hotel && h.name && h.address && h.category && h.distrit_id ) &&
-        existingHotels.every((h) => h.id_hotel && h.name && h.address && h.category && h.distrit_id ) &&
-        hotelRooms.every((r) => r.id_hotel_room && r.room_type && r.capacity && r.hotel_id && r.price_pen && r.price_usd && r.rate_usd && r.season_type && r.service_tax) &&
-        existingRooms.every((r) => r.id_hotel_room && r.room_type && r.capacity && r.hotel_id && r.price_pen && r.price_usd && r.rate_usd && r.season_type && r.service_tax) */
-        ) {
-          const excelBuffer = await this.createExcelHotelAndRoom(
-            existingHotels,
-            existingRooms,
-            keys,
-            true
-          );
-
-          return excelBuffer;
-        }
-        //
-        const [newHotels, newHotelRooms] = await Promise.all([
-          prisma.hotel.createManyAndReturn({ data: hotels }),
-          prisma.hotel_room.createManyAndReturn({ data: hotelRooms }),
-        ]);
-
-        return await this.createExcelHotelAndRoom(
-          newHotels,
-          newHotelRooms,
-          keys,
-          false
+        const uniqueDistrictIdsExcelArray = Array.from(
+          new Set(hotels.map((h) => h.distrit_id).sort((a, b) => a - b))
         );
+
+        const compareBDandExcel: number[] = uniqueDistrictIdsExcelArray.filter(
+          (id) => !existingDistritDB.includes(id)
+        );
+
+        if (compareBDandExcel.length > 0) {
+          const bufferNoExist = await this.verifyDistritAndHotel({
+            hotels: [],
+            distrits: compareBDandExcel,
+          });
+          return {
+            success: true,
+            buffer: bufferNoExist,
+          };
+        }
+        // end Distrit
+
+        // start Hotel
+        //send funtion create excel hotels[]
+        const hotelIdsFromExistDatabase: hotel[] = await prisma.hotel.findMany({
+          where: { id_hotel: { in: hotels.map((h) => h.id_hotel) } },
+        });
+
+        const hotelIdsFromNoExistDatabase: hotel[] = hotels.filter(
+          (h) =>
+            !hotelIdsFromExistDatabase
+              .map((hotel) => hotel.id_hotel)
+              .includes(h.id_hotel)
+        );
+
+        //send funtion create excel hotelNew[]
+        let hotelsCreateDB: hotel[] = [];
+
+        if (hotelIdsFromNoExistDatabase.length > 0) {
+          hotelsCreateDB = await prisma.hotel.createManyAndReturn({
+            data: hotelIdsFromNoExistDatabase,
+          });
+        }
+        // end Hotel
+
+        // start verify hotels
+        const hotelIdsDB = hotelIdsFromExistDatabase.map((h) => h.id_hotel);
+
+        const hotelsIdsExcel = Array.from(
+          new Set(hotelRooms.map((h) => h.hotel_id).sort((a, b) => a - b))
+        );
+
+        const compareBDandExcelHotel = hotelsIdsExcel.filter(
+          (id) => !hotelIdsDB.includes(id)
+        );
+
+        if (compareBDandExcelHotel.length > 0) {
+          const bufferNoExist = await this.verifyDistritAndHotel({
+            hotels: compareBDandExcelHotel,
+            distrits: [],
+          });
+          return {
+            success: true,
+            buffer: bufferNoExist,
+          };
+        }
+        // end verify hotels
+
+        // start HotelRoom
+
+        //send funtion create excel hotelRooms[]
+        const hotelRoomIdsFromExistDatabase: hotel_room[] =
+          await prisma.hotel_room.findMany({
+            where: {
+              id_hotel_room: { in: hotelRooms.map((h) => h.id_hotel_room) },
+            },
+          });
+
+        const hotelRoomIdsFromNoExistDatabase: hotel_room[] = hotelRooms.filter(
+          (h) =>
+            !hotelRoomIdsFromExistDatabase
+              .map((hotel) => hotel.id_hotel_room)
+              .includes(h.id_hotel_room)
+        );
+
+        //send funtion create hotelRoomsNew[]
+        let hotelRoomsCreateDB: hotel_room[] = [];
+
+        if (hotelRoomIdsFromNoExistDatabase.length > 0) {
+          hotelRoomsCreateDB = await prisma.hotel_room.createManyAndReturn({
+            data: hotelRoomIdsFromNoExistDatabase,
+          });
+        }
+
+        // end HotelRoom
+
+        const excelBuffer = await this.createExcelHotelAndRoom({
+          hotels: hotelIdsFromExistDatabase,
+          hotelRooms: hotelRoomIdsFromExistDatabase,
+          key: keys,
+          hotelsNew: hotelsCreateDB,
+          hotelRoomsNew: hotelRoomsCreateDB,
+        });
+
+        return {
+          success: true,
+          buffer: excelBuffer,
+        };
       });
     } catch (error) {
       console.error("Error al cargar los datos:", error);
-      throw CustomError.internalServer("Error al cargar los datos",);
+      throw CustomError.internalServer("Error al cargar los datos");
     }
   }
 
@@ -526,6 +585,8 @@ export class HotelService {
         name: hotel.__EMPTY_1,
         address: hotel.__EMPTY_2 || null,
         distrit_id: hotel.__EMPTY_3,
+        created_at: new Date(),
+        updated_at: new Date(),
       }));
   }
   private getFormatteRoomExcel(sheet: XLSX.WorkSheet): hotel_room[] {
@@ -547,22 +608,28 @@ export class HotelService {
           ? new Decimal(hotelRoom.__EMPTY_6)
           : null,
         capacity: Math.floor(Math.random() * 10) + 1,
+        created_at: new Date(),
+        updated_at: new Date(),
       }));
   }
 
-  public async createExcelHotelAndRoom(
-    hotels: hotel[],
-    hotelRooms: hotel_room[],
-    key: string[],
-    status: boolean
-  ): Promise<Buffer> {
+  private async createExcelHotelAndRoom(params: {
+    hotels: hotel[];
+    hotelRooms: hotel_room[];
+    key: string[];
+    hotelsNew: hotel[];
+    hotelRoomsNew: hotel_room[];
+  }): Promise<Buffer> {
+    const { hotels, hotelRooms, key, hotelsNew, hotelRoomsNew } = params;
     const workbook = new ExcelJS.Workbook();
 
-    const hotelSheet = workbook.addWorksheet(key[0]);
-    const hotelRoomSheet = workbook.addWorksheet(key[1]);
+    const hotelSheet = workbook.addWorksheet(`${key[0]}-Exist`);
+    const hotelRoomSheet = workbook.addWorksheet(`${key[1]}-Exist`);
 
-    // Definición de las columnas para ambas hojas
-    hotelSheet.columns = [
+    const hotelSheetNew = workbook.addWorksheet(`${key[0]}-New`);
+    const hotelRoomSheetNew = workbook.addWorksheet(`${key[1]}-New`);
+
+    const headerHotelColum = [
       { header: "id_hotel", key: "id_hotel", width: 10 },
       { header: "category", key: "category", width: 13 },
       { header: "name", key: "name", width: 38 },
@@ -571,7 +638,7 @@ export class HotelService {
       { header: "status", key: "status", width: 10 },
     ];
 
-    hotelRoomSheet.columns = [
+    const headerRoomColum = [
       { header: "id_hotel_room", key: "id_hotel_room", width: 15 },
       { header: "hotel_id", key: "hotel_id", width: 10 },
       { header: "room_type", key: "room_type", width: 35 },
@@ -584,64 +651,127 @@ export class HotelService {
       { header: "status", key: "status", width: 10 },
     ];
 
-    // Mapeo de datos con un solo paso
-    const hotelRows = hotels.map((hotel) => ({
-      ...hotel,
-      status: status ? "Ya existe" : "Nuevo",
-    }));
+    hotelSheet.columns = headerHotelColum;
+    hotelRoomSheet.columns = headerRoomColum;
 
-    const hotelRooms_v1 = hotelRooms.map((hotelRoom) => ({
-      ...hotelRoom,
-      status: status ? "Ya existe" : "Nuevo",
-    }));
+    hotelSheetNew.columns = headerHotelColum;
+    hotelRoomSheetNew.columns = headerRoomColum;
 
     hotelSheet.getRow(1).font = { bold: true, size: 12 };
     hotelRoomSheet.getRow(1).font = { bold: true, size: 12 };
+    hotelSheetNew.getRow(1).font = { bold: true, size: 12 };
+    hotelRoomSheetNew.getRow(1).font = { bold: true, size: 12 };
 
-    hotelSheet.addRows(hotelRows);
-    hotelRoomSheet.addRows(hotelRooms_v1);
+    //exist hotel
+    hotelSheet.addRows(
+      hotels.map((hotel) => ({
+        ...hotel,
+        status: "Ya existe",
+      }))
+    );
+    // exist room
+    hotelRoomSheet.addRows(
+      hotelRooms.map((hotelRoom) => ({
+        ...hotelRoom,
+        status: "Ya existe",
+      }))
+    );
+    // new hotel
+    hotelSheetNew.addRows(
+      hotelsNew.map((hotel) => ({
+        ...hotel,
+        status: "Nuevo",
+      }))
+    );
+    // new room
+    hotelRoomSheetNew.addRows(
+      hotelRoomsNew.map((hotelRoom) => ({
+        ...hotelRoom,
+        status: "Nuevo",
+      }))
+    );
 
-    hotelSheet.eachRow((row, rowNumber) => {
-      row.eachCell((cell) => {
-        cell.border = {
-          top: { style: "thin", color: { argb: "FF000000" } },
-          bottom: { style: "thin", color: { argb: "FF000000" } },
-          left: { style: "thin", color: { argb: "FF000000" } },
-          right: { style: "thin", color: { argb: "FF000000" } },
-        };
-      });
-    });
+    //borders
+    this.applyBordersToSheet(hotelSheet);
+    this.applyBordersToSheet(hotelRoomSheet);
+    this.applyBordersToSheet(hotelSheetNew);
+    this.applyBordersToSheet(hotelRoomSheetNew);
+    // cell
+    this.applyStatusCellStyle(hotelSheet, "status", "Ya existe");
+    this.applyStatusCellStyle(hotelRoomSheet, "status", "Ya existe");
+    this.applyStatusCellStyle(hotelSheetNew, "status", "Ya existe");
+    this.applyStatusCellStyle(hotelRoomSheetNew, "status", "Ya existe");
 
-    hotelRoomSheet.eachRow((row, rowNumber) => {
-      row.eachCell((cell) => {
-        cell.border = {
-          top: { style: "thin", color: { argb: "FF000000" } },
-          bottom: { style: "thin", color: { argb: "FF000000" } },
-          left: { style: "thin", color: { argb: "FF000000" } },
-          right: { style: "thin", color: { argb: "FF000000" } },
-        };
-      });
-    });
-
-    this.applyStatusCellStyle(hotelSheet, status);
-    this.applyStatusCellStyle(hotelRoomSheet, status);
-
-    /* workbook.xlsx.writeFile("hotels_and_rooms.xlsx") */
-    const buffer = await workbook.xlsx.writeBuffer();
-    return Buffer.from(buffer);
+    return Buffer.from(await workbook.xlsx.writeBuffer());
   }
 
-  private applyStatusCellStyle(sheet: ExcelJS.Worksheet, status: boolean) {
-    const statusCol = sheet.getColumn("status");
+  //
 
-    // Aplicar estilo solo si la columna existe
+  private async verifyDistritAndHotel(params: {
+    hotels: number[];
+    distrits: number[];
+  }): Promise<Buffer> {
+    const { hotels, distrits } = params;
+
+    const workbook = new ExcelJS.Workbook();
+
+    let hotelsIdsSheet: ExcelJS.Worksheet | undefined;
+    let distritsIdsSheet: ExcelJS.Worksheet | undefined;
+    const headerColumns = [
+      { header: "information", key: "information", width: 55 },
+    ];
+
+    if (hotels && hotels.length > 0) {
+      hotelsIdsSheet = workbook.addWorksheet("NO EXIST HOTEL");
+      hotelsIdsSheet.columns = headerColumns;
+      const hotelRows = hotels.map((h) => ({
+        information: `El hotel no existe en la base de datos con este número ${h}`,
+      }));
+      hotelsIdsSheet.addRows(hotelRows);
+      this.applyStatusCellStyle(
+        hotelsIdsSheet,
+        "information",
+        hotelRows.map((r) => r.information)
+      );
+    }
+
+    if (distrits && distrits.length > 0) {
+      distritsIdsSheet = workbook.addWorksheet("NO EXIST DISTRIT");
+      distritsIdsSheet.columns = headerColumns;
+
+      const distritRows = distrits.map((d) => ({
+        information: `El distrito no existe en la base de datos con este número ${d}`,
+      }));
+
+      distritsIdsSheet.addRows(distritRows);
+      this.applyStatusCellStyle(
+        distritsIdsSheet,
+        "information",
+        distritRows.map((d) => d.information)
+      );
+    }
+
+    return Buffer.from(await workbook.xlsx.writeBuffer());
+  }
+  //
+  private applyStatusCellStyle(
+    sheet: ExcelJS.Worksheet,
+    column: string,
+    text: string | string[]
+  ) {
+    const statusCol = sheet.getColumn(column);
     if (statusCol) {
       statusCol.eachCell((cell, rowNumber) => {
-        if (rowNumber > 1) {
+        if (rowNumber > 1 && typeof cell.value === "string") {
+          const match = Array.isArray(text)
+            ? text.includes(cell.value)
+            : cell.value === text;
           cell.fill = {
             type: "pattern",
             pattern: "solid",
-            fgColor: { argb: status ? "FFFF0000" : "FF00FF00" },
+            fgColor: {
+              argb: match ? "FFFF0000" : "FF00FF00",
+            },
           };
           cell.font = {
             color: { argb: "FF000000" },
@@ -659,4 +789,61 @@ export class HotelService {
   }
 
   //
+  private applyBordersToSheet(sheet: ExcelJS.Worksheet) {
+    sheet.eachRow((row, rowNumber) => {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin", color: { argb: "FF000000" } },
+          bottom: { style: "thin", color: { argb: "FF000000" } },
+          left: { style: "thin", color: { argb: "FF000000" } },
+          right: { style: "thin", color: { argb: "FF000000" } },
+        };
+      });
+    });
+  }
+  //
+
+  // start create ,update,delete hotel
+  public async upsertHotel(hotelDto: HotelDto) {
+    this.hotelMapper.setDto = hotelDto;
+    let hotel: hotel;
+    try {
+      const existingHotel = await HotelModel.findUnique({
+        where: {
+          id_hotel: hotelDto.id,
+        },
+      });
+      if (existingHotel) {
+        hotel = await HotelModel.update({
+          where: {
+            id_hotel: hotelDto.id,
+          },
+          data: this.hotelMapper.updateHotel,
+        });
+       
+      } else {
+        
+        hotel = await HotelModel.create({
+          data: this.hotelMapper.createHotel,
+        });
+        
+      }
+
+      return new ApiResponse<hotel>(
+        200,
+        hotelDto.id > 0
+          ? "Hotel actualizado correctamente"
+          : "Hotel creado correctamente",
+        hotel
+      );
+    } catch (error: any) {
+      console.error("Error al crear el hotel:", error);
+      throw CustomError.internalServer(
+        `Error al crear el hotel: ${error.message}`
+      );
+    }
+  }
+
+  public deleteHotel() {}
+  // end create ,update,delete hotel
 }

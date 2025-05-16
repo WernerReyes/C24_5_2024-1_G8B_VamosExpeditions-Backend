@@ -86,34 +86,30 @@ export class NotificationService {
   }
 
   public async notificationMessage(notifications: NotificationMessage) {
-    try {
-      const resultMessage = notifications.to_user.map((toUser) => ({
-        ...notifications,
-        to_user: toUser,
-      }));
+    const resultMessage = notifications.to_user.map((toUser) => ({
+      ...notifications,
+      to_user: toUser,
+    }));
 
-      const notificationUsers = await NotificationModel.createManyAndReturn({
-        data: resultMessage,
-        omit: {
-          updated_at: true,
-        },
-        include: {
-          user_notification_from_userTouser: {
-            omit: {
-              password: true,
-              id_role: true,
-            },
+    const notificationUsers = await NotificationModel.createManyAndReturn({
+      data: resultMessage,
+      omit: {
+        updated_at: true,
+      },
+      include: {
+        user_notification_from_userTouser: {
+          omit: {
+            password: true,
+            id_role: true,
           },
         },
-      });
- 
-      return await Promise.all(
-        notificationUsers.map((notification) =>
-          NotificationMessageEntity.fromObject(notification)
-        )
-      );
-    } catch (e) {
- 
-    }
+      },
+    });
+
+    return await Promise.all(
+      notificationUsers.map((notification) =>
+        NotificationMessageEntity.fromObject(notification)
+      )
+    );
   }
 }

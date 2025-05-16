@@ -8,12 +8,10 @@ import {
 } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import * as XLSX from "xlsx";
-import * as path from 'path';
+import * as path from "path";
 import { PARNERTS, ROLES, USERS } from "./data";
 
 const prisma = new PrismaClient();
-
-
 
 type ExelCountry = {
   Pais: number;
@@ -52,10 +50,12 @@ type ExelHotelRoom = {
   __EMPTY_6: number | undefined;
 };
 
-
 (async () => {
   await prisma.$connect();
-  const rutaArchivo = path.resolve(__dirname, 'TARIFAS HOTELES Y SERVICIOS 2025.xlsx');
+  const rutaArchivo = path.resolve(
+    __dirname,
+    "TARIFAS HOTELES Y SERVICIOS 2025.xlsx"
+  );
   await cargarDatosDesdeExcel(rutaArchivo);
   await prisma.$disconnect();
 })();
@@ -83,7 +83,7 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
     const missingTypeRooms = hotelRooms.filter(
       (hotelRoom) => !hotelRoom.room_type
     );
-   
+
     //* Delete all data
     let deletedData = false;
     await prisma
@@ -161,11 +161,10 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
   }
 }
 
-
 const getFormattedCountryFromExcel = (book: XLSX.WorkBook): country[] => {
   const countrySheet = book.SheetNames[4];
   const sheet = book.Sheets[countrySheet];
-  
+
   const countries: ExelCountry[] = XLSX.utils.sheet_to_json(sheet);
   return countries
     .filter((_, index) => index > 0)
@@ -173,6 +172,8 @@ const getFormattedCountryFromExcel = (book: XLSX.WorkBook): country[] => {
       id_country: country.Pais,
       name: country.__EMPTY,
       code: country.__EMPTY_1,
+      created_at: null,
+      updated_at: null,
     }));
 };
 
@@ -186,6 +187,8 @@ const getFormattedCityFromExcel = (book: XLSX.WorkBook): city[] => {
       id_city: city.__EMPTY,
       name: city.Ciudad,
       country_id: city.__EMPTY_1,
+      created_at: null,
+      updated_at: null,
     }));
 };
 
@@ -199,6 +202,8 @@ const getFormattedDistritFromExcel = (book: XLSX.WorkBook): distrit[] => {
       id_distrit: distrit.__EMPTY,
       name: distrit.Distrito,
       city_id: distrit.__EMPTY_1,
+      created_at: null,
+      updated_at: null,
     }));
 };
 
@@ -214,6 +219,8 @@ const getFormattedHotelFromExcel = (book: XLSX.WorkBook): hotel[] => {
       name: hotel.__EMPTY_1,
       address: hotel.__EMPTY_2 || null,
       distrit_id: hotel.__EMPTY_3,
+      created_at: null,
+      updated_at: null,
     }));
 };
 
@@ -235,5 +242,7 @@ const getFormattedHotelRoomFromExcel = (book: XLSX.WorkBook): hotel_room[] => {
       rate_usd: hotelRoom.__EMPTY_5 ? new Decimal(hotelRoom.__EMPTY_5) : null,
       price_pen: hotelRoom.__EMPTY_6 ? new Decimal(hotelRoom.__EMPTY_6) : null,
       capacity: Math.floor(Math.random() * 10) + 1,
+      created_at: null,
+      updated_at: null,
     }));
 };

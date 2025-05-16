@@ -165,6 +165,30 @@ export class VersionQuotationController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
+  public generateExcel = async (req: Request, res: Response) => {
+    const [error, idDto] = VersionQuotationIDDto.create(req.params);
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(this.versionQuotationService.generateExcel(idDto!))
+      /* .then((excel) => res.status(200).json(excel))
+    .catch((error) => this.handleResponseError(res, error)); */
+      .then((excel) => {
+        res.setHeader(
+          "Content-Type",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename=tripDetails.xlsx`
+        );
+        res.send(excel);
+      })
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  // send email and generate report and excel
+
   public sendEmailAndGenerateReport = async (req: Request, res: Response) => {
     const [error, reportDto] = SendEmailAndGenerateReportDto.create(req.body);
     if (error)
@@ -174,6 +198,12 @@ export class VersionQuotationController extends AppController {
       this.versionQuotationService.sendEmailAndGenerateReport(reportDto!)
     )
       .then((report) => res.status(200).json(report))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  getExcelQuotationById = async (req: Request, res: Response) => {
+    this.handleError(this.versionQuotationService.getExcelQuotationById())
+      .then((excel) => res.status(200).json(excel))
       .catch((error) => this.handleResponseError(res, error));
   };
 }

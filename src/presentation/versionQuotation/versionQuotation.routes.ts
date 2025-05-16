@@ -5,6 +5,7 @@ import { VersionQuotationMailer } from "./versionQuotation.mailer";
 import { VersionQuotationMapper } from "./versionQuotation.mapper";
 import { VersionQuotationReport } from "./versionQuotation.report";
 import { VersionQuotationService } from "./versionQuotation.service";
+import { VersionQuotationExcel } from "./versionQuotation.excel";
 
 export class VersionQuotationRoutes {
   static get routes(): Router {
@@ -12,12 +13,15 @@ export class VersionQuotationRoutes {
 
     const versionQuotationMapper = new VersionQuotationMapper();
     const versionQuotationReport = new VersionQuotationReport();
+
     const versionQuotationMailer = new VersionQuotationMailer();
 
+    const versionQuotationExcel = new VersionQuotationExcel();
     const versionQuotationService = new VersionQuotationService(
       versionQuotationMapper,
       versionQuotationReport,
-      versionQuotationMailer
+      versionQuotationMailer,
+      versionQuotationExcel
     );
     const versionQuotationController = new VersionQuotationController(
       versionQuotationService
@@ -27,10 +31,16 @@ export class VersionQuotationRoutes {
 
     router.get("/", versionQuotationController.getVersionQuotations);
 
+    // start excel and pdf routes
     router.get(
       "/pdf/:quotationId/:versionNumber",
       versionQuotationController.generatePdf
     );
+    router.get(
+      "/excel/:quotationId/:versionNumber",
+      versionQuotationController.generateExcel
+    );
+    // end excel and pdf routes
 
     router.put("", versionQuotationController.updateVersionQuotation);
     router.put(
@@ -50,10 +60,7 @@ export class VersionQuotationRoutes {
 
     router.put("/trash", versionQuotationController.trashVersionQuotation);
 
-    router.put(
-      "/restore",
-      versionQuotationController.restoreVersionQuotation
-    );
+    router.put("/restore", versionQuotationController.restoreVersionQuotation);
 
     router.get(
       "/:quotationId/:versionNumber",
@@ -64,6 +71,10 @@ export class VersionQuotationRoutes {
       "/send-email-pdf",
       versionQuotationController.sendEmailAndGenerateReport
     );
+
+    // router.post("/send-email-excel", versionQuotationController.sendEmailA);
+
+    router.get("/prueba", versionQuotationController.getExcelQuotationById);
 
     return router;
   }

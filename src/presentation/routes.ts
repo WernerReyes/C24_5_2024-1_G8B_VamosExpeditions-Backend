@@ -12,12 +12,16 @@ import { HotelRoomTripDetailsRoutes } from "./hotelRoomTripDetails/hotelRoomTrip
 import { TripDetailsRoutes } from "./tripDetails/tripDetails.routes";
 import { NotificationRoutes } from "./notification/notification.routes";
 import { DistritRoutes } from "./distrit/distrit.routes";
+
 import { Middleware } from "./middleware";
 import { RoleRoutes } from "./role/role.routes";
 
+import { CityRoutes } from "./city/city.routes";
+import { RoomRoutes } from "./room/room.routes";
+
 export class AppRoutes {
   private static prefix: string = "/api/v1";
-
+  
   static get routes(): Router {
     const router = Router();
 
@@ -29,6 +33,9 @@ export class AppRoutes {
     router.use(`${this.prefix}/notification`, NotificationRoutes.routes);
 
     router.use(`${this.prefix}/hotel`, HotelRoutes.routes);
+    router.use(`${this.prefix}/room`, RoomRoutes.routes);
+
+
     router.use(`${this.prefix}/client`, ClientRoutes.routes);
     router.use(`${this.prefix}/quotation`, QuotationRoutes.routes);
     router.use(
@@ -42,10 +49,11 @@ export class AppRoutes {
     );
     router.use(`${this.prefix}/reservation`, ReservationRoutes.routes);
 
-    //country
+    // start     country-city-distrit
     router.use(`${this.prefix}/country`, CountryRoutes.routes);
     router.use(`${this.prefix}/distrit`, DistritRoutes.routes);
-
+    router.use(`${this.prefix}/city`, CityRoutes.routes);
+    // end  country-city-distrit
     //* External
     router.use(`${this.prefix}/external/country`, ExternalCountryRoutes.routes);
 

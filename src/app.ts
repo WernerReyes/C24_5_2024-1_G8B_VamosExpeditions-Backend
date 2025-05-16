@@ -5,11 +5,8 @@ import { AppRoutes } from "./presentation/routes";
 import { Server } from "./presentation/server";
 import { AppSocket } from "./presentation/socket";
 import { AppCacheContext } from "./presentation/context";
-
 import { AppCron } from "./presentation/cron";
 import { ModelInitializer } from "./infrastructure/models";
-
-
 
 const ORIGINS = [
   EnvsConst.CLIENT_URL,
@@ -41,7 +38,6 @@ async function main() {
     await AppCacheContext.initialize();
   } catch (error) {
     console.error(error);
-
   }
 
   //* Initialize the cron jobs
@@ -55,6 +51,3 @@ async function main() {
     console.log(`Server listening on port ${EnvsConst.PORT}`);
   });
 }
-
-
-
