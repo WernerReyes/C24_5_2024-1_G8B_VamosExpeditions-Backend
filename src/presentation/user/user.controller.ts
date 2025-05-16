@@ -38,16 +38,22 @@ export class UserController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public toogleTrash = async (req: Request, res: Response) => {
+  public trashUser = async (req: Request, res: Response) => {
     const [error, trashDto] = TrashDto.create({
       ...req.body,
       id: req.params.id,
     });
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
-    this.handleError(this.userService.toogleTrash(trashDto!))
+    this.handleError(this.userService.trashUser(trashDto!))
       .then((user) => res.status(200).json(user))
       .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public restoreUser = async (req: Request, res: Response) => {
+    this.handleError(this.userService.restoreUser(+req.params.id))
+     .then((user) => res.status(200).json(user))
+     .catch((error) => this.handleResponseError(res, error));
   };
 
   public changePassword = async (req: Request, res: Response) => {

@@ -35,7 +35,7 @@ export class UserRoutes {
       Middleware.validateActionPermission([
         RoleEnum.MANAGER_ROLE,
       ]) as RequestHandler,
-      userController.toogleTrash
+      userController.trashUser
     );
 
     router.put(
@@ -43,7 +43,7 @@ export class UserRoutes {
       Middleware.validateActionPermission([
         RoleEnum.MANAGER_ROLE,
       ]) as RequestHandler,
-      userController.toogleTrash
+      userController.restoreUser
     );
 
     router.put(

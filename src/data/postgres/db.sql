@@ -39,7 +39,15 @@ CREATE TYPE  role_type AS ENUM ('MANAGER_ROLE', 'EMPLOYEE_ROLE');
 
 CREATE TABLE  role (
 id_role SERIAL PRIMARY KEY, -- Use SERIAL for auto-incrementing IDs
-name role_type NOT NULL UNIQUE
+name role_type NOT NULL UNIQUE,
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  -- Soft Delete
+  is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+  delete_reason TEXT,
 );
 
 -- -----------------------------------------------------
@@ -53,6 +61,14 @@ password VARCHAR(200) NOT NULL,
 description TEXT NULL,
 phone_number VARCHAR(20) NULL,
 id_role INT NOT NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  -- Soft Delete
+  is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+  delete_reason TEXT,
+  
 CONSTRAINT fk_user_role FOREIGN KEY (id_role)
 REFERENCES role (id_role)
 ON DELETE NO ACTION
@@ -216,34 +232,20 @@ CREATE TYPE  version_quotation_status AS ENUM ('DRAFT', 'COMPLETED', 'CANCELATED
    -- Soft Delete
    is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
    deleted_at TIMESTAMP NULL DEFAULT NULL,
-   archive_reason TEXT,
+   delete_reason TEXT,
     
     PRIMARY KEY (version_number, quotation_id),
     CONSTRAINT fk_version_quotation_user FOREIGN KEY (user_id) REFERENCES "user" (id_user) ON DELETE CASCADE,
     CONSTRAINT fk_version_quotation_quotation FOREIGN KEY (quotation_id) REFERENCES quotation (id_quotation) ON DELETE CASCADE,
     CONSTRAINT chk_completion_percentage CHECK (completion_percentage IN (0, 25, 50, 75, 100)),
     CONSTRAINT fk_version_quotation_partner FOREIGN KEY (partner_id) REFERENCES partner(id) ON DELETE CASCADE,
-    CONSTRAINT version_quotation_commission_check CHECK (commission = 0 OR commission BETWEEN 3 AND 20)
+    CONSTRAINT version_quotation_commission_check CHECK (commission = 0 OR commission BETWEEN 3 AND 20);
 );
-
-
 
 
 -- INDEXS
 -- Índice compuesto en quotation_id y official
 CREATE INDEX idx_quotation_id_official ON version_quotation(quotation_id, official);
-
--- Índice en status
-CREATE INDEX idx_status ON version_quotation(status);
-
--- Índice en user_id
-CREATE INDEX idx_user_id ON version_quotation(user_id);
-
--- Índice en created_at
-CREATE INDEX idx_created_at ON version_quotation(created_at);
-
--- Índice en updated_at
-CREATE INDEX idx_updated_at ON version_quotation(updated_at);
 
 -- Índice en name
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
@@ -253,7 +255,6 @@ CREATE INDEX idx_name_trgm ON version_quotation USING GIN (name gin_trgm_ops);
 CREATE UNIQUE INDEX unique_official_idx 
 ON version_quotation (quotation_id) 
 WHERE official = TRUE;
-
 
 -- -----------------------------------------------------
 -- Table `trip_details`
@@ -290,7 +291,6 @@ CREATE INDEX idx_startDate ON trip_details(start_date);
 
 -- Índice en end_date
 CREATE INDEX idx_endDate ON trip_details(end_date);
-
 
 
 -- -----------------------------------------------------
@@ -330,6 +330,12 @@ CREATE TABLE IF NOT EXISTS reservation (
     status reservation_status DEFAULT 'PENDING' NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+   -- Soft Delete
+   is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+   deleted_at TIMESTAMP NULL DEFAULT NULL,
+   delete_reason TEXT,
+  
     CONSTRAINT fk_reservation_quotation FOREIGN KEY (quotation_id) 
     REFERENCES quotation(id_quotation) ON DELETE CASCADE,
     CONSTRAINT unique_reservation UNIQUE (quotation_id)
@@ -339,13 +345,9 @@ CREATE TABLE IF NOT EXISTS reservation (
 CREATE INDEX idx_status_r ON reservation(status);
 
 -- Índice en created_at
-CREATE INDEX idx_created_at_r ON reservation(created_at);
+CREATE INDEX idx_is_deleted_r ON reservation(is_deleted);
 
--- Índice en updated_at
-CREATE INDEX idx_updated_at_r ON reservation(updated_at);
-
-
-
+  
 -- -----------------------------------------------------
 -- View `reservation_version_summary`
 -- -----------------------------------------------------

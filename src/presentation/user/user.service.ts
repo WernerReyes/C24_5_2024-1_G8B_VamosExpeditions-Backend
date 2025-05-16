@@ -1,6 +1,11 @@
 import { ApiResponse, PaginatedResponse } from "../response";
 import { UserEntity } from "@/domain/entities";
-import type { ChangePasswordDto, GetUsersDto, TrashDto, UserDto } from "@/domain/dtos";
+import type {
+  ChangePasswordDto,
+  GetUsersDto,
+  TrashDto,
+  UserDto,
+} from "@/domain/dtos";
 import { UserMapper } from "./user.mapper";
 import { CustomError } from "@/domain/error";
 import { BcryptAdapter } from "@/core/adapters";
@@ -79,7 +84,7 @@ export class UserService {
     );
   }
 
-  public async toogleTrash({ id, deleteReason }: TrashDto) {
+  public async trashUser({ id, deleteReason }: TrashDto) {
     const user = await UserModel.findUnique({
       where: {
         id_user: id,
@@ -95,6 +100,13 @@ export class UserService {
       where: {
         id_user: id,
       },
+      include: {
+        role: {
+          select: {
+            name: true,
+          }
+        }
+      },
       data: {
         delete_reason: user.is_deleted ? null : deleteReason,
         is_deleted: !user.is_deleted,
@@ -109,6 +121,10 @@ export class UserService {
         : "Usuario eliminado correctamente",
       await UserEntity.fromObject(userUpdated)
     );
+  }
+
+  public restoreUser(id: UserEntity["id"]) {
+    return this.trashUser({ id, deleteReason: undefined });
   }
 
   public async changePassword(changePassword: ChangePasswordDto) {
