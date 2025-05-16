@@ -1,7 +1,7 @@
-import { hotel_room } from "@prisma/client";
+import { hotel_room, Prisma } from "@prisma/client";
 import type { Decimal } from "@prisma/client/runtime/library";
 import { type IHotelModel } from "./hotel.model";
-import { Model } from "./model";
+import { Model, prisma } from "./model";
 
 export interface IHotelRoomModel extends hotel_room {
   hotel?: IHotelModel;
@@ -12,6 +12,9 @@ export class HotelRoomModel
   implements IHotelRoomModel
 {
   private static _instance: HotelRoomModel
+  
+  private static hotelRoom = prisma.hotel_room;
+
   protected override get getEmpty(): HotelRoomModel {
     return HotelRoomModel._instance;
   }
@@ -26,6 +29,8 @@ export class HotelRoomModel
     public readonly price_pen: Decimal | null,
     public readonly capacity: number,
     public readonly hotel_id: number,
+    public readonly created_at: Date,
+    public readonly updated_at: Date,
     public hotel?: IHotelModel
   ) {
     super();
@@ -41,7 +46,9 @@ export class HotelRoomModel
       null,
       null,
       0,
-      0
+      0,
+      new Date(),
+      new Date()
     );
   }
 
@@ -59,7 +66,9 @@ export class HotelRoomModel
       this._instance.rate_usd,
       this._instance.price_pen,
       this._instance.capacity,
-      this._instance.hotel_id
+      this._instance.hotel_id,
+      this._instance.created_at,
+      this._instance.updated_at
     );
   }
 
@@ -69,5 +78,29 @@ export class HotelRoomModel
 
   public static get getString() {
     return this._instance.getString();
+  }
+
+  public static findUnique<T extends Prisma.hotel_roomFindUniqueArgs>(
+    args: Prisma.SelectSubset<T, Prisma.hotel_roomFindUniqueArgs>
+  ):Promise<Prisma.hotel_roomGetPayload<T> | null> {
+    return this.hotelRoom.findUnique(args);
+  }
+
+  public static findMany<T extends Prisma.hotel_roomFindManyArgs>(
+    args: Prisma.SelectSubset<T, Prisma.hotel_roomFindManyArgs>
+  ): Promise<Prisma.hotel_roomGetPayload<T>[]> {
+    return this.hotelRoom.findMany(args);
+  }
+
+  public static create<T extends Prisma.hotel_roomCreateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.hotel_roomCreateArgs>
+  ): Promise<Prisma.hotel_roomGetPayload<T>> {
+    return this.hotelRoom.create(args);
+  }
+
+  public static update<T extends Prisma.hotel_roomUpdateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.hotel_roomUpdateArgs>
+  ): Promise<Prisma.hotel_roomGetPayload<T>> {
+    return this.hotelRoom.update(args);
   }
 }

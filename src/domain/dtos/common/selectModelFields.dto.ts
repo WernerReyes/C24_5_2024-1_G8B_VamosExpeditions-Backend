@@ -1,4 +1,6 @@
 import {
+  type IRoleModel,
+  type IUserModel,
   ReservationModel,
   RoleModel,
   UserModel,
@@ -22,12 +24,12 @@ export class SelectModelFieldsDto {
           switch (modelName) {
             case "role":
               return !RoleModel.getString.includes(
-                field.trim() as keyof RoleModel
+                field.trim() as keyof IRoleModel
               );
 
             case "user":
               return !UserModel.getString.includes(
-                field.trim() as keyof UserModel
+                field.trim() as keyof IUserModel
               );
 
             case "version_quotation":

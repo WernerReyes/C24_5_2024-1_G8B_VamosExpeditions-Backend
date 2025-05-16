@@ -23,8 +23,8 @@ export class NotificationModel
     public readonly to_user: number,
     public readonly message: string,
     public readonly is_read: boolean | null,
-    public readonly created_at: Date | null,
-    public readonly updated_at: Date | null,
+    public readonly created_at: Date,
+    public readonly updated_at: Date,
     public user_notification_from_userTouser?: IUserModel
   ) {
     super();

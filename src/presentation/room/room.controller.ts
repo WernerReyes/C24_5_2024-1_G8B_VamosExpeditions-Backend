@@ -13,7 +13,6 @@ export class RoomController extends AppController {
       ...req.body,
       roomId: req.params.id,
     });
-    console.log("room", room);
     if (error) return this.handleResponseError(res, error);
 
     this.handleError(this.roomService.upsertRoom(room!))

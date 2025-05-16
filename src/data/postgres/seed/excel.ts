@@ -172,8 +172,8 @@ const getFormattedCountryFromExcel = (book: XLSX.WorkBook): country[] => {
       id_country: country.Pais,
       name: country.__EMPTY,
       code: country.__EMPTY_1,
-      created_at: null,
-      updated_at: null,
+      created_at: new Date(),
+      updated_at: new Date(),
     }));
 };
 
@@ -187,8 +187,8 @@ const getFormattedCityFromExcel = (book: XLSX.WorkBook): city[] => {
       id_city: city.__EMPTY,
       name: city.Ciudad,
       country_id: city.__EMPTY_1,
-      created_at: null,
-      updated_at: null,
+      created_at: new Date(),
+      updated_at: new Date(),
     }));
 };
 
@@ -202,8 +202,8 @@ const getFormattedDistritFromExcel = (book: XLSX.WorkBook): distrit[] => {
       id_distrit: distrit.__EMPTY,
       name: distrit.Distrito,
       city_id: distrit.__EMPTY_1,
-      created_at: null,
-      updated_at: null,
+      created_at: new Date(),
+      updated_at: new Date(),
     }));
 };
 
@@ -219,8 +219,8 @@ const getFormattedHotelFromExcel = (book: XLSX.WorkBook): hotel[] => {
       name: hotel.__EMPTY_1,
       address: hotel.__EMPTY_2 || null,
       distrit_id: hotel.__EMPTY_3,
-      created_at: null,
-      updated_at: null,
+      created_at: new Date(),
+      updated_at: new Date(),
     }));
 };
 
@@ -242,7 +242,7 @@ const getFormattedHotelRoomFromExcel = (book: XLSX.WorkBook): hotel_room[] => {
       rate_usd: hotelRoom.__EMPTY_5 ? new Decimal(hotelRoom.__EMPTY_5) : null,
       price_pen: hotelRoom.__EMPTY_6 ? new Decimal(hotelRoom.__EMPTY_6) : null,
       capacity: Math.floor(Math.random() * 10) + 1,
-      created_at: null,
-      updated_at: null,
+      created_at: new Date(),
+      updated_at: new Date(),
     }));
 };

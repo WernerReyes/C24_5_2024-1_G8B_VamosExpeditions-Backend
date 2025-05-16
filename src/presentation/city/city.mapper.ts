@@ -25,7 +25,7 @@ export class CityMapper {
     return {
       name: this.dto.cityName,
       country_id: this.dto.countryId,
-      updated_at: new Date(),
+      // updated_at: new Date(), /// TODO: add updated_at
     };
   }
 }

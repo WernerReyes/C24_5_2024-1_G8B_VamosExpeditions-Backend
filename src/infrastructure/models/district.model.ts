@@ -12,7 +12,7 @@ export class DistrictModel
 {
   private static distrit = new PrismaClient().distrit;
 
-  private static _instance: DistrictModel
+  private static _instance: DistrictModel;
 
   protected override get getEmpty(): DistrictModel {
     return DistrictModel._instance;
@@ -22,13 +22,15 @@ export class DistrictModel
     public readonly id_distrit: number,
     public readonly name: string,
     public readonly city_id: number,
+    public readonly created_at: Date,
+    public readonly updated_at: Date,
     public city?: ICityModel
   ) {
     super();
   }
 
   public static initialize(): void {
-    this._instance = new DistrictModel(0, "", 0);
+    this._instance = new DistrictModel(0, "", 0, new Date(), new Date());
   }
 
   public static get instance(): DistrictModel {
@@ -39,7 +41,9 @@ export class DistrictModel
     return new DistrictModel(
       this._instance.id_distrit,
       this._instance.name,
-      this._instance.city_id
+      this._instance.city_id,
+      this._instance.created_at,
+      this._instance.updated_at
     );
   }
 
@@ -47,9 +51,27 @@ export class DistrictModel
     this._instance.city = city;
   }
 
+  public static async findUnique<T extends Prisma.distritFindUniqueArgs>(
+    args: Prisma.SelectSubset<T, Prisma.distritFindUniqueArgs>
+  ): Promise<Prisma.distritGetPayload<T> | null> {
+    return await this.distrit.findUnique(args);
+  }
+
   public static async findMany<T extends Prisma.distritFindManyArgs>(
     args: Prisma.SelectSubset<T, Prisma.distritFindManyArgs>
   ): Promise<Prisma.distritGetPayload<T>[]> {
     return await this.distrit.findMany(args);
+  }
+
+  public static async create<T extends Prisma.distritCreateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.distritCreateArgs>
+  ): Promise<Prisma.distritGetPayload<T>> {
+    return await this.distrit.create(args);
+  }
+
+  public static async update<T extends Prisma.distritUpdateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.distritUpdateArgs>
+  ): Promise<Prisma.distritGetPayload<T>> {
+    return await this.distrit.update(args);
   }
 }

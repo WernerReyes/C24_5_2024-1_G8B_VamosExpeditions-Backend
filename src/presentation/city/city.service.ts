@@ -1,10 +1,10 @@
-import { CityModel } from "@/data/postgres";
 import { ApiResponse } from "../response";
 import { CityEntity } from "@/domain/entities";
 import { CityDto } from "@/domain/dtos/city/city.dto";
 import { CityMapper } from "./city.mapper";
 import { city } from "@prisma/client";
 import { CustomError } from "@/domain/error";
+import { CityModel } from "@/infrastructure/models";
 
 export class CityService {
   constructor(private readonly cityMapper: CityMapper) {}

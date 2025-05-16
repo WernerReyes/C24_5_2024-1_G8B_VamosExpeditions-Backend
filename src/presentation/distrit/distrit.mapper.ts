@@ -36,7 +36,7 @@ export class DistritMapper {
           country_id: this.dto.countryId,
         },
       },
-      updated_at: new Date(),
+      // updated_at: new Date() // TODO: add updated_at
     };
   }
 }

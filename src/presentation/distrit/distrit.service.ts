@@ -1,4 +1,3 @@
-
 import { DistrictModel } from "@/infrastructure/models";
 import { ApiResponse } from "../response";
 import { DistritEntity } from "@/domain/entities";
@@ -7,7 +6,7 @@ import { DistritMapper } from "./distrit.mapper";
 import { CustomError } from "@/domain/error";
 
 export class DistritService {
-  constructor() {}
+  constructor(private readonly distritMapper: DistritMapper) {}
 
   public async getAllDistrit() {
     const distrits = await DistrictModel.findMany({
@@ -22,10 +21,8 @@ export class DistritService {
           name: "asc",
         },
       },
-      
-      
     });
-    
+
     return new ApiResponse<DistritEntity[]>(
       200,
       "Lista de distritos",
@@ -39,21 +36,21 @@ export class DistritService {
     this.distritMapper.setDto = distritDto;
     let distritData;
     try {
-      const existingDistrit = await DistritModel.findUnique({
+      const existingDistrit = await DistrictModel.findUnique({
         where: {
           id_distrit: distritDto.distritId,
         },
       });
 
       if (existingDistrit) {
-        distritData = await DistritModel.update({
+        distritData = await DistrictModel.update({
           where: {
             id_distrit: distritDto.distritId,
           },
           data: this.distritMapper.updateDistrit,
         });
       } else {
-        distritData = await DistritModel.create({
+        distritData = await DistrictModel.create({
           data: this.distritMapper.createDistrit,
         });
       }

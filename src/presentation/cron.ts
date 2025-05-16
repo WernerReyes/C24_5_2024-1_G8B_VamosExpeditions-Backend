@@ -1,8 +1,6 @@
 import { CronAdapter } from "@/core/adapters";
 import { VersionQuotationCron } from "./versionQuotation/versionQuotation.cron";
 
-
-
 export interface CronJob {
   execute(): Promise<void>;
 }

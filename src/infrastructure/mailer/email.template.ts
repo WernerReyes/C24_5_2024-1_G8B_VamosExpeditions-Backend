@@ -3,7 +3,7 @@ import Handlebars from "handlebars";
 import path from "path";
 import { AllowVersionQuotationType } from "../models";
 
-const TEMPLATE_DIR = path.resolve(__dirname, "../../lib/mailer/templates");
+const TEMPLATE_DIR = path.resolve(__dirname, "../../infrastructure/mailer/templates");
 export class EmailTemplate {
   public static render(templateName: string, title: string, data: any): string {
     const layoutPath = path.join(TEMPLATE_DIR, "layout.hbs");

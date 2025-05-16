@@ -43,7 +43,7 @@ export class RoomMapper {
       season_type: this.dto.seasonType,
       service_tax: this.dto.serviceTax,
       rate_usd: this.dto.rateUsd,
-      updated_at: new Date(),
+      // updated_at: new Date(), // TODO: add updated_at
     };
   }
   private validateModelInstance(models: any[] | any, methodName: string): void {

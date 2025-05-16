@@ -11,7 +11,7 @@ export interface IHotelModel extends hotel {
 export class HotelModel extends Model<IHotelModel> implements IHotelModel {
   private static hotel = new PrismaClient().hotel;
 
-  private static _instance: HotelModel
+  private static _instance: HotelModel;
 
   protected override get getEmpty(): HotelModel {
     return HotelModel._instance;
@@ -22,6 +22,8 @@ export class HotelModel extends Model<IHotelModel> implements IHotelModel {
     public readonly distrit_id: number,
     public readonly category: string,
     public readonly address: string | null,
+    public readonly created_at: Date,
+    public readonly updated_at: Date,
     public hotel_room: IHotelRoomModel[] = [],
     public distrit?: IDistrictModel
   ) {
@@ -29,7 +31,7 @@ export class HotelModel extends Model<IHotelModel> implements IHotelModel {
   }
 
   public static initialize(): void {
-    this._instance = new HotelModel(0, "", 0, "", null);
+    this._instance = new HotelModel(0, "", 0, "", null, new Date(), new Date());
   }
 
   public static get instance(): HotelModel {
@@ -43,7 +45,8 @@ export class HotelModel extends Model<IHotelModel> implements IHotelModel {
       this._instance.distrit_id,
       this._instance.category,
       this._instance.address,
-      this._instance.hotel_room
+      this._instance.created_at,
+      this._instance.updated_at
     );
   }
 
@@ -59,10 +62,28 @@ export class HotelModel extends Model<IHotelModel> implements IHotelModel {
     return this._instance.getString();
   }
 
+  public static async findUnique<T extends Prisma.hotelFindUniqueArgs>(
+    args: Prisma.SelectSubset<T, Prisma.hotelFindUniqueArgs>
+  ): Promise<Prisma.hotelGetPayload<T> | null> {
+    return await this.hotel.findUnique(args);
+  }
+
   public static async findMany<T extends Prisma.hotelFindManyArgs>(
     args: Prisma.SelectSubset<T, Prisma.hotelFindManyArgs>
   ): Promise<Prisma.hotelGetPayload<T>[]> {
     return await this.hotel.findMany(args);
+  }
+
+  public static async create<T extends Prisma.hotelCreateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.hotelCreateArgs>
+  ): Promise<Prisma.hotelGetPayload<T>> {
+    return await this.hotel.create(args);
+  }
+
+  public static async update<T extends Prisma.hotelUpdateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.hotelUpdateArgs>
+  ): Promise<Prisma.hotelGetPayload<T>> {
+    return await this.hotel.update(args);
   }
 
   public static async count<T extends Prisma.hotelCountArgs>(

@@ -1,9 +1,10 @@
-import { HotelRoomTripDetails, VersionQuotation } from "@/domain/entities";
+
 import utils from "util";
 import Exceljs from "exceljs";
+import type { IHotelRoomTripDetailsModel, IVersionQuotationModel } from "@/infrastructure/models";
 
 interface ReportOptions {
-  dataQuey: VersionQuotation;
+  dataQuey: IVersionQuotationModel;
 }
 
 export class VersionQuotationExcel {
@@ -44,7 +45,7 @@ export class VersionQuotationExcel {
     return new Intl.DateTimeFormat("en-US", options).format(date);
   }
 
-  private generateTableContent({ trip_details }: VersionQuotation) {
+  private generateTableContent({ trip_details }: IVersionQuotationModel) {
     const groupedData: Record<string, any[]> = {};
 
     const diffDays =
@@ -65,7 +66,7 @@ export class VersionQuotationExcel {
     }
 
     trip_details?.hotel_room_trip_details?.forEach(
-      (db: HotelRoomTripDetails) => {
+      (db: IHotelRoomTripDetailsModel) => {
         const dayLabel = this.formatDateWithoutDay(db.date);
 
         groupedData[dayLabel]?.push({
@@ -100,6 +101,8 @@ export class VersionQuotationExcel {
       { header: "People", key: "People", width: 10 },
       { header: "Preci_day", key: "Preci_day", width: 20 },
     ];
+
+    console.log({ dataQuey });
 
     const tableBody = this.generateTableContent(dataQuey);
     const PrecioTotal = dataQuey.final_price;
