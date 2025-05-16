@@ -9,7 +9,9 @@ export class NotificationSocket {
   private notificationService = NotificationService.getInstance();
 
   public setupMessageHandler(socket: Socket) {
+    
     socket.on("personal-message", async (data) => {
+      console.log("personal-message", data);
       const messages = await this.notificationService.NotificationMessage(data);
 
       if (messages) this.emitMessages(messages);

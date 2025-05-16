@@ -14,6 +14,7 @@ export * from './reservation/getStadistics.dto';
 //* HOTEL
 export * from './hotel/getHotels.dto';
 export * from './hotel/registerHotel.dto';
+export * from './hotel/getHotelsPage.dto';
 
 //* HOTEL AND ROOM
 

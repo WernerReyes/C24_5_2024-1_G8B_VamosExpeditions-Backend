@@ -88,6 +88,8 @@ CREATE TABLE IF NOT EXISTS country (
   id_country SERIAL PRIMARY KEY,
   name VARCHAR(45) NOT NULL UNIQUE,
   code VARCHAR(10) NOT NULL UNIQUE  
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- -----------------------------------------------------
@@ -102,6 +104,8 @@ CREATE TABLE IF NOT EXISTS city (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   UNIQUE (name, country_id)
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- -----------------------------------------------------
@@ -116,6 +120,8 @@ CREATE TABLE IF NOT EXISTS distrit (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   UNIQUE (name, city_id)
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- -----------------------------------------------------

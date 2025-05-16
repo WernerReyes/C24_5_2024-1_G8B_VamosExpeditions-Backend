@@ -6,7 +6,7 @@ import { CityEntity } from "./city.entity";
 import { ExternalCountryContext } from "@/presentation/external/country/country.context";
 
 type Country = country & {
-  city?: city[];
+  city?: Omit<city, 'country_id'>[];
 };
 
 export class CountryEntity {

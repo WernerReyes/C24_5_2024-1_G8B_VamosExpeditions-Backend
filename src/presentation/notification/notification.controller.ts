@@ -1,7 +1,7 @@
 import { AppController } from "../controller";
 import { Request, Response } from "express";
 import { NotificationService } from "./notification.service";
-import { JwtAdapter } from "../../core/adapters";
+
 import type { RequestAuth } from "../middleware";
 
 export class NotificationController extends AppController {
@@ -12,11 +12,6 @@ export class NotificationController extends AppController {
   
 
   public listUserNotifications = async (req: RequestAuth, res: Response) => {
-    /* const  cookieToken = req.cookies?.token; 
-    const payload = await JwtAdapter.verifyToken<{ id: string }>(cookieToken); */  
-    
-    
-
     this.handleError(this.notificationService.getUserNotifications(req.user.id))
       .then((notifications) => res.status(200).json(notifications))
       .catch((error) => this.handleResponseError(res, error));

@@ -27,15 +27,14 @@ export class HotelRoutes {
     router.post("/upload-excel",upload.single("file"), hotelController.uploadExcel);
     router.get("/hotel-all", hotelController.getAllHotel);
     router.get("/page", hotelController.getAllHotelsRoomsAndDistricts); 
-    router.post("/hotel-room", hotelController.registerHotelandRoom);
     router.post("/upload-excel-hotel-room",upload.single("file"), hotelController.uploadExcelHotelRoom);
 
 
-    // router.get("/search/:country/:city", hotelController.countryAndCity);
-    // router.get("/:id", HotelController.getById);
-    // router.post("/", HotelController.create);
-    // router.put("/:id", HotelController.update);
-    // router.delete("/:id", HotelController.delete);
+    // start create, update, delete hotel
+    router.post("/", hotelController.upsertHotel);
+    router.put("/:id", hotelController.upsertHotel);
+    router.delete("/:id", hotelController.deleteHotel);
+    // end create, update, delete hotel
 
     return router;
   }
