@@ -1,4 +1,8 @@
-import "module-alias/register";
+import { EnvsConst } from "@/core/constants";
+
+if (EnvsConst.NODE_ENV === "production") {
+    import("module-alias/register")
+}
 export * from "./city.entity";
 export * from "./client.entity";
 export * from "./country.entity";
