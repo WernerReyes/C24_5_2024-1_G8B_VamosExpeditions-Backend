@@ -1,29 +1,124 @@
-# Rest Project + TypeScript
+# Vamos Expeditions Backend
 
-Este proyecto previamente inicializado tiene todo lo necesario para trabajar con TypeScript, Express y Rest.
+A robust backend system for managing travel expeditions, built with Node.js, Express, TypeScript, and Prisma.
 
-Cada paso de su configuración ya se ha realizado previamente en el curso, por lo que solo es necesario clonar el proyecto y comenzar a trabajar.
+## 🚀 Features
 
+- **User Management**: Complete authentication and authorization system
+- **Travel Management**: Handle expeditions, bookings, and itineraries
+- **Hotel System**: Manage hotels, rooms, and availability
+- **Quotation System**: Generate and manage travel quotes
+- **Notification System**: Real-time notifications via Socket.IO
+- **Document Generation**: PDF generation for reports and quotations
+- **Email Service**: Automated email notifications using templates
+- **File Management**: Cloud storage integration with Cloudinary
+- **Data Export**: Excel file generation for reports
 
-## Instalación
+## 🛠 Tech Stack
 
-1. Clonar .env.template a .env y configurar las variables de entorno
-2. Ejecutar ` pnpm install ` para instalar las dependencias
-3. Ejecutar ` npx prisma db pull ` para traer todo los cambios de las tablas de la base de datos y sincronizarlos con prisma
-4. Ejecutar ` npx prisma generate ` para generar los modelos de prisma
-5. Ejecutar ` pnpm run dev ` para levantar el proyecto en modo desarrollo
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Language**: TypeScript
+- **ORM**: Prisma
+- **Database**: PostgreSQL
+- **Caching**: Redis
+- **Real-time Communication**: Socket.IO
+- **Authentication**: JWT (JSON Web Tokens)
+- **File Storage**: Cloudinary
+- **Email Service**: Nodemailer
+- **PDF Generation**: PDFMake
+- **Excel Processing**: ExcelJS
 
-## Docker
-1. Ejecutar  ` docker-compose up -d --build `
-2. Desde table plus  connectarte a la base de datos  de docker y creer las tablas Puerto 5434
-3. En el contenedor  vamosexpeditions-backend-app  Hecer el  `docker exec -it vamosexpeditions-backend-app pnpm seed` 
+## 📁 Project Structure
 
+```
+src/
+├── app.ts              # Application entry point
+├── config/             # Configuration files
+├── core/               # Core utilities and adapters
+├── data/              # Data layer (database)
+├── domain/            # Business logic and entities
+├── infrastructure/    # External services integration
+└── presentation/      # API routes and controllers
+```
 
-## Llenado de datos en la db
+## 🚦 Getting Started
 
-1. Ejecutar ` pnpm seed ` para llenar datos de prueba en la base de datos
+### Prerequisites
 
+- Node.js (v14 or higher)
+- PNPM package manager
+- PostgreSQL database
+- Redis server
 
-  /* "_moduleAliases": {
-    "@": "dist"
-  }, */
+### Installation
+
+1. Clone the repository
+2. Copy `.env.template` to `.env` and configure environment variables
+3. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+4. Sync database schema:
+   ```bash
+   npx prisma db pull
+   npx prisma generate
+   ```
+5. Seed database with initial data:
+   ```bash
+   pnpm run seed
+   ```
+  
+6. Start development server:
+   ```bash
+   pnpm run dev
+   ```
+
+## 🔧 Available Scripts
+
+- `pnpm run dev`: Start development server
+- `pnpm run build`: Build for production
+- `pnpm run start:dev`: Build and start in development mode
+- `pnpm run start:prod`: Start production server
+- `pnpm run seed`: Seed database with initial data
+- `pnpm run seed:excel`: Import data from Excel files
+
+## 🔒 Environment Variables
+
+Copy `.env.template` to `.env` and configure:
+
+- `DATABASE_URL`: PostgreSQL connection string
+- `PORT`: Server port (default: 3000)
+- `JWT_SECRET`: Secret key for JWT tokens
+- `REDIS_URL`: Redis connection string
+- `CLOUDINARY_*`: Cloudinary credentials
+- `SMTP_*`: Email server configuration
+
+## 🔐 Authentication
+
+The API uses JWT for authentication. Include the token in the Authorization header:
+
+```
+Authorization: Bearer <your_token_here>
+```
+
+## 👥 User Roles
+
+- `MANAGER_ROLE`: Full system access
+- `USER_ROLE`: Limited access to specific features
+
+## 📝 API Documentation
+
+Detailed API documentation is available at `/api/docs` when running the server.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a pull request
+
+## 📄 License
+
+This project is licensed under the ISC License.
