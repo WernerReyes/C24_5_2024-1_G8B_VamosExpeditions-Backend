@@ -35,37 +35,31 @@ export class DistritService {
   public async upsertDistrit(distritDto: DistritDto) {
     this.distritMapper.setDto = distritDto;
     let distritData;
-    try {
-      const existingDistrit = await DistrictModel.findUnique({
+
+    const existingDistrit = await DistrictModel.findUnique({
+      where: {
+        id_distrit: distritDto.distritId,
+      },
+    });
+
+    if (existingDistrit) {
+      distritData = await DistrictModel.update({
         where: {
           id_distrit: distritDto.distritId,
         },
+        data: this.distritMapper.updateDistrit,
       });
-
-      if (existingDistrit) {
-        distritData = await DistrictModel.update({
-          where: {
-            id_distrit: distritDto.distritId,
-          },
-          data: this.distritMapper.updateDistrit,
-        });
-      } else {
-        distritData = await DistrictModel.create({
-          data: this.distritMapper.createDistrit,
-        });
-      }
-      return new ApiResponse(
-        200,
-        distritDto.distritId === 0 || existingDistrit === null
-          ? "Distrito creando "
-          : "Distrito actualizando",
-        distritData
-      );
-    } catch (error: any) {
-      console.log(error);
-      throw CustomError.internalServer(
-        `Error al crear el país: ${error.message}`
-      );
+    } else {
+      distritData = await DistrictModel.create({
+        data: this.distritMapper.createDistrit,
+      });
     }
+    return new ApiResponse(
+      200,
+      distritDto.distritId === 0 || existingDistrit === null
+        ? "Distrito creando "
+        : "Distrito actualizando",
+      distritData
+    );
   }
 }

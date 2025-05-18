@@ -175,7 +175,6 @@ export class HotelController extends AppController {
   };
 
   public upsertHotel = (req: Request, res: Response) => {
-    console.log("upsertHotel", req.body);
     const [error, hotelDto] = HotelDto.create({
       ...req.body,
       id: req.params.id,

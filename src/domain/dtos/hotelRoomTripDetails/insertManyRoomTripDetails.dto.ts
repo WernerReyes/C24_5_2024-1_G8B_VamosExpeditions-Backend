@@ -20,7 +20,7 @@ export class InsertManyHotelRoomTripDetailsDto {
       dateRange,
       countPerDay,
       costPerson,
-    } = props as InsertManyHotelRoomTripDetailsDto;
+    } = props
 
     const emptyFieldsError = Validations.validateEmptyFields(
       { hotelRoomId, costPerson, dateRange, tripDetailsId, countPerDay },
@@ -52,7 +52,6 @@ export class InsertManyHotelRoomTripDetailsDto {
       new InsertManyHotelRoomTripDetailsDto(
         +hotelRoomId,
         +tripDetailsId,
-        // [DateUtils.parseISO(dateRange[0]), DateUtils.parseISO(dateRange[1])],
         [new Date(dateRange[0]), new Date(dateRange[1])],
         +countPerDay < 1 ? 1 : +countPerDay,
         +costPerson

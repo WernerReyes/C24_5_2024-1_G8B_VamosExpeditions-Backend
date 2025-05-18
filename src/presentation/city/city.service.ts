@@ -11,21 +11,17 @@ export class CityService {
 
   //  start all cities
   public async getCitiesAlls() {
-    try {
       const cityAll = await CityModel.findMany({
         omit: {
           country_id: true,
         },
       });
-      console.log("cityAll", cityAll);
       return new ApiResponse<CityEntity[]>(
         200,
         "Lista de ciudades",
         await Promise.all(cityAll.map((city) => CityEntity.fromObject(city)))
       );
-    } catch (error) {
-      console.log(error);
-    }
+   
   }
   //end all cities
 
@@ -33,7 +29,7 @@ export class CityService {
   public async upsertCity(cityDto: CityDto) {
     this.cityMapper.setDto = cityDto;
     let cityData: city;
-    try {
+    
       const existingCity = await CityModel.findUnique({
         where: {
           id_city: cityDto.cityId,
@@ -59,13 +55,6 @@ export class CityService {
           : "Ciudad creada correctamente",
         cityData
       );
-    } catch (error: any) {
-      console.log(error);
-
-      throw CustomError.internalServer(
-        `Error al crear el país: ${error.message}`
-      );
-    }
   }
 
   // end create  update and delete

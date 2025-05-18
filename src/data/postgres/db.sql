@@ -190,8 +190,8 @@ CREATE TABLE  IF NOT EXISTS  client (
     id SERIAL PRIMARY KEY,
     "fullName" VARCHAR(255) NOT NULL,
     "country" VARCHAR(255) NOT NULL,
-    "email" VARCHAR(255) UNIQUE NOT NULL,
-    "phone" VARCHAR(30) NOT NULL,
+    "email" VARCHAR(255) NULL,
+    "phone" VARCHAR(30) NULL,
 	"subregion" VARCHAR(150) NOT NULL,
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Fecha de última actualización

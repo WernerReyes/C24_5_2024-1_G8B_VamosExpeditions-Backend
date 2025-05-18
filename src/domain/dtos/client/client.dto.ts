@@ -5,8 +5,8 @@ const FROM = "ClientDto";
 export class ClientDto {
   private constructor(
     public readonly fullName: string,
-    public readonly email: string,
-    public readonly phone: string,
+    public readonly email: string | null,
+    public readonly phone: string | null,
     public readonly country: string,
     public readonly subregion: Subregion,
     public readonly id?: number
@@ -19,17 +19,16 @@ export class ClientDto {
       {
         fullName,
         country,
-        email,
         subregion,
-        phone,
       },
       FROM
     );
     if (error) return [error, undefined];
 
-    const emailError = Validations.validateEmail(email);
-    if (emailError) return [emailError, undefined];
-
+    if (email) {
+      const emailError = Validations.validateEmail(email);
+      if (emailError) return [emailError, undefined];
+    }
     const enumError = Validations.validateEnumValue(
       subregion,
       Object.values(Subregion)

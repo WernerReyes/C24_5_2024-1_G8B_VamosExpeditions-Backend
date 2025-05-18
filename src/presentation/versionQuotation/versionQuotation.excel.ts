@@ -101,9 +101,6 @@ export class VersionQuotationExcel {
       { header: "People", key: "People", width: 10 },
       { header: "Preci_day", key: "Preci_day", width: 20 },
     ];
-
-    console.log({ dataQuey });
-
     const tableBody = this.generateTableContent(dataQuey);
     const PrecioTotal = dataQuey.final_price;
 

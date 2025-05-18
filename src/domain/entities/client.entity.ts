@@ -6,8 +6,8 @@ export class ClientEntity {
   private constructor(
     public readonly id: number,
     public readonly fullName: string,
-    public readonly email: string,
-    public readonly phone: string,
+    public readonly email: string | null,
+    public readonly phone: string | null,
     public readonly subregion: string,
     public readonly createdAt?: Date,
     public readonly updatedAt?: Date,
