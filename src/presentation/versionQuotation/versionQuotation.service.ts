@@ -9,12 +9,10 @@ import type {
 import { UserEntity, VersionQuotationEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
 
-
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { ApiResponse, PaginatedResponse } from "../response";
 import type { VersionQuotationMailer } from "./versionQuotation.mailer";
 import type { VersionQuotationMapper } from "./versionQuotation.mapper";
-import type { VersionQuotationReport } from "./versionQuotation.report";
 
 import {
   AllowVersionQuotationType,
@@ -26,14 +24,14 @@ import {
 } from "@/infrastructure/models";
 
 import { VersionQuotationExcel } from "./versionQuotation.excel";
+import { VersionQuotationPdf } from "./versionQuotation.pdf";
 
 export class VersionQuotationService {
   constructor(
     private readonly versionQuotationMapper: VersionQuotationMapper,
-    private readonly versionQuotationReport: VersionQuotationReport,
     private readonly versionQuotationMailer: VersionQuotationMailer,
-    private readonly versionQuotationExcel: VersionQuotationExcel
-
+    private readonly versionQuotationExcel: VersionQuotationExcel,
+    private readonly versionQuotationPdf: VersionQuotationPdf
   ) {}
 
   public async updateVersionQuotation(
@@ -682,11 +680,7 @@ export class VersionQuotationService {
         "Versión de cotización no encontrada o no completado"
       );
 
-    return await this.versionQuotationReport.generateReport({
-      title: "",
-      subTitle: "",
-      dataQuey: versionQuotation,
-    });
+    return await this.versionQuotationPdf.generate(versionQuotation);
   }
 
   public async sendEmailAndGenerateReport({
@@ -710,33 +704,17 @@ export class VersionQuotationService {
             const versionQuotation = await VersionQuotationModel.findUnique({
               where: {
                 version_number_quotation_id: {
-                  version_number: versionQuotationId.versionNumber,
-                  quotation_id: versionQuotationId.quotationId,
+                  version_number: versionQuotationId!.versionNumber,
+                  quotation_id: versionQuotationId!.quotationId,
                 },
                 is_deleted: false,
-              },
-              omit: {
-                created_at: true,
-                updated_at: true,
+                status: {
+                  not: VersionQuotationStatusEnum.DRAFT,
+                },
               },
               include: {
-                user: {
-                  omit: {
-                    id_role: true,
-                    password: true,
-                  },
-                },
                 trip_details: {
-                  omit: {
-                    client_id: true,
-                  },
                   include: {
-                    client: {
-                      omit: {
-                        createdAt: true,
-                        updatedAt: true,
-                      },
-                    },
                     hotel_room_trip_details: {
                       orderBy: {
                         date: "asc",
@@ -749,20 +727,19 @@ export class VersionQuotationService {
                         },
                       },
                     },
+                    client: true,
                   },
                 },
+                user: true,
               },
             });
 
             if (!versionQuotation)
-              reject("No se encontró la versión de cotización");
+              return reject("No se encontró la versión de cotización");
 
-            const pdfBuffer =
-              await this.versionQuotationReport.generateReportForEmail({
-                title: "",
-                subTitle: "",
-                dataQuey: versionQuotation as IVersionQuotationModel,
-              });
+            const pdfBuffer = await this.versionQuotationPdf.generateForEmail(
+              versionQuotation
+            );
 
             resolve([pdfBuffer, versionQuotation as IVersionQuotationModel]);
             break;

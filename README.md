@@ -64,12 +64,7 @@ src/
    npx prisma db pull
    npx prisma generate
    ```
-5. Seed database with initial data:
-   ```bash
-   pnpm run seed
-   ```
-  
-6. Start development server:
+5. Start development server:
    ```bash
    pnpm run dev
    ```

@@ -4,12 +4,12 @@ import PdfPrinter from "pdfmake";
 import type {
   BufferOptions,
   Content,
-  CustomTableLayout,
-  StyleDictionary as StyleDictionaryPdfmake,
-  TDocumentDefinitions
+  StyleDictionary,
+  TDocumentDefinitions,
 } from "pdfmake/interfaces";
 import stream from "stream";
 import { footerSection, headerSection } from "./sections";
+import { ContextPageSize } from 'pdfmake/interfaces';
 
 const fonts = {
   Roboto: {
@@ -17,39 +17,6 @@ const fonts = {
     bold: path.join(__dirname, "./fonts/Roboto-Medium.ttf"),
     italics: path.join(__dirname, "./fonts/Roboto-Italic.ttf"),
     bolditalics: path.join(__dirname, "./fonts/Roboto-MediumItalic.ttf"),
-  },
-};
-
-const customTableLayouts: Record<string, CustomTableLayout> = {
-  reservationLayout: {
-    hLineWidth: function (i, node) {
-      return 0.8;
-    },
-    vLineWidth: function (i, node) {
-      return 0.8;
-    },
-
-    hLineColor: function (i) {
-      return "#bbbbbb";
-    },
-    vLineColor: function (i) {
-      return "#bbbbbb";
-    },
-
-    paddingRight: function (i, node) {
-      return node.table.widths && i === node.table.widths.length - 1 ? 0 : 8;
-    },
-    fillColor: function (i, node) {
-      if (i === 0) {
-        return "#01A3BB";
-      }
-
-      if (i === node.table.body.length - 1) {
-        return "white";
-      }
-
-      return i === 0 ? "#01A3BB" : i % 2 === 0 ? "#F4F6F6" : null;
-    },
   },
 };
 
@@ -61,17 +28,17 @@ interface ReportOptions {
   user: IUserModel;
 }
 
-export interface StyleDictionary extends StyleDictionaryPdfmake {}
-
 export class PdfService {
-  private printer = new PdfPrinter(fonts);
+  protected printer = new PdfPrinter(fonts);
+
+  protected primaryColor = "#01A3BB";
 
   private generateTDocumentDefinitions(
     reportOptions: ReportOptions
   ): TDocumentDefinitions {
     const { title, subTitle, user, styles, content } = reportOptions;
     return {
-      pageOrientation: "portrait",
+      // pageOrientation: "portrait",
       header: headerSection({
         title: title,
         subTitle: subTitle,
@@ -88,9 +55,7 @@ export class PdfService {
 
   protected createPdf(
     reportOptions: ReportOptions,
-    options: BufferOptions = {
-      tableLayouts: customTableLayouts,
-    }
+    options?: BufferOptions
   ): PDFKit.PDFDocument {
     return this.printer.createPdfKitDocument(
       this.generateTDocumentDefinitions(reportOptions),
@@ -100,9 +65,7 @@ export class PdfService {
 
   protected async createPdfForEmail(
     reportOptions: ReportOptions,
-    options: BufferOptions = {
-      tableLayouts: customTableLayouts,
-    }
+    options?: BufferOptions
   ): Promise<Buffer> {
     const pdfDoc = this.printer.createPdfKitDocument(
       this.generateTDocumentDefinitions(reportOptions),
@@ -125,3 +88,5 @@ export class PdfService {
     });
   }
 }
+
+export type { Content, StyleDictionary, ContextPageSize };

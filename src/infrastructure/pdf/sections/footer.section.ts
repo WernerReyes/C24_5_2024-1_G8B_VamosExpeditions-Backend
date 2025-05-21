@@ -1,7 +1,5 @@
-import { DateAdapter } from "@/core/adapters";
 import type { IUserModel } from "@/infrastructure/models";
-import { Content, ContextPageSize } from "pdfmake/interfaces";
-
+import type { Content, ContextPageSize } from "@/infrastructure/pdf/pdf.service";
 
 export const footerSection = (
   currentPage: number,
@@ -20,20 +18,21 @@ export const footerSection = (
             margin: [20, 0, 0, 0],
             stack: [
               {
-                text: `Page ${currentPage} of ${pageCount}`,
+                text: `Realizado por:`,
                 alignment: "left",
                 style: "footerText",
               },
               {
-                text: `Prepared By: ${user.fullname}`,
+                text: `${user.fullname}`,
                 alignment: "left",
                 style: "footerText",
+                margin: [5, 0, 0, 0],
               },
               {
-              
-                text: DateAdapter.format(new Date()),
+                text: `${user.email}`,
                 alignment: "left",
                 style: "footerText",
+                margin: [5, 0, 0, 0],
               },
             ],
           },

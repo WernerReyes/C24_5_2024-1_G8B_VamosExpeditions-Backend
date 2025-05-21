@@ -3,25 +3,25 @@ import { Middleware, type RequestAuth } from "../middleware";
 import { VersionQuotationController } from "./versionQuotation.controller";
 import { VersionQuotationMailer } from "./versionQuotation.mailer";
 import { VersionQuotationMapper } from "./versionQuotation.mapper";
-import { VersionQuotationReport } from "./versionQuotation.report";
 import { VersionQuotationService } from "./versionQuotation.service";
 import { VersionQuotationExcel } from "./versionQuotation.excel";
+import { VersionQuotationPdf } from "./versionQuotation.pdf";
 
 export class VersionQuotationRoutes {
   static get routes(): Router {
     const router = Router();
 
     const versionQuotationMapper = new VersionQuotationMapper();
-    const versionQuotationReport = new VersionQuotationReport();
 
+    const versionQuotationPdf = new VersionQuotationPdf();
     const versionQuotationMailer = new VersionQuotationMailer();
 
     const versionQuotationExcel = new VersionQuotationExcel();
     const versionQuotationService = new VersionQuotationService(
       versionQuotationMapper,
-      versionQuotationReport,
       versionQuotationMailer,
-      versionQuotationExcel
+      versionQuotationExcel,
+      versionQuotationPdf
     );
     const versionQuotationController = new VersionQuotationController(
       versionQuotationService

@@ -67,7 +67,9 @@ export class DateAdapter {
     } else {
       date = value;
     }
-    return format(date, pattern);
+    return format(date, pattern, {
+      locale: es,
+    });
   }
 
   static isSameDay(date1: Date | string, date2: Date | string): boolean {
