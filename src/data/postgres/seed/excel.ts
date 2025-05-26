@@ -9,7 +9,7 @@ import {
 import { Decimal } from "@prisma/client/runtime/library";
 import * as XLSX from "xlsx";
 import * as path from "path";
-import { PARNERTS, ROLES, USERS } from "./data";
+import { DEFAULT_SETTINGS, PARNERTS, ROLES, USERS } from "./data";
 
 const prisma = new PrismaClient();
 
@@ -88,6 +88,7 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
     let deletedData = false;
     await prisma
       .$transaction([
+        prisma.settings.deleteMany(),
         prisma.reservation.deleteMany(),
         prisma.hotel_room_trip_details.deleteMany(),
         prisma.trip_details_has_city.deleteMany(),
@@ -151,6 +152,11 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
     //* Insert HOTEL ROOMS
     await prisma.hotel_room.createMany({
       data: hotelRooms,
+    });
+
+    //* Insert SETTINGS
+    await prisma.settings.createMany({
+      data: DEFAULT_SETTINGS,
     });
 
     console.log("Datos cargados correctamente");

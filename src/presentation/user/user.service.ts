@@ -10,9 +10,13 @@ import { UserMapper } from "./user.mapper";
 import { CustomError } from "@/domain/error";
 import { BcryptAdapter } from "@/core/adapters";
 import { type IUserModel, UserModel } from "@/infrastructure/models";
+import type { UserMailer } from "./user.mailer";
 
 export class UserService {
-  constructor(private readonly userMapper: UserMapper) {}
+  constructor(
+    private readonly userMapper: UserMapper,
+    private readonly userMailer: UserMailer
+  ) {}
 
   public async getUsers(getUsersDto: GetUsersDto) {
     const { page, limit } = getUsersDto;
@@ -71,9 +75,22 @@ export class UserService {
         include: this.userMapper.toInclude,
       });
     } else {
+      const ramdowPassword = BcryptAdapter.generateRandomPassword();
+
       user = await UserModel.create({
-        data: this.userMapper.createUser,
+        data: this.userMapper.createUser(ramdowPassword),
         include: this.userMapper.toInclude,
+      }).catch((error) => {
+        if (error.code === "P2002") {
+          throw CustomError.badRequest("El correo ya está en uso");
+        }
+        throw error;
+      });
+
+      this.userMailer.sendWelcomeEmail({
+        email: user.email,
+        username: user.fullname,
+        password: ramdowPassword,
       });
     }
 
@@ -90,11 +107,22 @@ export class UserService {
         id_user: id,
       },
       select: {
+        version_quotation: {
+          select: {
+            quotation_id: true,
+            version_number: true,
+          },
+        },
         id_user: true,
         is_deleted: true,
       },
     });
     if (!user) throw CustomError.notFound("Usuario no encontrado");
+    if (user.version_quotation.length > 0) {
+      throw CustomError.badRequest(
+        "No se puede eliminar el usuario porque tiene cotizaciones asociadas"
+      );
+    }
 
     const userUpdated = await UserModel.update({
       where: {
@@ -104,8 +132,8 @@ export class UserService {
         role: {
           select: {
             name: true,
-          }
-        }
+          },
+        },
       },
       data: {
         delete_reason: user.is_deleted ? null : deleteReason,

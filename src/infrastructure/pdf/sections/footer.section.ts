@@ -9,6 +9,7 @@ export const footerSection = (
 ): Content => {
   return {
     layout: "noBorders",
+    
     table: {
       widths: ["*", "*"],
       body: [

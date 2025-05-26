@@ -1,7 +1,6 @@
 import fs from "fs";
 import Handlebars from "handlebars";
 import path from "path";
-import { AllowVersionQuotationType } from "../models";
 
 const TEMPLATE_DIR = path.resolve(__dirname, "../../infrastructure/mailer/templates");
 export class EmailTemplate {
@@ -23,14 +22,5 @@ export class EmailTemplate {
       year: new Date().getFullYear(),
       body,
     });
-  }
-
-  public static async renderVersionQuotation(data: {
-    quotationId: string;
-    quotationName: string;
-    serviceType: AllowVersionQuotationType;
-    description?: string;
-  }): Promise<string> {
-    return EmailTemplate.render("send-quotation", "Cotización", data);
   }
 }

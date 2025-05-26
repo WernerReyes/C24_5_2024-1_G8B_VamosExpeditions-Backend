@@ -5,10 +5,9 @@ import {
   type partner,
   type role,
   role_type,
-
+  setting_key_enum,
+  settings,
   type user,
-
-
 } from "@prisma/client";
 import { BcryptAdapter } from "@/core/adapters";
 import { HotelCategory, type IHotelModel } from "@/infrastructure/models";
@@ -291,49 +290,23 @@ export const PARNERTS: partner[] = [
   },
 ];
 
-// export const HOTEL_ROOMS: hotel_room[] = [
-//   {
-//     id_hotel_room: 1,
-//     room_type: "SINGLE",
-//     price_usd: new Prisma.Decimal(100),
-//     price_pen: new Prisma.Decimal(390),
-//     capacity: 1,
-//     hotel_id: 1,
-
-//   },
-//   {
-//     id_hotel_room: 2,
-//     room_type: "DOUBLE",
-//     price_usd: new Prisma.Decimal(200),
-//     price_pen: new Prisma.Decimal(780),
-//     capacity: 2,
-//     hotel_id: 1,
-//   },
-//   {
-//     id_hotel_room: 3,
-//     room_type: "TRIPLE",
-//     price_usd: new Prisma.Decimal(300),
-
-//     price_pen: new Prisma.Decimal(1170),
-//     capacity: 3,
-//     hotel_id: 1,
-//   },
-//   {
-//     id_hotel_room: 4,
-//     room_type: "SINGLE",
-//     price_usd: new Prisma.Decimal(100),
-
-//     price_pen: new Prisma.Decimal(390),
-//     capacity: 1,
-//     hotel_id: 2,
-//   },
-//   {
-//     id_hotel_room: 5,
-//     room_type: "DOUBLE",
-//     price_usd: new Prisma.Decimal(200),
-
-//     price_pen: new Prisma.Decimal(780),
-//     capacity: 2,
-//     hotel_id: 2,
-//   },
-// ];
+export const DEFAULT_SETTINGS: settings[] = [
+  {
+    id: 1,
+    key: setting_key_enum.DATA_CLEANUP_PERIOD,
+    value: "20",
+    description: "Periodo de limpieza de datos en días",
+    updated_at: null,
+    updated_by_id: null,
+    user_id: null,
+  },
+  {
+    id: 2,
+    key: setting_key_enum.MAX_ACTIVE_SESSIONS,
+    value: "5",
+    description: "Número máximo de sesiones activas",
+    updated_at: null,
+    updated_by_id: null,
+    user_id: null
+  },
+];

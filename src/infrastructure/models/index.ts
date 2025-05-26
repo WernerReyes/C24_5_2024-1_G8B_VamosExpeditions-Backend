@@ -12,6 +12,7 @@ export * from './partner.model';
 export * from './quotation.model';
 export * from './reservation.model';
 export * from './role.model';
+export * from './setting.model';
 export * from './tripDetails.model';
 export * from './tripDetailsHasCity.model';
 export * from './user.model';

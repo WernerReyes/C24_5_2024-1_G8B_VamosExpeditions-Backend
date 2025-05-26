@@ -21,15 +21,15 @@ export class VersionQuotationEntity {
     public readonly isDeleted: boolean,
     public readonly hasVersions: boolean,
     public readonly completionPercentage: number,
+    public readonly partner: PartnerEntity| null,
+    public readonly commission: number | null,
     public readonly indirectCostMargin?: number,
     public readonly profitMargin?: number,
     public readonly finalPrice?: number,
-    public readonly commission?: number,
     public readonly tripDetails?: TripDetailsEntity,
     public readonly user?: UserEntity,
     public readonly reservation?: ReservationEntity,
-    public readonly partner?: PartnerEntity,
-
+    
     public readonly deletedAt?: Date,
     public readonly deleteReason?: string
   ) {}
@@ -76,10 +76,11 @@ export class VersionQuotationEntity {
           (version) => !version.official && !version.is_deleted
         ).length > 0,
       completion_percentage && Number(completion_percentage),
+      partners ? PartnerEntity.fromObject(partners) : null,
+      commission ? Number(commission) : null,
       indirect_cost_margin ? Number(indirect_cost_margin) : undefined,
       profit_margin ? Number(profit_margin) : undefined,
       final_price ? Number(final_price) : undefined,
-      commission ? Number(commission) : undefined,
       trip_details
         ? await TripDetailsEntity.fromObject(trip_details)
         : undefined,
@@ -89,7 +90,6 @@ export class VersionQuotationEntity {
           ? await ReservationEntity.fromObject(quotation.reservation)
           : undefined
         : undefined,
-      partners ? PartnerEntity.fromObject(partners) : undefined,
       deleted_at ? new Date(deleted_at) : undefined,
       delete_reason ?? undefined
     );

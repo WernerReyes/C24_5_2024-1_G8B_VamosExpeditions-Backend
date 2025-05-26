@@ -86,6 +86,8 @@ export class VersionQuotationService {
       throw error;
     });
 
+    console.log(updatedVersionQuotation);
+
     return new ApiResponse<VersionQuotationEntity>(
       200,
       "Versión de cotización actualizada correctamente",

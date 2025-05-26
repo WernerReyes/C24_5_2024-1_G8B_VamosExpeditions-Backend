@@ -21,7 +21,7 @@ export class RoleService {
       take: limit,
       select: this.roleMapper.toSelect,
     });
-
+    
     const totalRoles = await RoleModel.count({
       where: this.roleMapper.filters,
     });

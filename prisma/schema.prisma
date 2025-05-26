@@ -71,7 +71,7 @@ model role {
 model user {
   id_user                                   Int                 @id @default(autoincrement())
   fullname                                  String              @db.VarChar(45)
-  email                                     String              @db.VarChar(45)
+  email                                     String              @unique(map: "unique_email") @db.VarChar(45)
   password                                  String              @db.VarChar(200)
   description                               String?
   phone_number                              String?             @db.VarChar(20)
@@ -83,6 +83,8 @@ model user {
   delete_reason                             String?
   notification_notification_from_userTouser notification[]      @relation("notification_from_userTouser")
   notification_notification_to_userTouser   notification[]      @relation("notification_to_userTouser")
+  settings                                  settings[]
+  settings_settings_user_idTouser           settings[]          @relation("settings_user_idTouser")
   role                                      role                @relation(fields: [id_role], references: [id_role], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_role")
   version_quotation                         version_quotation[]
 }
@@ -135,7 +137,7 @@ model version_quotation {
   official              Boolean                  @default(false)
   user_id               Int
   partner_id            Int?
-  commission            Decimal?                 @default(0) @db.Decimal(5, 2)
+  commission            Decimal?                 @db.Decimal(5, 2)
   created_at            DateTime                 @default(now()) @db.Timestamp(6)
   updated_at            DateTime                 @default(now()) @db.Timestamp(6)
   is_deleted            Boolean                  @default(false)
@@ -232,6 +234,18 @@ model reservation {
   @@index([updated_at], map: "idx_updated_at_r")
 }
 
+model settings {
+  id                          Int              @id @default(autoincrement())
+  key                         setting_key_enum @unique
+  value                       String?
+  description                 String?
+  updated_at                  DateTime?        @default(now()) @db.Timestamp(6)
+  updated_by_id               Int?
+  user_id                     Int?
+  user                        user?            @relation(fields: [updated_by_id], references: [id_user], onDelete: NoAction, onUpdate: NoAction, map: "fk_updated_by")
+  user_settings_user_idTouser user?            @relation("settings_user_idTouser", fields: [user_id], references: [id_user], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
+}
+
 view reservation_version_summary {
   reservation_date   DateTime?           @db.Timestamp(6)
   final_price        Decimal?            @db.Decimal(10, 2)
@@ -269,4 +283,9 @@ enum version_quotation_status {
   COMPLETED
   CANCELATED
   APPROVED
+}
+
+enum setting_key_enum {
+  MAX_ACTIVE_SESSIONS
+  DATA_CLEANUP_PERIOD
 }

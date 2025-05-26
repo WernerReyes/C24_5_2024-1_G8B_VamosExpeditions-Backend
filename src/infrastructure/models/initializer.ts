@@ -10,6 +10,7 @@ import { PartnerModel } from "./partner.model";
 import { QuotationModel } from "./quotation.model";
 import { ReservationModel } from "./reservation.model";
 import { RoleModel } from "./role.model";
+import { SettingModel } from "./setting.model";
 import { TripDetailsModel } from "./tripDetails.model";
 import { TripDetailsHasCityModel } from "./tripDetailsHasCity.model";
 import { UserModel } from "./user.model";
@@ -18,6 +19,7 @@ import { ReservationVersionSummaryView } from "./views/reservationVersionSummary
 
 export class ModelInitializer {
   public static initializeModels() {
+    SettingModel.initialize();
     ReservationVersionSummaryView.initialize();
     ReservationModel.initialize();
     HotelRoomTripDetailsModel.initialize();

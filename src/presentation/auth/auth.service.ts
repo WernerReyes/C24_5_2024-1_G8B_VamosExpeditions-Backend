@@ -13,7 +13,7 @@ export class AuthService {
   constructor(private readonly authMailer: AuthMailer) {}
 
   public async login(loginDto: LoginDto, deviceId: string) {
-    const user = await UserModel.findFirst({
+    const user = await UserModel.findUnique({
       where: {
         email: loginDto.email,
       },
@@ -55,7 +55,7 @@ export class AuthService {
   }
 
   public async sendResetPasswordEmail(email: string) {
-    const user = await UserModel.findFirst({
+    const user = await UserModel.findUnique({
       where: {
         email,
       },

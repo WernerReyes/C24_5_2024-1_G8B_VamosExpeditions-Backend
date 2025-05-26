@@ -39,9 +39,9 @@ export class VersionQuotationPdf extends PdfService {
   private getContent({
     trip_details,
     name,
-    user,
     profit_margin,
     indirect_cost_margin,
+    final_price
   }: IVersionQuotationModel): Content {
     const client = trip_details?.client!;
 
@@ -56,11 +56,12 @@ export class VersionQuotationPdf extends PdfService {
 
     const totalCost = direct + indirect;
 
-    const salesPrice = totalCost * (Number(profit_margin) / 100);
-    const profitMargin = salesPrice - totalCost;
+    const profitMargin = (Number(final_price) - totalCost).toFixed(2);
 
     return [
       {
+       
+        
         table: {
           widths: ["*"],
           body: [
@@ -176,7 +177,7 @@ export class VersionQuotationPdf extends PdfService {
                         ["Total de Costos:", `$${totalCost.toFixed(2)}`],
                         [
                           `Margen de Ganancia (${profit_margin}%):`,
-                          `$${profitMargin.toFixed(2)}`,
+                          `$${profitMargin}`,
                         ],
                         [
                           {
@@ -185,7 +186,7 @@ export class VersionQuotationPdf extends PdfService {
                             fillColor: "#E0F7FA",
                           },
                           {
-                            text: `$${salesPrice.toFixed(2)}`,
+                            text: `$${final_price}`,
                             fillColor: "#E0F7FA",
                             color: this.primaryColor,
                             bold: true,
@@ -212,13 +213,13 @@ export class VersionQuotationPdf extends PdfService {
                     table: {
                       widths: ["*", "auto"],
                       body: [
-                        ["Precio por adulto:", `$${salesPrice.toFixed(2)}`],
-                        ["Precio por niño:", `$${salesPrice.toFixed(2)}`],
+                        ["Precio por adulto:", `$${final_price}`],
+                        ["Precio por niño:", `$${final_price}`],
                         [
                           `Total para ${trip_details?.number_of_people} personas:`,
-                          `$${(
-                            salesPrice * (trip_details?.number_of_people ?? 0)
-                          ).toFixed(2)}`,
+                          `$${
+                            Number(final_price) * (trip_details?.number_of_people ?? 0)
+                          }`,
                         ],
                       ],
                     },

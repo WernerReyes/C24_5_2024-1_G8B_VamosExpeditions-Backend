@@ -66,6 +66,10 @@ export class SocketService {
 
         socket.on("disconnect", () => {
           authSocket.logoutSocket(socket);
+
+          console.log(
+            `❌ User ${userId} disconnected with socket ID: ${deviceId}`
+          )
         });
         console.log(`🔗 User ${userId} connected with socket ID: ${deviceId}`);
       } catch (error) {

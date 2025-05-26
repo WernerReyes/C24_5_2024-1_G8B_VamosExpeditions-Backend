@@ -148,7 +148,7 @@ export class VersionQuotationMapper {
       final_price: dto.finalPrice,
       completion_percentage: dto.completionPercentage,
       status: dto.status,
-      commission: dto.commission,
+      commission:  (dto?.commission ?? 0) <= 0 ? null : dto.commission,
       partner_id: dto.partnerId ? dto.partnerId : null,
       updated_at: new Date(),
     };

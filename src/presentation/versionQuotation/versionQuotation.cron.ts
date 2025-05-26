@@ -84,4 +84,21 @@ export class VersionQuotationCron implements CronJob {
       console.error("❌ Error al eliminar registros antiguos:", error);
     }
   }
+
+  async scheduleDynamicCleanup() {
+    // Leer días desde BD
+    const setting = await prisma.settings.findUnique({
+      where: { key: "DATA_CLEANUP_PERIOD" },
+    });
+
+    const days = parseInt(setting?.value || "30");
+    const cronExpression = `0 0 */${days} * *`; //* every {days} days
+
+    return {
+      cronExpression,
+      execute: async () => {
+        await this.execute();
+      },
+    };
+  }
 }

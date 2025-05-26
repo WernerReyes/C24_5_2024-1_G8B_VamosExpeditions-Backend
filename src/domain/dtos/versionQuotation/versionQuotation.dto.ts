@@ -83,18 +83,19 @@ export class VersionQuotationDto extends VersionQuotationIDDto {
       if (parnerIdError) return [parnerIdError, undefined];
     }
 
+   
     return [
       undefined,
       new VersionQuotationDto(
         idDto?.versionQuotationId!,
         name,
         status,
-        +completionPercentage,
-        partnerId ? +partnerId : undefined,
-        commission ? +commission : undefined,
-        indirectCostMargin ? +indirectCostMargin : undefined,
-        profitMargin ? +profitMargin : undefined,
-        finalPrice ? +finalPrice : undefined
+        completionPercentage,
+        partnerId,
+        commission,
+        indirectCostMargin,
+        profitMargin,
+        finalPrice
       ),
     ];
   }

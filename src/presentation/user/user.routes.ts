@@ -4,13 +4,15 @@ import { UserService } from "./user.service";
 import { Middleware } from "../middleware";
 import { UserMapper } from "./user.mapper";
 import { RoleEnum } from "@/infrastructure/models";
+import { UserMailer } from "./user.mailer";
 
 export class UserRoutes {
   public static get routes(): Router {
     const router = Router();
 
     const userMapper = new UserMapper();
-    const userService = new UserService(userMapper);
+    const userMailer = new UserMailer();
+    const userService = new UserService(userMapper, userMailer);
     const userController = new UserController(userService);
 
     router.use([Middleware.validateToken]);

@@ -63,13 +63,13 @@ export class UserMapper {
     };
   }
 
-  public get createUser(): Prisma.userUncheckedCreateInput {
+  public createUser(password: string): Prisma.userUncheckedCreateInput {
     this.dto = this.dto as UserDto;
+
     return {
-      id_user: this.dto.id,
       fullname: this.dto.fullname,
       email: this.dto.email,
-      password: BcryptAdapter.hash(this.dto.password!),
+      password: BcryptAdapter.hash(password),
       id_role: this.dto.roleId!,
       phone_number: this.dto.phoneNumber,
       description: this.dto.description,
