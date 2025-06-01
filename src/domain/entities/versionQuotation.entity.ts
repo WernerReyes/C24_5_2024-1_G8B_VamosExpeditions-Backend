@@ -60,8 +60,6 @@ export class VersionQuotationEntity {
       deleted_at,
     } = versionQuotation as IVersionQuotationModel;
 
-    console.log(trip_details)
-
     return new VersionQuotationEntity(
       {
         versionNumber: +version_number,

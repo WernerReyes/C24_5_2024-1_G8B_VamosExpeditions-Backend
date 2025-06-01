@@ -23,8 +23,6 @@ export class CacheAdapter {
         socket: {
           tls: EnvsConst.NODE_ENV === "production",
           rejectUnauthorized: EnvsConst.NODE_ENV !== "production",
-          // tls: true,
-          // rejectUnauthorized: false,
         },
       });
 
@@ -43,6 +41,10 @@ export class CacheAdapter {
     }
 
     return CacheAdapter.instance;
+  }
+
+  public  clearAll(): void {
+    this.cache.flushAll();
   }
 
   public async get<T>(key: string): Promise<T | null> {

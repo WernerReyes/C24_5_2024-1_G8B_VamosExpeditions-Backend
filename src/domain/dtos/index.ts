@@ -35,6 +35,11 @@ export * from './hotel/getHotelsPage.dto';
 //*  ROOM
 export * from './room/registerRoom.dto';
 
+//* SERVICES
+export * from './service/getServices.dto';
+
+//* SERVICE TYPE
+export * from './serviceType/getServiceTypes.dto';
 
 //* VERSION QUOTATION
 export * from './versionQuotation/versionQuotation.dto';

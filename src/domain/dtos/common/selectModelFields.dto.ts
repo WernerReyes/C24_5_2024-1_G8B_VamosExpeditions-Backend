@@ -3,6 +3,7 @@ import {
   type IUserModel,
   ReservationModel,
   RoleModel,
+  ServiceModel,
   UserModel,
   VersionQuotationModel,
 } from "@/infrastructure/models";
@@ -30,6 +31,11 @@ export class SelectModelFieldsDto {
             case "user":
               return !UserModel.getString.includes(
                 field.trim() as keyof IUserModel
+              );
+
+            case "service":
+              return !ServiceModel.getString.includes(
+                field.trim() as keyof ServiceModel
               );
 
             case "version_quotation":
@@ -70,6 +76,9 @@ export class SelectModelFieldsDto {
         
       case "user":
         return UserModel.getString as string[];
+
+      case "service":
+        return ServiceModel.getString as string[];
 
       case "version_quotation":
         return VersionQuotationModel.getString() as string[];

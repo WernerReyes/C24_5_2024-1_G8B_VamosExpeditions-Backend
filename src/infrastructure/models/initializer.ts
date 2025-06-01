@@ -10,6 +10,7 @@ import { PartnerModel } from "./partner.model";
 import { QuotationModel } from "./quotation.model";
 import { ReservationModel } from "./reservation.model";
 import { RoleModel } from "./role.model";
+import { ServiceModel } from "./service.model";
 import { SettingModel } from "./setting.model";
 import { TripDetailsModel } from "./tripDetails.model";
 import { TripDetailsHasCityModel } from "./tripDetailsHasCity.model";
@@ -30,6 +31,7 @@ export class ModelInitializer {
     PartnerModel.initialize();
     UserModel.initialize();
     RoleModel.initialize();
+    ServiceModel.initialize();
     HotelRoomModel.initialize();
     HotelModel.initialize();
     TripDetailsHasCityModel.initialize();

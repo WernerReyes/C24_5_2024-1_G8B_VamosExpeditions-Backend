@@ -18,6 +18,8 @@ import { RoomRoutes } from "./room/room.routes";
 import { SettingRoutes } from "./setting/setting.routes";
 
 import { Middleware } from "./middleware";
+import { ServiceRoutes } from "./service/service.routes";
+import { ServiceTypeRoutes } from "./serviceType/serviceType.routes";
 
 export class AppRoutes {
   private static prefix: string = "/api/v1";
@@ -34,6 +36,10 @@ export class AppRoutes {
 
     router.use(`${this.prefix}/hotel`, HotelRoutes.routes);
     router.use(`${this.prefix}/room`, RoomRoutes.routes);
+
+    router.use(`${this.prefix}/service`, ServiceRoutes.routes);
+
+    router.use(`${this.prefix}/service-type`, ServiceTypeRoutes.routes);
 
     router.use(`${this.prefix}/client`, ClientRoutes.routes);
     router.use(`${this.prefix}/quotation`, QuotationRoutes.routes);
