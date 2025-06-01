@@ -1,6 +1,7 @@
 //* AUTHENTICATION
 export * from './auth/login.dto';
 export * from './auth/resetPassword.dto';
+export * from './auth/disconnectDevice.dto';
 
 //* CLIENT
 export * from './client/client.dto';
@@ -30,9 +31,6 @@ export * from './reservation/getStadistics.dto';
 export * from './hotel/getHotels.dto';
 export * from './hotel/registerHotel.dto';
 export * from './hotel/getHotelsPage.dto';
-
-//* HOTEL AND ROOM
-
 
 //*  ROOM
 export * from './room/registerRoom.dto';
@@ -64,3 +62,7 @@ export * from './user/getUsers.dto';
 
 //* ROLES
 export * from './role/getRoles.dto';
+
+
+//* SETTINGS
+export * from './setting/updateSetting.dto';

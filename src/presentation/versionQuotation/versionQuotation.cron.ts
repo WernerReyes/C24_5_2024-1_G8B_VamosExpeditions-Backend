@@ -1,17 +1,13 @@
-import { DateAdapter } from "@/core/adapters/date.adapter";
-import type { CronJob } from "../cron";
 import { prisma } from "@/infrastructure/models";
+import type { CronJob } from "../cron";
 
 export class VersionQuotationCron implements CronJob {
-  private async deleteOldArchivedVersions(date: Date) {
+  private async deleteOldArchivedVersions() {
     return await prisma.$transaction(async (tx) => {
       // Obtener versiones a eliminar
       const versionsToDelete = await tx.version_quotation.findMany({
         where: {
           is_deleted: true,
-          deleted_at: {
-            lte: date,
-          },
         },
         select: {
           version_number: true,
@@ -29,9 +25,6 @@ export class VersionQuotationCron implements CronJob {
       const deleteResult = await tx.version_quotation.deleteMany({
         where: {
           is_deleted: true,
-          deleted_at: {
-            lte: date,
-          },
         },
       });
 
@@ -70,35 +63,11 @@ export class VersionQuotationCron implements CronJob {
   }
 
   public async execute(): Promise<void> {
-    if (!DateAdapter.isLastDayOfMonth()) return; //* Exit if not the last day of the month
-
-    const lastDate = DateAdapter.getLastDayOfMonth(); //* Get the date one month ago
-    console.log(
-      `🧹 Último día del mes. Eliminando versiones antes de: ${lastDate.toISOString()}`
-    );
-
     try {
-      const count = await this.deleteOldArchivedVersions(lastDate); //* Delete versions older than one month
+      const count = await this.deleteOldArchivedVersions(); //* Delete versions older than one month
       console.log(`✅ Eliminados ${count} registros archivados`);
     } catch (error) {
       console.error("❌ Error al eliminar registros antiguos:", error);
     }
-  }
-
-  async scheduleDynamicCleanup() {
-    // Leer días desde BD
-    const setting = await prisma.settings.findUnique({
-      where: { key: "DATA_CLEANUP_PERIOD" },
-    });
-
-    const days = parseInt(setting?.value || "30");
-    const cronExpression = `0 0 */${days} * *`; //* every {days} days
-
-    return {
-      cronExpression,
-      execute: async () => {
-        await this.execute();
-      },
-    };
   }
 }

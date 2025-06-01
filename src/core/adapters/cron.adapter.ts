@@ -9,6 +9,7 @@ export class CronAdapter {
     job: CronJob | CronJob[],
     key = ""
   ) {
+    
     if (key && this.jobs[key]) {
       this.jobs[key].stop();
     }

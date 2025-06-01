@@ -132,6 +132,8 @@ export class VersionQuotationMapper {
     this.validateModelInstance(this.dto, "toUpdate");
     const dto = this.dto as VersionQuotationDto;
 
+    console.log(dto)
+
     const defaultName =
       "Q-" +
       new Date().getFullYear() +

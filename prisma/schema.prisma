@@ -236,12 +236,11 @@ model reservation {
 
 model settings {
   id                          Int              @id @default(autoincrement())
-  key                         setting_key_enum @unique
+  key                         setting_key_enum
   value                       String?
-  description                 String?
+  user_id                     Int?
   updated_at                  DateTime?        @default(now()) @db.Timestamp(6)
   updated_by_id               Int?
-  user_id                     Int?
   user                        user?            @relation(fields: [updated_by_id], references: [id_user], onDelete: NoAction, onUpdate: NoAction, map: "fk_updated_by")
   user_settings_user_idTouser user?            @relation("settings_user_idTouser", fields: [user_id], references: [id_user], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
 }
@@ -288,4 +287,5 @@ enum version_quotation_status {
 enum setting_key_enum {
   MAX_ACTIVE_SESSIONS
   DATA_CLEANUP_PERIOD
+  LAST_CLEANUP_RUN
 }

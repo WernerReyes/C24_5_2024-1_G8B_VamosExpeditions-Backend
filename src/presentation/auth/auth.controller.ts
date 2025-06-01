@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { AppController } from "../controller";
 import { EnvsConst } from "@/core/constants";
-import { LoginDto, ResetPasswordDto } from "@/domain/dtos";
+import { DisconnectDeviceDto, LoginDto, ResetPasswordDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 import { AuthService } from "./auth.service";
 import type { RequestAuth } from "../middleware";
@@ -14,9 +14,7 @@ export class AuthController extends AppController {
   }
   private setCookie = (res: Response, token: string) => {
     const expires = EnvsConst.COOKIE_EXPIRATION; //* 24 hours
-    const expiresAt = new Date(
-      Date.now() + expires
-    ); //* 24 hours
+    const expiresAt = new Date(Date.now() + expires); //* 24 hours
 
     const expiresAtRefresh = new Date(
       Date.now() + expires + 1000 * 60 //* 1 minute
@@ -131,6 +129,19 @@ export class AuthController extends AppController {
           },
         });
       })
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public disconnectDevice = async (req: RequestAuth, res: Response) => {
+    const [error, disconnectDeviceDto] = DisconnectDeviceDto.create({
+      ...req.body,
+      userId: req.user.id,
+    });
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(this.authService.disconnectDevice(disconnectDeviceDto!))
+      .then((response) => res.status(200).json(response))
       .catch((error) => this.handleResponseError(res, error));
   };
 

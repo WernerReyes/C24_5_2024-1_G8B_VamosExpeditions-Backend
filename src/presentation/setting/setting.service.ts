@@ -1,14 +1,31 @@
-import { SettingModel } from "@/infrastructure/models";
-import { ApiResponse } from "../response";
+import { UpdateSettingDto } from "@/domain/dtos";
 import { SettingEntity } from "@/domain/entities/settting.entity";
+import { SettingKeyEnum, SettingModel } from "@/infrastructure/models";
+import { ApiResponse } from "../response";
+import type { UserEntity } from "@/domain/entities";
 
 export class SettingService {
-  async getAll() {
+  constructor() {}
+
+  async getAll(userId: UserEntity["id"]) {
     const settings = SettingModel.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              {
+                user_id: userId,
+              },
+              {
+                user_id: null,
+              },
+            ],
+          },
+        ],
+      },
       select: {
         id: true,
         key: true,
-        description: true,
         value: true,
         updated_at: true,
         user: {
@@ -30,6 +47,47 @@ export class SettingService {
           return await SettingEntity.fromObject(setting);
         })
       )
+    );
+  }
+
+  async updateDynamicCleanup(updateSettingDto: UpdateSettingDto) {
+    const updatedSetting = await SettingModel.update({
+      where: {
+        id: updateSettingDto.id,
+        key: SettingKeyEnum.DATA_CLEANUP_PERIOD,
+      },
+      data: {
+        value: updateSettingDto.value,
+        updated_at: new Date(),
+        updated_by_id: updateSettingDto.userId,
+      },
+    });
+
+    return new ApiResponse<SettingEntity>(
+      200,
+      "Setting updated",
+      await SettingEntity.fromObject(updatedSetting)
+    );
+  }
+
+  async updateMaxActiveSessions(updateSettingDto: UpdateSettingDto) {
+    const updatedSetting = await SettingModel.update({
+      where: {
+        id: updateSettingDto.id,
+        key: SettingKeyEnum.MAX_ACTIVE_SESSIONS,
+        user_id: updateSettingDto.userId,
+      },
+      data: {
+        value: updateSettingDto.value,
+        updated_at: new Date(),
+        user_id: updateSettingDto.userId,
+      },
+    });
+
+    return new ApiResponse<SettingEntity>(
+      200,
+      "Setting updated",
+      await SettingEntity.fromObject(updatedSetting)
     );
   }
 }

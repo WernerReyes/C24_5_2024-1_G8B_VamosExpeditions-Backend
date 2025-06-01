@@ -24,7 +24,6 @@ export class SettingModel
     public readonly id: number,
     public readonly key: setting_key_enum,
     public readonly value: string | null,
-    public readonly description: string,
     public readonly updated_at: Date | null,
     public readonly updated_by_id: number | null,
     public readonly user_id: number | null,
@@ -39,7 +38,6 @@ export class SettingModel
       0,
       setting_key_enum.DATA_CLEANUP_PERIOD,
       null,
-      "",
       null,
       null,
       null
@@ -55,7 +53,6 @@ export class SettingModel
       this._instance.id,
       this._instance.key,
       this._instance.value,
-      this._instance.description,
       this._instance.updated_at,
       this._instance.updated_by_id,
       this._instance.user_id,
@@ -72,6 +69,24 @@ export class SettingModel
     args: Prisma.SelectSubset<T, Prisma.settingsFindUniqueArgs>
   ): Promise<Prisma.settingsGetPayload<T> | null> {
     return await this.setting.findUnique(args);
+  }
+
+  public static async findFirst<T extends Prisma.settingsFindFirstArgs>(
+    args: Prisma.SelectSubset<T, Prisma.settingsFindFirstArgs>
+  ): Promise<Prisma.settingsGetPayload<T> | null> {
+    return await this.setting.findFirst(args);
+  }
+
+  public static async create<T extends Prisma.settingsCreateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.settingsCreateArgs>
+  ): Promise<Prisma.settingsGetPayload<T>> {
+    return await this.setting.create(args);
+  }
+
+  public static async update<T extends Prisma.settingsUpdateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.settingsUpdateArgs>
+  ): Promise<Prisma.settingsGetPayload<T>> {
+    return await this.setting.update(args);
   }
 }
 

@@ -9,7 +9,12 @@ import type {
 import { UserMapper } from "./user.mapper";
 import { CustomError } from "@/domain/error";
 import { BcryptAdapter } from "@/core/adapters";
-import { type IUserModel, UserModel } from "@/infrastructure/models";
+import {
+  type IUserModel,
+  SettingKeyEnum,
+  SettingModel,
+  UserModel,
+} from "@/infrastructure/models";
 import type { UserMailer } from "./user.mailer";
 
 export class UserService {
@@ -80,12 +85,23 @@ export class UserService {
       user = await UserModel.create({
         data: this.userMapper.createUser(ramdowPassword),
         include: this.userMapper.toInclude,
-      }).catch((error) => {
-        if (error.code === "P2002") {
-          throw CustomError.badRequest("El correo ya está en uso");
-        }
-        throw error;
-      });
+      })
+        .then((user) => {
+          SettingModel.create({
+            data: {
+              key: SettingKeyEnum.MAX_ACTIVE_SESSIONS,
+              value: "3",
+              user_id: user.id_user,
+            },
+          });
+          return user;
+        })
+        .catch((error) => {
+          if (error.code === "P2002") {
+            throw CustomError.badRequest("El correo ya está en uso");
+          }
+          throw error;
+        });
 
       this.userMailer.sendWelcomeEmail({
         email: user.email,

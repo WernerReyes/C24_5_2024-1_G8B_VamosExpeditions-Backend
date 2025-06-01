@@ -294,19 +294,23 @@ export const DEFAULT_SETTINGS: settings[] = [
   {
     id: 1,
     key: setting_key_enum.DATA_CLEANUP_PERIOD,
-    value: "20",
-    description: "Periodo de limpieza de datos en días",
+    value: "30",
     updated_at: null,
     updated_by_id: null,
     user_id: null,
   },
-  {
-    id: 2,
-    key: setting_key_enum.MAX_ACTIVE_SESSIONS,
-    value: "5",
-    description: "Número máximo de sesiones activas",
-    updated_at: null,
-    updated_by_id: null,
-    user_id: null
-  },
+  ...(() => {
+    const settings: settings[] = [];
+    for (let i = 1; i <= USERS.length; i++) {
+      settings.push({
+        id: i + 1,
+        key: setting_key_enum.MAX_ACTIVE_SESSIONS,
+        value: "3",
+        updated_at: null,
+        updated_by_id: null,
+        user_id: i,
+      });
+    }
+    return settings;
+  })(),
 ];

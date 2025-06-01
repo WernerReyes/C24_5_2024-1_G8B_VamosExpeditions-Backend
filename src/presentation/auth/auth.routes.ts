@@ -28,6 +28,11 @@ export class AuthRoutes {
     router.post("/re-login", Middleware.validateToken, (req, res) =>
       authController.reLogin(req as RequestAuth, res)
     );
+    
+    router.post("/disconnect-device", Middleware.validateToken, (req, res) =>
+      authController.disconnectDevice(req as RequestAuth, res)
+    );
+    
     router.post("/logout", Middleware.validateToken, (req, res) =>
       authController.logout(req as RequestAuth, res)
     );

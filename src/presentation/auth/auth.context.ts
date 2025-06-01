@@ -1,17 +1,18 @@
 import type { CacheAdapter } from "@/core/adapters";
 import { EnvsConst } from "@/core/constants";
 import type { UserEntity } from "@/domain/entities";
-import type { RoleEnum } from "@/infrastructure/models";
+import {
+  SettingKeyEnum,
+  SettingModel,
+  type RoleEnum,
+} from "@/infrastructure/models";
 import { SocketService } from "@/infrastructure";
-
 
 export type AuthUser = {
   id: UserEntity["id"];
   role: RoleEnum;
   deviceId: string;
 };
-
-const MAX_DEVICES = EnvsConst.MAX_DEVICES;
 
 export class AuthContext {
   private static _socketService?: SocketService = undefined;
@@ -53,8 +54,18 @@ export class AuthContext {
     // Obtener dispositivos activos ordenados por tiempo
     const devices = await this.getActiveDevicesSorted(userId);
 
+    const maxDevices = await SettingModel.findFirst({
+      where: {
+        key: SettingKeyEnum.MAX_ACTIVE_SESSIONS,
+        user_id: userId,
+      },
+      select: {
+        value: true,
+      },
+    });
+
     // Eliminar el dispositivo más antiguo si se supera el límite
-    if (devices.length >= MAX_DEVICES) {
+    if (devices.length >= Number(maxDevices!.value)) {
       const [oldestDeviceId] =
         (await this.cache?.zRange<string>(zsetKey, 0, 0)) ?? [];
       if (oldestDeviceId) {
@@ -126,6 +137,19 @@ export class AuthContext {
     const devicesKey = `user:${userId}:devices`;
     const devices = (await this.cache?.sMembers<string>(devicesKey)) ?? [];
     return devices;
+  }
+
+  public static async disconnectDevice(
+    userId: UserEntity["id"],
+    deviceId: string
+  ) {
+    const key = `user:${userId}:${deviceId}`;
+    await this.cache?.del(key)
+    await this.cache?.sRem(`user:${userId}:devices`, deviceId);
+    await this.cache?.zRem(`user:${userId}:device_timestamps`, deviceId);
+
+     // Emitir evento a través de SocketService
+     this._socketService?.io.to(userId.toString()).emit("disconnect-device", deviceId);
   }
 
   public static async deauthenticateUser(user: AuthUser) {

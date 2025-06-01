@@ -1,5 +1,5 @@
 import { EnvsConst } from "@/core/constants";
-import { LoginDto, ResetPasswordDto } from "@/domain/dtos";
+import { DisconnectDeviceDto, LoginDto, ResetPasswordDto } from "@/domain/dtos";
 import { UserEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
 import { BcryptAdapter, JwtAdapter } from "../../core/adapters";
@@ -7,7 +7,6 @@ import { ApiResponse } from "../response";
 import { AuthContext, AuthUser } from "./auth.context";
 import type { AuthMailer } from "./auth.mailer";
 import { UserModel } from "@/infrastructure/models";
-
 
 export class AuthService {
   constructor(private readonly authMailer: AuthMailer) {}
@@ -39,7 +38,7 @@ export class AuthService {
     if (!token) throw CustomError.internalServer("Error generating token");
 
     //* Save user in redis
-    AuthContext.authenticateUser({
+    await AuthContext.authenticateUser({
       id: user.id_user,
       role: user.role.name,
       deviceId,
@@ -49,7 +48,10 @@ export class AuthService {
       user: UserEntity;
       token: string;
     }>(200, "Usuario autenticado", {
-      user: await UserEntity.fromObject(user),
+      user: await UserEntity.fromObject({
+       ...user,
+        showDevices: true,
+      }),
       token,
     });
   }
@@ -147,7 +149,10 @@ export class AuthService {
       user: UserEntity;
       token: string;
     }>(200, "Usuario autenticado", {
-      user: await UserEntity.fromObject(user),
+      user: await UserEntity.fromObject({
+        ...user,
+         showDevices: true,
+       }),
       token,
     });
   }
@@ -158,7 +163,11 @@ export class AuthService {
         id_user: userId,
       },
       include: {
-        role: true,
+        role: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
     if (!user) throw CustomError.notFound("Usuario no encontrado");
@@ -166,10 +175,40 @@ export class AuthService {
     return new ApiResponse<{
       user: UserEntity;
     }>(200, "Usuario autenticado", {
-      user: await UserEntity.fromObject(user),
+      user: await UserEntity.fromObject({
+        ...user,
+        showDevices: true,
+      }),
     });
   }
 
+  public async disconnectDevice(disconnectDeviceDto: DisconnectDeviceDto) {
+    const { userId, deviceId, password } = disconnectDeviceDto;
+
+    const user = await UserModel.findUnique({
+      where: {
+        id_user: userId,
+      },
+      select: {
+        password: true,
+      },
+    });
+
+    if (!user) throw CustomError.notFound("Usuario no encontrado");
+
+    //* Compare password
+    const passwordMatch = BcryptAdapter.compare(password, user.password);
+    if (!passwordMatch) throw CustomError.unauthorized("Contraseña incorrecta");
+
+    //* Deauthenticate user
+    await AuthContext.disconnectDevice(userId, deviceId);
+
+    return new ApiResponse<null>(
+      200,
+      "Dispositivo desconectado correctamente",
+      null
+    );
+  }
   public async logout(authUser: AuthUser) {
     //* Deauthenticate user
     AuthContext.deauthenticateUser(authUser);
