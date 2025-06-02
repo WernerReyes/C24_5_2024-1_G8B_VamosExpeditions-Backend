@@ -1,6 +1,6 @@
 import { Prisma, type service } from "@prisma/client";
 import { Model, prisma } from "./model";
-import { Decimal } from "@prisma/client/runtime/library";
+import type { Decimal } from "@prisma/client/runtime/library";
 import type { IDistrictModel } from "./district.model";
 import type { IServiceTypeModel } from "./serviceType.model";
 import type { IServiceTripDetailsModel } from "./serviceTripDetails.model";
@@ -56,12 +56,12 @@ export class ServiceModel
       "",
       0,
       0,
-      Decimal(0),
-      Decimal(0),
-      Decimal(0),
-      Decimal(0),
-      Decimal(0),
-      Decimal(0),
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
       0,
       new Date(),
       new Date()
@@ -106,6 +106,14 @@ export class ServiceModel
     this._instance.service_trip_details = service_trip_details;
   }
 
+  public static set setRelationship(
+    relationship: Pick<
+      IServiceModel,
+      "distrit" | "service_type" | "service_trip_details"
+    >
+  ) {
+    Object.assign(this._instance, relationship);
+  }
   public static get getString() {
     return this._instance.getString();
   }

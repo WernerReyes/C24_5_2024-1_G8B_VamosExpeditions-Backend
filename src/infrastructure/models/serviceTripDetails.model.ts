@@ -5,8 +5,8 @@ import type { IServiceModel } from "./service.model";
 import type { ITripDetailsModel } from "./tripDetails.model";
 
 export interface IServiceTripDetailsModel extends service_trip_details {
-    service?: IServiceModel,
-    trip_details?: ITripDetailsModel
+  service?: IServiceModel;
+  trip_details?: ITripDetailsModel;
 }
 
 export class ServiceTripDetailsModel
@@ -38,7 +38,15 @@ export class ServiceTripDetailsModel
   }
 
   public static initialize(): void {
-    this._instance = new ServiceTripDetailsModel(0, 0, 0, new Date(), Decimal(0), new Date(), new Date());
+    this._instance = new ServiceTripDetailsModel(
+      0,
+      0,
+      0,
+      new Date(),
+      Decimal(0),
+      new Date(),
+      new Date()
+    );
   }
 
   public static get instance(): ServiceTripDetailsModel {
@@ -55,5 +63,16 @@ export class ServiceTripDetailsModel
       this._instance.created_at,
       this._instance.updated_at
     );
+  }
+
+  public static async createManyAndReturn<
+    T extends Prisma.service_trip_detailsCreateManyAndReturnArgs
+  >(
+    args: Prisma.SelectSubset<
+      T,
+      Prisma.service_trip_detailsCreateManyAndReturnArgs
+    >
+  ): Promise<Prisma.service_trip_detailsGetPayload<T>[]> {
+    return await this.serviceTripDetails.createManyAndReturn(args);
   }
 }

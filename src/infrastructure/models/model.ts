@@ -16,7 +16,7 @@ export abstract class Model<T extends Record<string | number, any>> {
 
   protected abstract get getEmpty(): Readonly<T>;
 
-  protected getString(circularPaths: string[] = []): String<T>[] {
+  protected getString(): String<T>[] {
     return this.getNestedKeys(
       this.getEmpty,
       "",

@@ -1,9 +1,8 @@
 import { Validations } from "@/core/utils";
 
-
-export class InsertManyHotelRoomTripDetailsDto {
+export class InsertManyServiceTripDetailsDto {
   private constructor(
-    public readonly hotelRoomId: number,
+    public readonly serviceId: number,
     public readonly tripDetailsId: number,
     public readonly dateRange: [Date, Date],
     public readonly countPerDay: number,
@@ -12,48 +11,42 @@ export class InsertManyHotelRoomTripDetailsDto {
 
   public static create(props: {
     [key: string]: any;
-  }): [string?, InsertManyHotelRoomTripDetailsDto?] {
-    const {
-      hotelRoomId,
-      tripDetailsId,
-      dateRange,
-      countPerDay,
-      costPerson,
-    } = props
+  }): [string?, InsertManyServiceTripDetailsDto?] {
+    const { serviceId, tripDetailsId, dateRange, costPerson, countPerDay } = props;
 
     const emptyFieldsError = Validations.validateEmptyFields(
-      { hotelRoomId, costPerson, dateRange, tripDetailsId, countPerDay },
-      "InsertManyHotelRoomTripDetailsDto"
+      { serviceId, tripDetailsId, dateRange, costPerson, countPerDay },
+      "InsertManyServiceTripDetailsDto"
     );
     if (emptyFieldsError) return [emptyFieldsError, undefined];
 
     const numberError = Validations.validateNumberFields({
-      hotelRoomId,
-      costPerson,
+      serviceId,
       tripDetailsId,
-      countPerDay,
+      costPerson,
+      countPerDay
     });
     if (numberError) return [numberError, undefined];
 
     const greaterThanZeroError = Validations.validateGreaterThanValueFields(
       {
-        hotelRoomId,
-        costPerson,
+        serviceId,
         tripDetailsId,
+        costPerson,
+        countPerDay
       },
       0
     );
     if (greaterThanZeroError) return [greaterThanZeroError, undefined];
-   
-  
+
     return [
       undefined,
-      new InsertManyHotelRoomTripDetailsDto(
-        +hotelRoomId,
-        +tripDetailsId,
+      new InsertManyServiceTripDetailsDto(
+        serviceId,
+        tripDetailsId,
         [new Date(dateRange[0]), new Date(dateRange[1])],
-        +countPerDay < 1 ? 1 : +countPerDay,
-        +costPerson
+        countPerDay,
+        costPerson
       ),
     ];
   }

@@ -20,6 +20,7 @@ import { SettingRoutes } from "./setting/setting.routes";
 import { Middleware } from "./middleware";
 import { ServiceRoutes } from "./service/service.routes";
 import { ServiceTypeRoutes } from "./serviceType/serviceType.routes";
+import { ServiceTripDetailsRoutes } from "./serviceTripDetails/serviceTripDetails.routes";
 
 export class AppRoutes {
   private static prefix: string = "/api/v1";
@@ -50,8 +51,14 @@ export class AppRoutes {
     router.use(`${this.prefix}/trip-details`, TripDetailsRoutes.routes);
     router.use(
       `${this.prefix}/hotel-room-trip-details`,
-      HotelRoomTripDetailsRoutes.getRoutes
+      HotelRoomTripDetailsRoutes.routes
     );
+    
+    router.use(
+      `${this.prefix}/service-trip-details`,
+      ServiceTripDetailsRoutes.routes
+    )
+
     router.use(`${this.prefix}/reservation`, ReservationRoutes.routes);
 
     // start     country-city-distrit

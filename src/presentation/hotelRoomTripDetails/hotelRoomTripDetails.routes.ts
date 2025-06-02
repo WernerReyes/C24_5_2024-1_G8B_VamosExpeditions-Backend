@@ -5,7 +5,7 @@ import { HotelRoomTripDetailsMapper } from "./hotelRoomTripDetails.mapper";
 import { Middleware } from "../middleware";
 
 export class HotelRoomTripDetailsRoutes {
-  public static get getRoutes(): Router {
+  public static get routes(): Router {
     const router = Router();
     const hotelRoomTripDetailsMapper = new HotelRoomTripDetailsMapper();
     const hotelRoomTripDetailsService = new HotelRoomTripDetailsService(

@@ -41,6 +41,9 @@ export * from './service/getServices.dto';
 //* SERVICE TYPE
 export * from './serviceType/getServiceTypes.dto';
 
+//* SERVICE TRIP DETAILS
+export * from './serviceTripDetails/insertManyServiceTripDetails.dto';
+
 //* VERSION QUOTATION
 export * from './versionQuotation/versionQuotation.dto';
 export * from './versionQuotation/duplicateMultipleVersionQuotation.dto';

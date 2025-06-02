@@ -90,7 +90,6 @@ export class VersionQuotationMapper {
             select: {
               id: true,
               status: true,
-              
             },
           },
         },
@@ -147,7 +146,7 @@ export class VersionQuotationMapper {
       final_price: dto.finalPrice,
       completion_percentage: dto.completionPercentage,
       status: dto.status,
-      commission:  (dto?.commission ?? 0) <= 0 ? null : dto.commission,
+      commission: (dto?.commission ?? 0) <= 0 ? null : dto.commission,
       partner_id: dto.partnerId ? dto.partnerId : null,
       updated_at: new Date(),
     };
@@ -242,6 +241,20 @@ export class VersionQuotationMapper {
               city: {
                 include: {
                   country: true,
+                },
+              },
+            },
+          },
+          service_trip_details: {
+            include: {
+              service: {
+                include: {
+                  service_type: true,
+                  distrit: {
+                    include: {
+                      city: true,
+                    },
+                  },
                 },
               },
             },

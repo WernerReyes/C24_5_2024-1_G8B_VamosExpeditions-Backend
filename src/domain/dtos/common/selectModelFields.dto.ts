@@ -4,6 +4,7 @@ import {
   ReservationModel,
   RoleModel,
   ServiceModel,
+  ServiceTypeModel,
   UserModel,
   VersionQuotationModel,
 } from "@/infrastructure/models";
@@ -38,10 +39,15 @@ export class SelectModelFieldsDto {
                 field.trim() as keyof ServiceModel
               );
 
+            case "service_type":
+              return !ServiceTypeModel.getString.includes(
+                field.trim() as keyof ServiceTypeModel
+              );
+
             case "version_quotation":
-              return !VersionQuotationModel.getString([
-                "version_quotation.quotation.version_quotation",
-              ]).includes(field.trim() as keyof VersionQuotationModel);
+              return !VersionQuotationModel.getString.includes(
+                field.trim() as keyof VersionQuotationModel
+              );
 
             case "reservation":
               return !ReservationModel.getString.includes(
@@ -73,15 +79,18 @@ export class SelectModelFieldsDto {
     switch (modelName) {
       case "role":
         return RoleModel.getString as string[];
-        
+
       case "user":
         return UserModel.getString as string[];
 
       case "service":
         return ServiceModel.getString as string[];
 
+      case "service_type":
+        return ServiceTypeModel.getString as string[];
+
       case "version_quotation":
-        return VersionQuotationModel.getString() as string[];
+        return VersionQuotationModel.getString as string[];
 
       case "reservation":
         return ReservationModel.getString as string[];

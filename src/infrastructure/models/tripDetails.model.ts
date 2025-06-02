@@ -9,11 +9,13 @@ import { type IHotelRoomTripDetailsModel } from "./hotelRoomTripDetails.model";
 import { Model, prisma } from "./model";
 import { type ITripDetailsHasCityModel } from "./tripDetailsHasCity.model";
 import { type IVersionQuotationModel } from "./versionQuotation.model";
+import { type IServiceTripDetailsModel } from "./serviceTripDetails.model";
 
 export interface ITripDetailsModel extends trip_details {
   client?: IClientModel;
   version_quotation?: IVersionQuotationModel;
   hotel_room_trip_details?: IHotelRoomTripDetailsModel[];
+  service_trip_details?: IServiceTripDetailsModel[];
   trip_details_has_city?: ITripDetailsHasCityModel[];
 }
 

@@ -8,7 +8,8 @@ export class GetServicesDto extends PaginationDto {
     public readonly page: number,
     public readonly limit: number,
 
-    public readonly districtId?: number,
+    public readonly cityId?: number,
+    public readonly serviceTypeId?: number,
 
     public readonly select?: string[]
   ) {
@@ -22,7 +23,8 @@ export class GetServicesDto extends PaginationDto {
       page,
       limit,
 
-      districtId,
+      cityId,
+      serviceTypeId,
 
       select,
     } = props;
@@ -40,14 +42,29 @@ export class GetServicesDto extends PaginationDto {
       return [errorPag, undefined];
     }
 
-    if (districtId) {
-      const errorNumber = Validations.validateNumberFields({ districtId });
+    if (cityId) {
+      const errorNumber = Validations.validateNumberFields({ cityId });
       if (errorNumber) return [errorNumber, undefined];
 
-      const greaterThanZero = Validations.validateGreaterThanValueFields({
-        districtId,
-      }, 0)
-      if (greaterThanZero) return [greaterThanZero, undefined]
+      const greaterThanZero = Validations.validateGreaterThanValueFields(
+        {
+          cityId,
+        },
+        0
+      );
+      if (greaterThanZero) return [greaterThanZero, undefined];
+    }
+
+    if (serviceTypeId) {
+      const errorNumber = Validations.validateNumberFields({ serviceTypeId });
+      if (errorNumber) return [errorNumber, undefined];
+
+      const greaterThanZero = Validations.validateGreaterThanValueFields(
+        {
+          serviceTypeId,
+        },
+        0
+      );
     }
 
     return [
@@ -56,8 +73,8 @@ export class GetServicesDto extends PaginationDto {
         dtoPag!.page!,
         dtoPag!.limit!,
 
-        districtId ? + districtId : undefined,
-
+        cityId ? +cityId : undefined,
+        serviceTypeId ? +serviceTypeId : undefined,
         dto?.select
       ),
     ];

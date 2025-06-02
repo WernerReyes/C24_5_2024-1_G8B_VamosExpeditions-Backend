@@ -134,8 +134,8 @@ export class VersionQuotationModel
     Object.assign(this._instance, relationship);
   }
 
-  public static getString(circularPaths: string[] = []) {
-    return this._instance.getString(circularPaths);
+  public static get getString() {
+    return this._instance.getString();
   }
 
   public static async findUnique<

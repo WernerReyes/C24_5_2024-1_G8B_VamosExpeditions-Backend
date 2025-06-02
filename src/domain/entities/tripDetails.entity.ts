@@ -5,12 +5,9 @@ import {
 } from "@/infrastructure/models";
 import { CityEntity } from "./city.entity";
 import { ClientEntity } from "./client.entity";
-import {
-  HotelRoomTripDetailsEntity
-} from "./hotelRoomTripDetails.entity";
-import {
-  VersionQuotationEntity
-} from "./versionQuotation.entity";
+import { HotelRoomTripDetailsEntity } from "./hotelRoomTripDetails.entity";
+import { VersionQuotationEntity } from "./versionQuotation.entity";
+import { ServiceTripDetailsEntity } from "./serviceTripDetails.entity";
 
 export class TripDetailsEntity {
   constructor(
@@ -25,6 +22,7 @@ export class TripDetailsEntity {
     public readonly cities?: CityEntity[],
     public readonly versionQuotation?: VersionQuotationEntity,
     public readonly hotelRoomTripDetails?: HotelRoomTripDetailsEntity[],
+    public readonly serviceTripDetails?: ServiceTripDetailsEntity[],
     public readonly specialSpecifications?: string
   ) {}
 
@@ -44,6 +42,7 @@ export class TripDetailsEntity {
       additional_specifications,
       version_quotation,
       hotel_room_trip_details,
+      service_trip_details,
     } = tripDetails as ITripDetailsModel;
 
     // Crear y retornar la entidad de reserva
@@ -72,6 +71,13 @@ export class TripDetailsEntity {
         ? await Promise.all(
             hotel_room_trip_details.map((hotel) =>
               HotelRoomTripDetailsEntity.fromObject(hotel)
+            )
+          )
+        : undefined,
+      service_trip_details
+        ? await Promise.all(
+            service_trip_details.map((service) =>
+              ServiceTripDetailsEntity.fromObject(service)
             )
           )
         : undefined,

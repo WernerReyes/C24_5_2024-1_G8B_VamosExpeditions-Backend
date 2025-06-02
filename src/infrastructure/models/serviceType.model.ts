@@ -12,7 +12,7 @@ export class ServiceTypeModel
 {
   private static _instance: ServiceTypeModel;
 
-  public static modelName = Prisma.ModelName.settings;
+  public static modelName = Prisma.ModelName.service_type;
 
   public static serviceType = prisma.service_type;
 
@@ -25,7 +25,7 @@ export class ServiceTypeModel
     public readonly name: string,
     public readonly created_at: Date,
     public readonly updated_at: Date,
-    public readonly service?: IServiceModel[]
+    public service?: IServiceModel[]
   ) {
     super();
   }
@@ -46,4 +46,13 @@ export class ServiceTypeModel
       this._instance.updated_at
     );
   }
+  public static get getString() {
+    return this._instance.getString();
+  }
+
+  public static set setRelationship(relationship: Pick<IServiceTypeModel, "service">) {
+    Object.assign(this._instance, relationship);
+  }
+
+
 }

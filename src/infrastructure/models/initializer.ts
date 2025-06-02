@@ -11,6 +11,7 @@ import { QuotationModel } from "./quotation.model";
 import { ReservationModel } from "./reservation.model";
 import { RoleModel } from "./role.model";
 import { ServiceModel } from "./service.model";
+import { ServiceTypeModel } from "./serviceType.model";
 import { SettingModel } from "./setting.model";
 import { TripDetailsModel } from "./tripDetails.model";
 import { TripDetailsHasCityModel } from "./tripDetailsHasCity.model";
@@ -32,6 +33,7 @@ export class ModelInitializer {
     UserModel.initialize();
     RoleModel.initialize();
     ServiceModel.initialize();
+    ServiceTypeModel.initialize();
     HotelRoomModel.initialize();
     HotelModel.initialize();
     TripDetailsHasCityModel.initialize();
@@ -42,6 +44,8 @@ export class ModelInitializer {
 
     //* Set the relations
     this.setUserRelationship();
+    this.setServiceTypeRelationship();
+    this.setServiceRelationship();
     this.setReservationRelationship();
     this.setVersionQuotationRelationship();
     this.setCityRelationship();
@@ -56,6 +60,18 @@ export class ModelInitializer {
     };
   }
 
+  private static setServiceRelationship() {
+    ServiceModel.setRelationship = {
+      service_type: ServiceTypeModel.partialInstance,
+      distrit: DistrictModel.partialInstance,
+    };
+  }
+
+  private static setServiceTypeRelationship() {
+    ServiceTypeModel.setRelationship = {
+      service: [ServiceModel.partialInstance],
+    };
+  }
   
 
   private static setReservationRelationship() {

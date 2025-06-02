@@ -1,5 +1,5 @@
 import { ParamsUtils, Validations } from "@/core/utils";
-import { type GetServicesDto} from "@/domain/dtos";
+import { type GetServicesDto } from "@/domain/dtos";
 import { Prisma } from "@prisma/client";
 
 type Dto = GetServicesDto;
@@ -47,7 +47,10 @@ export class ServiceMapper {
     this.dto = this.dto as GetServicesDto;
 
     return {
-        distrit_id: this.dto.districtId,
+      distrit: {
+        city_id: this.dto.cityId,
+      },
+      service_type_id: this.dto.serviceTypeId,
     };
   }
 
