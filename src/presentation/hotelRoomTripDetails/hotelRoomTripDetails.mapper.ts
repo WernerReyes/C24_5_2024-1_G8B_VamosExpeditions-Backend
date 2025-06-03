@@ -1,13 +1,13 @@
 import { DateAdapter } from "@/core/adapters";
 import type {
-  InsertManyHotelRoomTripDetailsDto,
-  UpdateManyHotelRoomTripDetailsByDateDto,
+  InsertManyDetailsTripDetailsDto,
+  UpdateManyDetailsTripDetailsByDateDto
 } from "@/domain/dtos";
 import type { Prisma } from "@prisma/client";
 
 type Dto =
-  | InsertManyHotelRoomTripDetailsDto
-  | UpdateManyHotelRoomTripDetailsByDateDto;
+  | InsertManyDetailsTripDetailsDto
+  | UpdateManyDetailsTripDetailsByDateDto;
 
 export class HotelRoomTripDetailsMapper {
   private dto: Dto;
@@ -24,7 +24,7 @@ export class HotelRoomTripDetailsMapper {
   
 
   public get createMany(): Prisma.hotel_room_trip_detailsCreateManyInput[] {
-    const dto = this.dto as InsertManyHotelRoomTripDetailsDto;
+    const dto = this.dto as InsertManyDetailsTripDetailsDto;
     const dates = DateAdapter.eachDayOfInterval(
       dto.dateRange[0],
       dto.dateRange[1]
@@ -32,7 +32,7 @@ export class HotelRoomTripDetailsMapper {
 
     const dataToInsert = dates.flatMap((date) => {
       return Array.from({ length: dto.countPerDay }, () => ({
-        hotel_room_id: dto.hotelRoomId,
+        hotel_room_id: dto.id,
         trip_details_id: dto.tripDetailsId,
         date,
         cost_person: dto.costPerson,

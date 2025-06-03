@@ -1,9 +1,9 @@
 import { DateAdapter } from "@/core/adapters";
 import { Validations } from "@/core/utils";
-import { type InsertManyServiceTripDetailsDto } from "@/domain/dtos";
+import type { InsertManyDetailsTripDetailsDto } from "@/domain/dtos";
 import { Prisma } from "@prisma/client";
 
-type Dto = InsertManyServiceTripDetailsDto;
+type Dto = InsertManyDetailsTripDetailsDto;
 
 const FROM = "ServiceTripDetailsMapper";
 export class ServiceTripDetailsMapper {
@@ -16,9 +16,9 @@ export class ServiceTripDetailsMapper {
     this.dto = dto;
   }
 
-  public get createMany(): Prisma.service_trip_detailsCreateManyInput[] {
+  public get insertMany(): Prisma.service_trip_detailsCreateManyInput[] {
     this.validateModelInstance(this.dto, "createMany");
-    const dto = this.dto as InsertManyServiceTripDetailsDto;
+    const dto = this.dto as InsertManyDetailsTripDetailsDto;
     const dates = DateAdapter.eachDayOfInterval(
       dto.dateRange[0],
       dto.dateRange[1]
@@ -26,7 +26,7 @@ export class ServiceTripDetailsMapper {
 
     const dataToInsert = dates.flatMap((date) => {
       return Array.from({ length: dto.countPerDay }, () => ({
-        service_id: dto.serviceId,
+        service_id: dto.id,
         trip_details_id: dto.tripDetailsId,
         date,
         cost_person: dto.costPerson,
@@ -38,5 +38,35 @@ export class ServiceTripDetailsMapper {
 
   private validateModelInstance(models: any[] | any, methodName: string): void {
     Validations.validateModelInstance(models, `${FROM}.${methodName}`);
+  }
+
+  public get select(): Prisma.service_trip_detailsSelect {
+    return {
+      id: true,
+      date: true,
+      cost_person: true,
+      service: {
+        select: {
+          description: true,
+          passengers_max: true,
+          passengers_min: true,
+          duration: true,
+          service_type: {
+            select: {
+              name: true,
+            },
+          },
+          distrit: {
+            select: {
+              city: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    };
   }
 }

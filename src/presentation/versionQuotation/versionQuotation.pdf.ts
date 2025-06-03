@@ -5,6 +5,7 @@ import {
 } from "@/infrastructure";
 import type {
   IHotelRoomTripDetailsModel,
+  IServiceTripDetailsModel,
   ITripDetailsModel,
   IVersionQuotationModel,
 } from "@/infrastructure/models";
@@ -41,18 +42,33 @@ export class VersionQuotationPdf extends PdfService {
     name,
     profit_margin,
     indirect_cost_margin,
-    final_price
+    final_price,
   }: IVersionQuotationModel): Content {
     const client = trip_details?.client!;
 
-    const [direct, indirect] = trip_details?.hotel_room_trip_details?.reduce(
-      ([total1, total2], room) => [
-        total1 + Number(room.cost_person),
-        total2 +
-          (Number(room.cost_person) * Number(indirect_cost_margin)) / 100,
-      ],
-      [0, 0]
-    ) ?? [0, 0];
+    const [directAccommodation, indirectAccommodation] =
+      trip_details?.hotel_room_trip_details?.reduce(
+        ([total1, total2], room) => [
+          total1 + Number(room.cost_person),
+          total2 +
+            (Number(room.cost_person) * Number(indirect_cost_margin)) / 100,
+        ],
+        [0, 0]
+      ) ?? [0, 0];
+
+    const [directServices, indirectServices] =
+      trip_details?.service_trip_details?.reduce(
+        ([total1, total2], service) => [
+          total1 + Number(service.cost_person),
+          total2 +
+            (Number(service.cost_person) * Number(indirect_cost_margin)) / 100,
+        ],
+        [0, 0]
+      ) ?? [0, 0];
+
+    const direct = directAccommodation + directServices;
+
+    const indirect = indirectAccommodation + indirectServices;
 
     const totalCost = direct + indirect;
 
@@ -60,8 +76,6 @@ export class VersionQuotationPdf extends PdfService {
 
     return [
       {
-       
-        
         table: {
           widths: ["*"],
           body: [
@@ -113,7 +127,7 @@ export class VersionQuotationPdf extends PdfService {
             [
               { text: client.fullName, style: "clientInfo" },
               {
-                text: client.phone || "No ha sido asignado",
+                text: client?.phone || "No ha sido asignado",
                 style: "clientInfo",
               },
             ],
@@ -123,7 +137,7 @@ export class VersionQuotationPdf extends PdfService {
             ],
             [
               {
-                text: client.email ?? "No ha sido asignado",
+                text: client?.email ?? "No ha sido asignado",
                 style: "clientInfo",
               },
               {
@@ -167,8 +181,8 @@ export class VersionQuotationPdf extends PdfService {
                     table: {
                       widths: ["*", "auto"],
                       body: [
-                        ["Alojamientos:", `$${direct.toFixed(2)}`],
-                        ["Servicios:", "$00.00"],
+                        ["Alojamientos:", `$${directAccommodation.toFixed(2)}`],
+                        ["Servicios:", `$${directServices.toFixed(2)}`],
                         ["Costos Directos:", `$${direct.toFixed(2)}`],
                         [
                           `Costos Indirectos (${indirect_cost_margin}%):`,
@@ -216,10 +230,25 @@ export class VersionQuotationPdf extends PdfService {
                         ["Precio por adulto:", `$${final_price}`],
                         ["Precio por niño:", `$${final_price}`],
                         [
-                          `Total para ${trip_details?.number_of_people} personas:`,
-                          `$${
-                            Number(final_price) * (trip_details?.number_of_people ?? 0)
-                          }`,
+                          // `Total para ${trip_details?.number_of_people} personas:`,
+                          // `$${
+                          //   Number(final_price) *
+                          //   (trip_details?.number_of_people ?? 0)
+                          // }`,
+                          {
+                            text: `Total para ${trip_details?.number_of_people} personas:`,
+                            bold: true,
+                            fillColor: "#E0F7FA",
+                          },
+                          {
+                            text: `$${
+                              Number(final_price) *
+                              (trip_details?.number_of_people ?? 1)
+                            }`,
+                            fillColor: "#E0F7FA",
+                            color: this.primaryColor,
+                            bold: true,
+                          },
                         ],
                       ],
                     },
@@ -275,15 +304,25 @@ export class VersionQuotationPdf extends PdfService {
       groupedData[dayLabel].push(hotelRoom);
     });
 
+    tripDetails.service_trip_details?.forEach((service) => {
+      const dayLabel = DateAdapter.format(
+        service.date,
+        "EEEE, d 'de' MMMM 'de' yyyy"
+      );
+      groupedData[dayLabel].push(service);
+    });
+
     const dinamicTable = Object.keys(groupedData).flatMap((dayLabel) => {
-      const dayData = groupedData[dayLabel] as IHotelRoomTripDetailsModel[];
+      const dayData = groupedData[dayLabel];
       const dayTotal = dayData.reduce(
         (total, room) => total + Number(room.cost_person),
         0
       );
 
-      const groupedByHotel = dayData.reduce(
+      //* Group by hotel
+      const groupedByHotel = (dayData as IHotelRoomTripDetailsModel[]).reduce(
         (unique: any, room) => {
+          if (!room.hotel_room) return unique;
           const hotelName = room.hotel_room?.hotel?.name!;
           const key = hotelName; // Puedes incluir también el tipo de habitación si lo deseas
 
@@ -294,7 +333,7 @@ export class VersionQuotationPdf extends PdfService {
               total_hotel_room: 1,
             };
           } else {
-            unique[key].total_cost += +room.cost_person;
+            unique[key].total_cost += Number(room.cost_person);
             unique[key].total_hotel_room += 1;
           }
 
@@ -319,8 +358,8 @@ export class VersionQuotationPdf extends PdfService {
 
       // Generar filas de alojamiento
       let accommodationsRows = uniqueRooms.map((room) => [
-        {
-          text: `${room.hotel_room?.hotel?.name} - ${room.hotel_room?.room_type} X ${room.total_hotel_room}`,
+        { 
+          text: `${room.hotel_room?.hotel?.name} - ${room.hotel_room?.room_type} X${room.total_hotel_room}`,
           style: "serviceDescription",
         },
         { text: `$${room.total_cost.toFixed(2)}`, style: "servicePrice" },
@@ -331,6 +370,62 @@ export class VersionQuotationPdf extends PdfService {
           [
             {
               text: "No hay alojamientos para este día",
+              style: "serviceEmpty",
+            },
+            { text: "$0.00", style: "servicePrice" },
+          ],
+        ];
+      }
+
+      //* Group by service
+      const groupedByService = (dayData as IServiceTripDetailsModel[]).reduce(
+        (unique: any, service) => {
+          if (!service.service) return unique;
+          const serviceName = service.service?.description;
+          const key = serviceName; // Puedes incluir también el tipo de habitación si lo deseas
+
+          if (!unique[key]) {
+            unique[key] = {
+              ...service,
+              total_cost: +service.cost_person,
+              total_service: 1,
+            };
+          } else {
+            unique[key].total_cost += Number(service.cost_person);
+            unique[key].total_service += 1;
+          }
+
+          return unique;
+        },
+        {} as Record<
+          string,
+          IServiceTripDetailsModel & {
+            total_cost: number;
+            total_service: number;
+          }
+        >
+      );
+
+      const uniqueServices = Object.values(
+        groupedByService
+      ) as (IServiceTripDetailsModel & {
+        total_cost: number;
+        total_service: number;
+      })[];
+
+      let servicesRows = uniqueServices.map((service) => [
+        {
+          text: `${service.service?.description} X${service.total_service}`,
+          style: "serviceDescription",
+        },
+        { text: `$${service.total_cost.toFixed(2)}`, style: "servicePrice" },
+      ]);
+
+      if (servicesRows.length === 0) {
+        servicesRows = [
+          [
+            {
+              text: "No hay servicios para este día",
               style: "serviceEmpty",
             },
             { text: "$0.00", style: "servicePrice" },
@@ -390,15 +485,7 @@ export class VersionQuotationPdf extends PdfService {
         {
           table: {
             widths: ["*", "auto"],
-            body: [
-              [
-                {
-                  text: "No hay servicios para este día",
-                  style: "serviceEmpty",
-                },
-                { text: "$0.00", style: "servicePrice" },
-              ],
-            ],
+            body: servicesRows,
           },
           layout: {
             hLineWidth: (i: number) => (i > 0 ? 1 : 0),

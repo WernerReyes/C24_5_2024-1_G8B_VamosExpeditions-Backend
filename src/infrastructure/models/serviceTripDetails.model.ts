@@ -65,6 +65,14 @@ export class ServiceTripDetailsModel
     );
   }
 
+  public static async findMany<
+    T extends Prisma.service_trip_detailsFindManyArgs
+  >(
+    args: Prisma.SelectSubset<T, Prisma.service_trip_detailsFindManyArgs>
+  ): Promise<Prisma.service_trip_detailsGetPayload<T>[]> {
+    return await this.serviceTripDetails.findMany(args);
+  }
+
   public static async createManyAndReturn<
     T extends Prisma.service_trip_detailsCreateManyAndReturnArgs
   >(
@@ -74,5 +82,25 @@ export class ServiceTripDetailsModel
     >
   ): Promise<Prisma.service_trip_detailsGetPayload<T>[]> {
     return await this.serviceTripDetails.createManyAndReturn(args);
+  }
+
+  public static async update<T extends Prisma.service_trip_detailsUpdateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.service_trip_detailsUpdateArgs>
+  ): Promise<Prisma.service_trip_detailsGetPayload<T>> {
+    return await this.serviceTripDetails.update(args);
+  }
+
+  public static async delete<T extends Prisma.service_trip_detailsDeleteArgs>(
+    args: Prisma.SelectSubset<T, Prisma.service_trip_detailsDeleteArgs>
+  ): Promise<Prisma.service_trip_detailsGetPayload<T>> {
+    return await this.serviceTripDetails.delete(args);
+  }
+
+  public static async deleteMany<
+    T extends Prisma.service_trip_detailsDeleteManyArgs
+  >(
+    args: Prisma.SelectSubset<T, Prisma.service_trip_detailsDeleteManyArgs>
+  ): Promise<Prisma.BatchPayload> {
+    return await this.serviceTripDetails.deleteMany(args);
   }
 }

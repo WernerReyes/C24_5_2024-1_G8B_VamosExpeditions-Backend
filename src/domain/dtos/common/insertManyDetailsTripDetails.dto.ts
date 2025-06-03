@@ -1,9 +1,8 @@
 import { Validations } from "@/core/utils";
 
-
-export class InsertManyHotelRoomTripDetailsDto {
+export class InsertManyDetailsTripDetailsDto {
   private constructor(
-    public readonly hotelRoomId: number,
+    public readonly id: number, //* hotelRoomId || serviceId
     public readonly tripDetailsId: number,
     public readonly dateRange: [Date, Date],
     public readonly countPerDay: number,
@@ -12,23 +11,17 @@ export class InsertManyHotelRoomTripDetailsDto {
 
   public static create(props: {
     [key: string]: any;
-  }): [string?, InsertManyHotelRoomTripDetailsDto?] {
-    const {
-      hotelRoomId,
-      tripDetailsId,
-      dateRange,
-      countPerDay,
-      costPerson,
-    } = props
+  }): [string?, InsertManyDetailsTripDetailsDto?] {
+    const { id, tripDetailsId, dateRange, countPerDay, costPerson } = props;
 
     const emptyFieldsError = Validations.validateEmptyFields(
-      { hotelRoomId, costPerson, dateRange, tripDetailsId, countPerDay },
-      "InsertManyHotelRoomTripDetailsDto"
+      { id, costPerson, dateRange, tripDetailsId, countPerDay },
+      "InsertManyDetailsTripDetailsDto"
     );
     if (emptyFieldsError) return [emptyFieldsError, undefined];
 
     const numberError = Validations.validateNumberFields({
-      hotelRoomId,
+      id,
       costPerson,
       tripDetailsId,
       countPerDay,
@@ -37,19 +30,18 @@ export class InsertManyHotelRoomTripDetailsDto {
 
     const greaterThanZeroError = Validations.validateGreaterThanValueFields(
       {
-        hotelRoomId,
+        id,
         costPerson,
         tripDetailsId,
       },
       0
     );
     if (greaterThanZeroError) return [greaterThanZeroError, undefined];
-   
-  
+
     return [
       undefined,
-      new InsertManyHotelRoomTripDetailsDto(
-        +hotelRoomId,
+      new InsertManyDetailsTripDetailsDto(
+        +id,
         +tripDetailsId,
         [new Date(dateRange[0]), new Date(dateRange[1])],
         +countPerDay < 1 ? 1 : +countPerDay,

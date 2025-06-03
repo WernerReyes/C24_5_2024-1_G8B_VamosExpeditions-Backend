@@ -1,19 +1,19 @@
+import { DateAdapter } from "@/core/adapters";
 import type {
-  InsertManyHotelRoomTripDetailsDto,
-  UpdateManyHotelRoomTripDetailsByDateDto,
+  InsertManyDetailsTripDetailsDto,
+  UpdateManyDetailsTripDetailsByDateDto
 } from "@/domain/dtos";
 import { HotelRoomTripDetailsEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
-import type { HotelRoomTripDetailsMapper } from "./hotelRoomTripDetails.mapper";
-import { ApiResponse } from "../response";
-import type { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { DateAdapter } from "@/core/adapters";
 import {
   HotelRoomTripDetailsModel,
   prisma,
   TripDetailsModel,
   type IHotelRoomTripDetailsModel,
 } from "@/infrastructure/models";
+import type { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { ApiResponse } from "../response";
+import type { HotelRoomTripDetailsMapper } from "./hotelRoomTripDetails.mapper";
 
 export class HotelRoomTripDetailsService {
   constructor(
@@ -21,7 +21,7 @@ export class HotelRoomTripDetailsService {
   ) {}
 
   public async insertManyHotelRoomTripDetails(
-    insertManyHotelRoomTripDetailsDto: InsertManyHotelRoomTripDetailsDto
+    insertManyHotelRoomTripDetailsDto: InsertManyDetailsTripDetailsDto
   ) {
     this.hotelRoomTripDetailsMapper.setDto = insertManyHotelRoomTripDetailsDto;
 
@@ -54,7 +54,7 @@ export class HotelRoomTripDetailsService {
     tripDetailsId,
     costPerson,
     dateRange,
-  }: InsertManyHotelRoomTripDetailsDto) {
+  }: InsertManyDetailsTripDetailsDto) {
     const tripDetails = await TripDetailsModel.findUnique({
       where: {
         id: tripDetailsId,
@@ -111,11 +111,6 @@ export class HotelRoomTripDetailsService {
       DateAdapter.startOfDay(dateRange[1]),
     ];
 
-    // const startDate = DateUtils.resetTimeToMidnight(tripDetails.start_date);
-    const startDate = DateAdapter.startOfDay(tripDetails.start_date);
-    // const endDate = DateUtils.resetTimeToMidnight(tripDetails.end_date);
-    const endDate = DateAdapter.startOfDay(tripDetails.end_date);
-
     if (
       currentStartDate.getTime() < tripDetails.start_date.getTime() ||
       currentEndDate.getTime() > tripDetails.end_date.getTime()
@@ -129,7 +124,7 @@ export class HotelRoomTripDetailsService {
   public async updateManyHotelRoomTripDetailsByDate({
     tripDetailsId,
     startDate,
-  }: UpdateManyHotelRoomTripDetailsByDateDto) {
+  }: UpdateManyDetailsTripDetailsByDateDto) {
     const hotelRoomTripDetails = await HotelRoomTripDetailsModel.findMany({
       where: {
         trip_details_id: tripDetailsId,
@@ -142,10 +137,8 @@ export class HotelRoomTripDetailsService {
         date: true,
       },
     });
-    if (hotelRoomTripDetails.length === 0)
-      throw CustomError.notFound(
-        "No se encontraron cotizaciones de habitación"
-      );
+    console.log(hotelRoomTripDetails.length)
+    if (hotelRoomTripDetails.length === 0) return;
 
     const updatedManyHotelRoomTripDetails: IHotelRoomTripDetailsModel[] = [];
 

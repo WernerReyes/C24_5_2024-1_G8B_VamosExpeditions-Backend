@@ -1,6 +1,6 @@
 import {
-  InsertManyHotelRoomTripDetailsDto,
-  UpdateManyHotelRoomTripDetailsByDateDto
+  InsertManyDetailsTripDetailsDto,
+  UpdateManyDetailsTripDetailsByDateDto
 } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 import type { Request, Response } from "express";
@@ -19,7 +19,7 @@ export class HotelRoomTripDetailsController extends AppController {
     res: Response
   ) => {
     const [error, insertManyHotelRoomTripDetailsDto] =
-      InsertManyHotelRoomTripDetailsDto.create(req.body);
+      InsertManyDetailsTripDetailsDto.create(req.body);
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
 
@@ -39,7 +39,7 @@ export class HotelRoomTripDetailsController extends AppController {
     res: Response
   ) => {
     const [error, updateManyHotelRoomTripDetailsByDateDto] =
-      UpdateManyHotelRoomTripDetailsByDateDto.create(req.body);
+      UpdateManyDetailsTripDetailsByDateDto.create(req.body);
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
 

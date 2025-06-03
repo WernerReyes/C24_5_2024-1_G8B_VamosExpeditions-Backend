@@ -100,7 +100,7 @@ export class Middleware {
     next: NextFunction
   ) {
     {
-      if (req.user.id !== parseInt(req.params.id)) {
+      if (req.user.id !== parseInt(req.params.userId)) {
         return res.status(403).json({
           ok: false,
           message: "Unauthorized",

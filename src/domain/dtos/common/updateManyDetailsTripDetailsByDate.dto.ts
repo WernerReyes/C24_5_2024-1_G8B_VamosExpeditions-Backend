@@ -1,33 +1,32 @@
+import { DateAdapter } from "@/core/adapters";
 import { Validations } from "@/core/utils";
 
-export class UpdateManyHotelRoomTripDetailsByDateDto {
+export class UpdateManyDetailsTripDetailsByDateDto {
   private constructor(
     public readonly tripDetailsId: number,
     public readonly startDate: Date
-  ) {
-  
-  }
+  ) {}
 
   public static create(props: {
     [key: string]: any;
-  }): [string?, UpdateManyHotelRoomTripDetailsByDateDto?] {
-    const { tripDetailsId, startDate } = props as UpdateManyHotelRoomTripDetailsByDateDto;
+  }): [string?, UpdateManyDetailsTripDetailsByDateDto?] {
+    const { tripDetailsId, startDate } =
+      props as UpdateManyDetailsTripDetailsByDateDto;
 
     const emptyFieldsError = Validations.validateEmptyFields(
       { startDate, tripDetailsId },
-      "UpdateManyHotelRoomTripDetailsByDateDto"
+      "UpdateManyDetailsTripDetailsByDateDto"
     );
     if (emptyFieldsError) return [emptyFieldsError, undefined];
-
 
     const dateError = Validations.validateDateFields({ startDate });
     if (dateError) return [dateError, undefined];
 
     return [
       undefined,
-      new UpdateManyHotelRoomTripDetailsByDateDto(
+      new UpdateManyDetailsTripDetailsByDateDto(
         +tripDetailsId,
-        new Date(startDate)
+        DateAdapter.startOfDay(startDate)
       ),
     ];
   }

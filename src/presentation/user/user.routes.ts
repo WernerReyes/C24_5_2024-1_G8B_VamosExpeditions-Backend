@@ -27,7 +27,7 @@ export class UserRoutes {
     ]);
 
     router.put(
-      "/:id",
+      "/:userId",
       Middleware.validateOwnership as RequestHandler,
       userController.upsertUser
     );
@@ -49,7 +49,7 @@ export class UserRoutes {
     );
 
     router.put(
-      "/:id/change-password",
+      "/:userId/change-password",
       Middleware.validateOwnership as RequestHandler,
       userController.changePassword
     );

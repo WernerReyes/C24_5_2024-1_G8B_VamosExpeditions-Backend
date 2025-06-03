@@ -81,7 +81,6 @@ export class UserService {
       });
     } else {
       const ramdowPassword = BcryptAdapter.generateRandomPassword();
-
       user = await UserModel.create({
         data: this.userMapper.createUser(ramdowPassword),
         include: this.userMapper.toInclude,
@@ -97,6 +96,7 @@ export class UserService {
           return user;
         })
         .catch((error) => {
+          console.log(error)
           if (error.code === "P2002") {
             throw CustomError.badRequest("El correo ya está en uso");
           }

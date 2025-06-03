@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { RequestHandler, Router } from "express";
 import { Middleware, type RequestAuth } from "../middleware";
 import { VersionQuotationController } from "./versionQuotation.controller";
 import { VersionQuotationMailer } from "./versionQuotation.mailer";
@@ -42,7 +42,6 @@ export class VersionQuotationRoutes {
     );
     // end excel and pdf routes
 
-    router.put("", versionQuotationController.updateVersionQuotation);
     router.put(
       "/official",
       versionQuotationController.updateOfficialVersionQuotation
@@ -51,6 +50,13 @@ export class VersionQuotationRoutes {
       "/cancel-replace",
       versionQuotationController.cancelAndReplaceApprovedOfficialVersionQuotation
     );
+
+    router.put(
+      "/:userId",
+      [Middleware.validateOwnership as RequestHandler],
+      versionQuotationController.updateVersionQuotation
+    );
+    
     router.post("/duplicate-multiple", (req, res) =>
       versionQuotationController.duplicateMultipleVersionQuotation(
         req as RequestAuth,

@@ -1,5 +1,4 @@
 import type { ClientDto } from "@/domain/dtos";
-import { CustomError } from "@/domain/error";
 import { type Prisma } from "@prisma/client";
 import { type DefaultArgs } from "@prisma/client/runtime/library";
 
@@ -20,8 +19,8 @@ export class ClientMapper {
     return {
       fullName: this.dto.fullName,
       country: this.dto.country,
-      email: this.dto.email,
-      phone: this.dto.phone,
+      email: this.dto.email ? this.dto.email : null,
+      phone: this.dto.phone ? this.dto.phone : null,
       subregion: this.dto.subregion,
     };
   }

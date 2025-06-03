@@ -10,7 +10,7 @@ export class VersionQuotationMailer extends EmailService {
   private async render(data: {
     quotationId: string;
     quotationName: string;
-    serviceType: AllowVersionQuotationType;
+    // serviceType: AllowVersionQuotationType;
     description?: string;
   }): Promise<string> {
     return EmailTemplate.render("send-quotation", "Cotización", data);
@@ -19,7 +19,7 @@ export class VersionQuotationMailer extends EmailService {
   public async sendEmailVQ(
     data: {
       versionQuotation: IVersionQuotationModel;
-      serviceType: AllowVersionQuotationType;
+      // serviceType: AllowVersionQuotationType;
       description?: string;
     },
     options: Options
@@ -28,7 +28,7 @@ export class VersionQuotationMailer extends EmailService {
       html: await this.render({
         quotationId: `Q${data.versionQuotation.quotation_id}-V${data.versionQuotation.version_number}`,
         quotationName: data.versionQuotation.name,
-        serviceType: data.serviceType,
+        // serviceType: data.serviceType,
 
         description: data.description,
       }),

@@ -6,7 +6,7 @@ export class SendEmailAndGenerateReportDto extends VersionQuotationIDDto {
   constructor(
     public readonly subject: string,
     public readonly to: string[],
-    public readonly resources: AllowVersionQuotationType,
+    // public readonly resources: AllowVersionQuotationType,
     public readonly from: string,
     public readonly versionQuotationId: {
       quotationId: number;
@@ -20,7 +20,9 @@ export class SendEmailAndGenerateReportDto extends VersionQuotationIDDto {
   static create(props: {
     [key: string]: any;
   }): [string?, SendEmailAndGenerateReportDto?] {
-    const { subject, to, resources, description, from, versionQuotationId } =
+    const { subject, to, 
+      // resources, 
+      description, from, versionQuotationId } =
       props;
 
     const [idError, idDtoValidated] =
@@ -31,25 +33,25 @@ export class SendEmailAndGenerateReportDto extends VersionQuotationIDDto {
       subject,
       to,
       from,
-      resources,
+      // resources,
     });
     if (error) return [error, undefined];
 
     const emailError = Validations.validateArrayEmail([to, from]);
     if (emailError) return [emailError, undefined];
 
-    const resourceError = Validations.validateEnumValue(
-      resources,
-      Object.values(AllowVersionQuotationType)
-    );
-    if (resourceError) return [resourceError, undefined];
+    // const resourceError = Validations.validateEnumValue(
+    //   resources,
+    //   Object.values(AllowVersionQuotationType)
+    // );
+    // if (resourceError) return [resourceError, undefined];
 
     return [
       undefined,
       new SendEmailAndGenerateReportDto(
         subject,
         to,
-        resources,
+        // resources,
         from,
         idDtoValidated!.versionQuotationId!,
         description

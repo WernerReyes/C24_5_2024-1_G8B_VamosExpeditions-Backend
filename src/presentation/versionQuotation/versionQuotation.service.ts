@@ -133,6 +133,7 @@ export class VersionQuotationService {
           include: {
             trip_details_has_city: true,
             hotel_room_trip_details: true,
+            service_trip_details: true,
           },
         },
       },
@@ -146,6 +147,7 @@ export class VersionQuotationService {
       tripDetailsToInsert,
       tripDetailsHasCityToInsert,
       hotelRoomTripToInsert,
+      serviceTripToInsert,
     } = await this.getDuplicateVersionQuotation(versionQuotations, userId);
 
     const newVersionsDuplicated = await prisma
@@ -165,6 +167,7 @@ export class VersionQuotationService {
           },
         });
 
+
         const tripDetailsHasCityFinal = tripDetailsHasCityToInsert.map((c) => ({
           city_id: c.city_id,
           trip_details_id: insertedTripDetails[c.trip_index].id,
@@ -176,6 +179,15 @@ export class VersionQuotationService {
           cost_person: h.cost_person,
           trip_details_id: insertedTripDetails[h.trip_index].id,
         }));
+
+        const serviceTripFinal = serviceTripToInsert.map((s) => ({
+          service_id: s.service_id,
+          date: s.date,
+          cost_person: s.cost_person,
+          trip_details_id: insertedTripDetails[s.trip_index].id,
+        }));
+
+        
 
         if (tripDetailsHasCityFinal.length > 0) {
           await tx.trip_details_has_city.createMany({
@@ -189,6 +201,12 @@ export class VersionQuotationService {
           });
         }
 
+        if (serviceTripFinal.length > 0) {
+          await tx.service_trip_details.createMany({
+            data: serviceTripFinal,
+          });
+        }
+
         const updatedTripDetails = insertedTripDetails.map((trip) => ({
           ...trip,
           trip_details_has_city: tripDetailsHasCityFinal.filter(
@@ -197,6 +215,10 @@ export class VersionQuotationService {
           hotel_room_trip_details: hotelRoomTripFinal.filter(
             (h) => h.trip_details_id === trip.id
           ),
+
+          service_trip_details: serviceTripFinal.filter(
+            (s) => s.trip_details_id === trip.id
+          )
         }));
 
         return newVersionsDuplicated.map((version) => {
@@ -236,6 +258,7 @@ export class VersionQuotationService {
     const tripDetailsToInsert: any[] = [];
     const tripDetailsHasCityToInsert: any[] = [];
     const hotelRoomTripToInsert: any[] = [];
+    const serviceTripToInsert: any[] = [];
 
     const versionMap: Record<number, number> = {}; // Track last version per quotation
 
@@ -308,6 +331,15 @@ export class VersionQuotationService {
             trip_index: tripIndex,
           });
         }
+
+        for (const s of v?.trip_details?.service_trip_details?? []) {
+          serviceTripToInsert.push({
+            service_id: s.service_id,
+            date: s.date,
+            cost_person: s.cost_person,
+            trip_index: tripIndex,
+          });
+        }
       }
     }
 
@@ -316,6 +348,7 @@ export class VersionQuotationService {
       tripDetailsToInsert,
       tripDetailsHasCityToInsert,
       hotelRoomTripToInsert,
+      serviceTripToInsert,
     };
   }
 
@@ -657,6 +690,11 @@ export class VersionQuotationService {
       include: {
         trip_details: {
           include: {
+            service_trip_details: {
+              include: {
+                service: true,
+              },
+            },
             hotel_room_trip_details: {
               orderBy: {
                 date: "asc",
@@ -684,74 +722,115 @@ export class VersionQuotationService {
   }
 
   public async sendEmailAndGenerateReport({
-    resources,
+    // resources,
     versionQuotationId,
     ...data
   }: SendEmailAndGenerateReportDto) {
-    const [pdfBuffer, versionQuotation] = await new Promise(
-      async (
-        resolve: ([document, versionQuotation]: [
-          Buffer<ArrayBufferLike>,
-          IVersionQuotationModel
-        ]) => void,
-        reject: (error: string) => void
-      ) => {
-        switch (resources) {
-          case AllowVersionQuotationType.TRANSPORTATION:
-            break;
+    // const [pdfBuffer, versionQuotation] = await new Promise(
+    //   async (
+    //     resolve: ([document, versionQuotation]: [
+    //       Buffer<ArrayBufferLike>,
+    //       IVersionQuotationModel
+    //     ]) => void,
+    //     reject: (error: string) => void
+    //   ) => {
+    //     switch (resources) {
+    //       case AllowVersionQuotationType.TRANSPORTATION:
+    //         break;
 
-          case AllowVersionQuotationType.ACCOMMODATION:
-            const versionQuotation = await VersionQuotationModel.findUnique({
-              where: {
-                version_number_quotation_id: {
-                  version_number: versionQuotationId!.versionNumber,
-                  quotation_id: versionQuotationId!.quotationId,
-                },
-                is_deleted: false,
-                status: {
-                  not: VersionQuotationStatusEnum.DRAFT,
-                },
+    //       case AllowVersionQuotationType.ACCOMMODATION:
+    //         const versionQuotation = await VersionQuotationModel.findUnique({
+    //           where: {
+    //             version_number_quotation_id: {
+    //               version_number: versionQuotationId!.versionNumber,
+    //               quotation_id: versionQuotationId!.quotationId,
+    //             },
+    //             is_deleted: false,
+    //             status: {
+    //               not: VersionQuotationStatusEnum.DRAFT,
+    //             },
+    //           },
+    //           include: {
+    //             trip_details: {
+    //               include: {
+    //                 hotel_room_trip_details: {
+    //                   orderBy: {
+    //                     date: "asc",
+    //                   },
+    //                   include: {
+    //                     hotel_room: {
+    //                       include: {
+    //                         hotel: true,
+    //                       },
+    //                     },
+    //                   },
+    //                 },
+    //                 client: true,
+    //               },
+    //             },
+    //             user: true,
+    //           },
+    //         });
+
+    //         if (!versionQuotation)
+    //           return reject("No se encontró la versión de cotización");
+
+    //         const pdfBuffer = await this.versionQuotationPdf.generateForEmail(
+    //           versionQuotation
+    //         );
+
+    //         resolve([pdfBuffer, versionQuotation as IVersionQuotationModel]);
+    //         break;
+    //     }
+    //   }
+    // ).catch((error) => {
+    //   throw CustomError.badRequest(`${error}`);
+    // });
+
+    const versionQuotation = await VersionQuotationModel.findUnique({
+      where: {
+        version_number_quotation_id: {
+          version_number: versionQuotationId!.versionNumber,
+          quotation_id: versionQuotationId!.quotationId,
+        },
+        is_deleted: false,
+        status: {
+          not: VersionQuotationStatusEnum.DRAFT,
+        },
+      },
+      include: {
+        trip_details: {
+          include: {
+            hotel_room_trip_details: {
+              orderBy: {
+                date: "asc",
               },
               include: {
-                trip_details: {
+                hotel_room: {
                   include: {
-                    hotel_room_trip_details: {
-                      orderBy: {
-                        date: "asc",
-                      },
-                      include: {
-                        hotel_room: {
-                          include: {
-                            hotel: true,
-                          },
-                        },
-                      },
-                    },
-                    client: true,
+                    hotel: true,
                   },
                 },
-                user: true,
               },
-            });
-
-            if (!versionQuotation)
-              return reject("No se encontró la versión de cotización");
-
-            const pdfBuffer = await this.versionQuotationPdf.generateForEmail(
-              versionQuotation
-            );
-
-            resolve([pdfBuffer, versionQuotation as IVersionQuotationModel]);
-            break;
-        }
-      }
-    ).catch((error) => {
-      throw CustomError.badRequest(`${error}`);
+            },
+            client: true,
+          },
+        },
+        user: true,
+      },
     });
+
+    if (!versionQuotation) {
+      throw CustomError.badRequest("No se encontró la versión de cotización");
+    }
+
+    const pdfBuffer = await this.versionQuotationPdf.generateForEmail(
+      versionQuotation
+    );
 
     await this.versionQuotationMailer.sendEmailVQ(
       {
-        serviceType: resources,
+        // serviceType: resources,
         versionQuotation,
         description: data.description,
       },

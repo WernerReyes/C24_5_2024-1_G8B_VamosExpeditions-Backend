@@ -7,11 +7,14 @@ import {
   hotel_room,
   service,
   service_type,
+  setting_key_enum,
+  settings,
+  user,
 } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import * as XLSX from "xlsx";
 import * as path from "path";
-import { DEFAULT_SETTINGS, DISTRICTS, PARNERTS, ROLES, USERS } from "./data";
+import { DEFAULT_SETTINGS, PARNERTS, ROLES, USERS } from "./data";
 import { CacheAdapter } from "@/core/adapters";
 
 const prisma = new PrismaClient();
@@ -103,7 +106,7 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
     const serviceTypes = getServiceTypeFromExcel(book);
 
     //* Get the services formatted
-    const services = getServicesFromExcel(book);
+    const services = getServicesFromExcel(book, districts);
 
     //* Delete all data
     let deletedData = false;
@@ -141,13 +144,25 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
     if (!deletedData) return;
 
     //* Insert Roles
-    await prisma.role.createMany({
+    const roles = await prisma.role.createManyAndReturn({
       data: ROLES,
     });
 
     //* Insert Users
-    await prisma.user.createMany({
-      data: USERS,
+    const users = await prisma.user.createManyAndReturn({
+      data: [
+        ...(() => {
+          const users: Omit<user, "id_user">[] = [];
+
+          for (const user of USERS) {
+            users.push({
+              ...user,
+              id_role: roles[Math.floor(Math.random() * roles.length)].id_role,
+            });
+          }
+          return users;
+        })(),
+      ],
     });
 
     //* Insert Partners
@@ -182,7 +197,23 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
 
     //* Insert SETTINGS
     await prisma.settings.createMany({
-      data: DEFAULT_SETTINGS,
+      data: [
+        ...DEFAULT_SETTINGS,
+        ...(() => {
+          const settings: Omit<settings, "id">[] = [];
+
+          for (const user of users) {
+            settings.push({
+              key: setting_key_enum.MAX_ACTIVE_SESSIONS,
+              value: "3",
+              updated_at: null,
+              updated_by_id: null,
+              user_id: user.id_user,
+            });
+          }
+          return settings;
+        })(),
+      ],
     });
 
     //* Insert SERVICE TYPES
@@ -303,7 +334,10 @@ const getServiceTypeFromExcel = (book: XLSX.WorkBook): service_type[] => {
     }));
 };
 
-const getServicesFromExcel = (book: XLSX.WorkBook): Omit<service, "id">[] => {
+const getServicesFromExcel = (
+  book: XLSX.WorkBook,
+  districts: distrit[]
+): Omit<service, "id">[] => {
   const serviceSheet = book.SheetNames[2];
   const sheet = book.Sheets[serviceSheet];
   const exelServices: ExelService[] = XLSX.utils.sheet_to_json(sheet);
@@ -330,7 +364,7 @@ const getServicesFromExcel = (book: XLSX.WorkBook): Omit<service, "id">[] => {
       tax_igv_pen: service.__EMPTY_9 ? new Decimal(service.__EMPTY_9) : null,
       rate_pen: service.__EMPTY_10 ? new Decimal(service.__EMPTY_10) : null,
       distrit_id:
-        DISTRICTS[Math.floor(Math.random() * DISTRICTS.length)].id_distrit,
+        districts[Math.floor(Math.random() * districts.length)].id_distrit,
       created_at: new Date(),
       updated_at: new Date(),
     }));

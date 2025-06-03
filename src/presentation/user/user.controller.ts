@@ -28,7 +28,7 @@ export class UserController extends AppController {
   public upsertUser = async (req: Request, res: Response) => {
     const [error, userDto] = UserDto.create({
       ...req.body,
-      id: req.params.id,
+      id: req.params.userId,
     });
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
@@ -59,7 +59,7 @@ export class UserController extends AppController {
   public changePassword = async (req: Request, res: Response) => {
     const [error, changePasswordDto] = ChangePasswordDto.create({
       ...req.body,
-      id: req.params.id,
+      id: req.params.userId,
     });
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));

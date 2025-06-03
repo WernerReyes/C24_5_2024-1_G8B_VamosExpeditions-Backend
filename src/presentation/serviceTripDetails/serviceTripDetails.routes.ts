@@ -19,6 +19,9 @@ export class ServiceTripDetailsRoutes {
     );
 
     router.post("/many", serviceTripDetailsController.insertMany);
+    router.put("/many/date", serviceTripDetailsController.updateManyByDate);
+    router.delete("/:id", serviceTripDetailsController.deleteById);
+    router.delete("/many/date", serviceTripDetailsController.deleteMany);
 
     return router;
   }
