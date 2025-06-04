@@ -11,6 +11,7 @@ export class ClientEntity {
     public readonly subregion: string,
     public readonly createdAt?: Date,
     public readonly updatedAt?: Date,
+    public readonly isDeleted?: boolean,
     public readonly country?: {
       name: string;
       image?: Image;
@@ -29,6 +30,7 @@ export class ClientEntity {
       subregion,
       createdAt,
       updatedAt,
+      is_deleted,
     } = client as IClientModel;
 
     return new ClientEntity(
@@ -39,6 +41,7 @@ export class ClientEntity {
       subregion,
       createdAt ? new Date(createdAt) : undefined,
       updatedAt ? new Date(updatedAt) : undefined,
+      is_deleted, 
       country
         ? {
             name: country,

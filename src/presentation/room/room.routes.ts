@@ -14,12 +14,14 @@ export class RoomRoutes {
     const roomService = new RoomService(roomMapper);
     const roomController = new RoomController(roomService);
 
-   // start create, update and delete
+   //! start create, update and delete
     router.post("/", roomController.upsertRoom);
     router.put("/:id", roomController.upsertRoom);
+    router.put("/:id/trash", roomController.trashRoom);
+    router.put("/:id/restore", roomController.restoreRoom);
+    //! end create, update and delete
 
-    router.delete("/:id", (req, res) => {});
-    // end create, update and delete
+
     return router;
   }
 }

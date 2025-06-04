@@ -4,6 +4,7 @@ export * from './auth/resetPassword.dto';
 
 //* CLIENT
 export * from './client/client.dto';
+export * from './client/getClient'
 
 
 //* COMMON
@@ -64,3 +65,8 @@ export * from './user/getUsers.dto';
 
 //* ROLES
 export * from './role/getRoles.dto';
+
+
+//! pantner
+export * from './partner/getPartner.dto';
+export * from './partner/partner.dto';

@@ -13,12 +13,12 @@
     "seed": "tsnd --respawn --clear -r tsconfig-paths/register src/data/postgres/seed/seed.ts",
     "seed:excel": "tsnd --respawn --clear -r tsconfig-paths/register src/data/postgres/seed/excel.ts"
   },
-  "_moduleAliases": {
-    "@": "dist"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "_moduleAliases": {
+    "@": "dist"
+  },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cli-table": "^0.3.4",

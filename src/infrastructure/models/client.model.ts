@@ -6,7 +6,7 @@ export interface IClientModel extends client {}
 export class ClientModel extends Model<IClientModel> implements IClientModel {
   private static client = new PrismaClient().client;
 
-  private static _instance: ClientModel
+  private static _instance: ClientModel;
 
   public static modelName = Prisma.ModelName.client;
 
@@ -21,6 +21,9 @@ export class ClientModel extends Model<IClientModel> implements IClientModel {
     public readonly subregion: string,
     public readonly email: string | null,
     public readonly phone: string | null,
+    public readonly deleted_at: Date | null,
+    public readonly is_deleted: boolean,
+    public readonly delete_reason: string | null = null,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
@@ -35,6 +38,9 @@ export class ClientModel extends Model<IClientModel> implements IClientModel {
       "",
       "",
       "",
+      null,
+      false,
+      null,
       new Date(0),
       new Date(0)
     );
@@ -52,12 +58,13 @@ export class ClientModel extends Model<IClientModel> implements IClientModel {
       this._instance.subregion,
       this._instance.email,
       this._instance.phone,
+      this._instance.deleted_at,
+      this._instance.is_deleted,
+      this._instance.delete_reason,
       this._instance.createdAt,
       this._instance.updatedAt
     );
   }
-
-  
 
   public static getString() {
     return this._instance.getString();
@@ -67,6 +74,12 @@ export class ClientModel extends Model<IClientModel> implements IClientModel {
     args: Prisma.SelectSubset<T, Prisma.clientFindManyArgs>
   ): Promise<Prisma.clientGetPayload<T>[]> {
     return await this.client.findMany(args);
+  }
+
+  public static async findFirst<T extends Prisma.clientFindFirstArgs>(
+    args: Prisma.SelectSubset<T, Prisma.clientFindFirstArgs>
+  ): Promise<Prisma.clientGetPayload<T> | null> {
+    return await this.client.findFirst(args);
   }
 
   public static async findUnique<T extends Prisma.clientFindUniqueArgs>(
@@ -97,5 +110,11 @@ export class ClientModel extends Model<IClientModel> implements IClientModel {
     args: Prisma.SelectSubset<T, Prisma.clientDeleteArgs>
   ): Promise<Prisma.clientGetPayload<T>> {
     return await this.client.delete(args);
+  }
+  public static async count<T extends Prisma.clientCountArgs>(
+    args: Prisma.SelectSubset<T, Prisma.clientCountArgs>
+  ): Promise<number> {
+    const result = await this.client.count(args);
+    return typeof result === "number" ? result : 0;
   }
 }

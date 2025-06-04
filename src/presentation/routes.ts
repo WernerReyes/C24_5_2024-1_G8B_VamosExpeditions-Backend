@@ -18,6 +18,7 @@ import { RoleRoutes } from "./role/role.routes";
 
 import { CityRoutes } from "./city/city.routes";
 import { RoomRoutes } from "./room/room.routes";
+import { PartnerRoutes } from "./partner/partner.routes";
 
 export class AppRoutes {
   private static prefix: string = "/api/v1";
@@ -32,9 +33,10 @@ export class AppRoutes {
     router.use(`${this.prefix}/user`, UserRoutes.routes);
     router.use(`${this.prefix}/notification`, NotificationRoutes.routes);
 
+    //! start room and hotel
     router.use(`${this.prefix}/hotel`, HotelRoutes.routes);
     router.use(`${this.prefix}/room`, RoomRoutes.routes);
-
+    //! end room and hotel
 
     router.use(`${this.prefix}/client`, ClientRoutes.routes);
     router.use(`${this.prefix}/quotation`, QuotationRoutes.routes);
@@ -49,11 +51,14 @@ export class AppRoutes {
     );
     router.use(`${this.prefix}/reservation`, ReservationRoutes.routes);
 
-    // start     country-city-distrit
+    //! start partner
+    router.use(`${this.prefix}/partner`, PartnerRoutes.routes);
+
+    //! start     country-city-distrit
     router.use(`${this.prefix}/country`, CountryRoutes.routes);
     router.use(`${this.prefix}/distrit`, DistritRoutes.routes);
     router.use(`${this.prefix}/city`, CityRoutes.routes);
-    // end  country-city-distrit
+    //! end  country-city-distrit
     //* External
     router.use(`${this.prefix}/external/country`, ExternalCountryRoutes.routes);
 

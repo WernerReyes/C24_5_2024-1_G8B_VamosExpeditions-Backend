@@ -12,6 +12,7 @@ import { BcryptAdapter } from "@/core/adapters";
 import { type IUserModel, UserModel } from "@/infrastructure/models";
 
 export class UserService {
+  
   constructor(private readonly userMapper: UserMapper) {}
 
   public async getUsers(getUsersDto: GetUsersDto) {

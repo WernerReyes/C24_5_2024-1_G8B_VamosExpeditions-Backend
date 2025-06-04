@@ -11,8 +11,8 @@ export class HotelRoomModel
   extends Model<IHotelRoomModel>
   implements IHotelRoomModel
 {
-  private static _instance: HotelRoomModel
-  
+  private static _instance: HotelRoomModel;
+
   private static hotelRoom = prisma.hotel_room;
 
   protected override get getEmpty(): HotelRoomModel {
@@ -29,8 +29,12 @@ export class HotelRoomModel
     public readonly price_pen: Decimal | null,
     public readonly capacity: number,
     public readonly hotel_id: number,
+     public readonly deleted_at: Date | null,
+    public readonly is_deleted: boolean ,
+    public readonly delete_reason: string | null,
     public readonly created_at: Date,
     public readonly updated_at: Date,
+
     public hotel?: IHotelModel
   ) {
     super();
@@ -47,6 +51,9 @@ export class HotelRoomModel
       null,
       0,
       0,
+      null,
+      false,
+      null,
       new Date(),
       new Date()
     );
@@ -67,6 +74,9 @@ export class HotelRoomModel
       this._instance.price_pen,
       this._instance.capacity,
       this._instance.hotel_id,
+      this._instance.deleted_at,
+      this._instance.is_deleted,
+      this._instance.delete_reason,
       this._instance.created_at,
       this._instance.updated_at
     );
@@ -82,7 +92,7 @@ export class HotelRoomModel
 
   public static findUnique<T extends Prisma.hotel_roomFindUniqueArgs>(
     args: Prisma.SelectSubset<T, Prisma.hotel_roomFindUniqueArgs>
-  ):Promise<Prisma.hotel_roomGetPayload<T> | null> {
+  ): Promise<Prisma.hotel_roomGetPayload<T> | null> {
     return this.hotelRoom.findUnique(args);
   }
 

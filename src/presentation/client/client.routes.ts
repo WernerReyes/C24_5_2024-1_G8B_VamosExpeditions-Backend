@@ -17,6 +17,10 @@ export class ClientRoutes {
     router.post("/", clientController.upsertClient);
     router.put("/:id", clientController.upsertClient);
     router.get("", clientController.getClientsAlls);
+    router.get("/page-all-clients", clientController.getClients);
+
+    router.put("/:id/trash", clientController.trashClient);
+    router.put("/:id/restore", clientController.restoreClient);
 
     return router;
   }

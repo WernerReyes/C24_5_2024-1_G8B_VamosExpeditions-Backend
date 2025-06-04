@@ -74,7 +74,7 @@ export class VersionQuotationRoutes {
 
     // router.post("/send-email-excel", versionQuotationController.sendEmailA);
 
-    router.get("/prueba", versionQuotationController.getExcelQuotationById);
+    /* router.get("/prueba", versionQuotationController.getExcelQuotationById); */
 
     return router;
   }

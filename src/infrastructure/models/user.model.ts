@@ -131,4 +131,5 @@ export class UserModel extends Model<IUserModel> implements IUserModel {
     const result = await this.user.count(args);
     return typeof result === "number" ? result : 0;
   }
+  
 }

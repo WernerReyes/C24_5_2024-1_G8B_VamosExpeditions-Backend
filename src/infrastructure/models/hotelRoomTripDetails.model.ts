@@ -121,4 +121,21 @@ export class HotelRoomTripDetailsModel
   ): Promise<Prisma.BatchPayload> {
     return await this.hotel_room_trip_details.deleteMany(args);
   }
+  
+public static async count<
+  T extends Prisma.hotel_room_trip_detailsCountArgs
+>(
+  args: Prisma.SelectSubset<T, Prisma.hotel_room_trip_detailsCountArgs>
+): Promise<
+  T extends { select: any }
+    ? T["select"] extends true
+      ? number
+      : { [P in keyof T["select"]]: P extends keyof Prisma.Hotel_room_trip_detailsCountAggregateOutputType ? Prisma.Hotel_room_trip_detailsCountAggregateOutputType[P] : never }
+    : number
+> {
+  return await this.hotel_room_trip_details.count(args as any);
+}
+
+
+
 }

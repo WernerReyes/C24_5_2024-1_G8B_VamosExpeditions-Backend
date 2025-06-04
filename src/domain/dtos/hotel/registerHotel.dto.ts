@@ -6,7 +6,7 @@ export class HotelDto {
     public category: string,
     public name: string,
     public address: string,
-    public distrit: number
+    public distrit: number,
   ) {}
 
   static create(props: { [key: string]: any }): [string?, HotelDto?] {

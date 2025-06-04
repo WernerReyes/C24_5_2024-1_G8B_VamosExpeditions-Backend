@@ -34,8 +34,32 @@ export class HotelMapper {
   }
 
   public get toSelectInclude(): Prisma.hotelInclude<DefaultArgs> {
+    this.validateModelInstance(this.dto, "toSelectInclude");
+    this.dto = this.dto as GetHotelsPageDto;
+    
     return {
-      hotel_room: true,
+      hotel_room: {
+        where: {
+          is_deleted: this.dto.isDeleted,
+        },
+        select: {
+          id_hotel_room: true,
+          room_type: true,
+          season_type: true,
+          price_usd: true,
+          service_tax: true,
+          rate_usd: true,
+          price_pen: true,
+          capacity: true,
+          hotel_id: true,
+          deleted_at: true,
+          is_deleted: true,
+          delete_reason: true,
+          created_at: true,
+          updated_at: true,
+
+        }
+      },
       distrit: {
         select: {
           id_distrit: true,
@@ -59,6 +83,7 @@ export class HotelMapper {
 
   public get getHotelWhere(): Prisma.hotelWhereInput {
     this.validateModelInstance(this.dto, "getHotelWhere");
+    
     this.dto = this.dto as GetHotelsPageDto;
     return {
       name: {
@@ -75,10 +100,27 @@ export class HotelMapper {
         contains: this.dto.category,
         mode: "insensitive",
       },
+    OR: [
+      { is_deleted: this.dto.isDeleted },
+      {
+        AND: [
+          { is_deleted: false },
+          {
+            hotel_room: {
+              some: {
+                is_deleted: true
+              }
+            }
+          }
+        ]
+      }
+    ],
+      
+
     };
   }
 
-  // start create , update, hotel
+  //! start create , update, hotel
   public get createHotel(): Prisma.hotelUncheckedCreateInput {
     this.validateModelInstance(this.dto, "createHotel");
     this.dto = this.dto as HotelDto;
@@ -103,7 +145,7 @@ export class HotelMapper {
     };
   }
 
-  // end create , update, hotel
+  //! end create , update, hotel
 
   private validateModelInstance(models: any[] | any, methodName: string): void {
     Validations.validateModelInstance(models, `${FROM}.${methodName}`);

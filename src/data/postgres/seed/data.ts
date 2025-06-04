@@ -5,10 +5,7 @@ import {
   type partner,
   type role,
   role_type,
-
   type user,
-
-
 } from "@prisma/client";
 import { BcryptAdapter } from "@/core/adapters";
 import { HotelCategory, type IHotelModel } from "@/infrastructure/models";
@@ -244,6 +241,9 @@ export const HOTELS: IHotelModel[] = [
     distrit_id: 1,
     created_at: new Date(),
     updated_at: new Date(),
+    deleted_at: null,
+    is_deleted: false,
+    delete_reason: null,
   },
   {
     id_hotel: 2,
@@ -253,6 +253,9 @@ export const HOTELS: IHotelModel[] = [
     distrit_id: 2,
     created_at: new Date(),
     updated_at: new Date(),
+    deleted_at: null,
+    is_deleted: false,
+    delete_reason: null,
   },
   {
     id_hotel: 3,
@@ -262,6 +265,9 @@ export const HOTELS: IHotelModel[] = [
     distrit_id: 3,
     created_at: new Date(),
     updated_at: new Date(),
+    deleted_at: null,
+    is_deleted: false,
+    delete_reason: null,
   },
   {
     id_hotel: 4,
@@ -271,6 +277,9 @@ export const HOTELS: IHotelModel[] = [
     distrit_id: 1,
     created_at: new Date(),
     updated_at: new Date(),
+    deleted_at: null,
+    is_deleted: false,
+    delete_reason: null,
   },
   {
     id_hotel: 5,
@@ -280,6 +289,9 @@ export const HOTELS: IHotelModel[] = [
     distrit_id: 10,
     created_at: new Date(),
     updated_at: new Date(),
+    deleted_at: null,
+    is_deleted: false,
+    delete_reason: null,
   },
 ];
 
@@ -288,6 +300,10 @@ export const PARNERTS: partner[] = [
     id: 1,
     name: "Travel Local",
     created_at: new Date(),
+    updated_at: new Date(),
+    deleted_at: null,
+    is_deleted: false,
+    delete_reason: null,
   },
 ];
 
