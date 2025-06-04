@@ -1,15 +1,19 @@
 -- QUERY TRUNCATED
 -- Delete table if exists
+DROP TYPE IF exists setting_key_enum CASCADE;
 DROP TYPE if exists role_type CASCADE;
 DROP TYPE if exists trip_details_traveler_style  CASCADE;
 DROP TYPE if exists trip_details_order_type CASCADE;
 DROP TYPE if exists reservation_status CASCADE;
 DROP TYPE if exists version_quotation_status CASCADE;
 
+DROP table IF exists settings;
+
 DROP table if EXISTS trip_details_has_city;
 
 DROP table if EXISTS reservation;
 DROP TABLE IF EXISTS hotel_room_trip_details;
+DROP TABLE IF EXISTS service_trip_details;
 DROP TABLE IF EXISTS trip_details;
 DROP TABLE IF EXISTS version_quotation;
 DROP TABLE IF EXISTS quotation;
@@ -22,6 +26,9 @@ DROP TABLE IF EXISTS role;
 
 DROP table if EXISTS hotel_room;
 DROP table if EXISTS hotel;
+drop table IF exists service;
+
+drop table if exists service_type;
 
 
 DROP table if EXISTS client;
@@ -56,13 +63,14 @@ name role_type NOT NULL UNIQUE,
 CREATE TABLE IF NOT EXISTS "user" ( -- Use double quotes for reserved keywords like "user"
 id_user SERIAL PRIMARY KEY, -- Use SERIAL for auto-incrementing IDs
 fullname VARCHAR(45) NOT NULL,
-email VARCHAR(45) NOT NULL,
+email VARCHAR(45) UNIQUE NOT NULL,
 password VARCHAR(200) NOT NULL,
 description TEXT NULL,
 phone_number VARCHAR(20) NULL,
 id_role INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
   -- Soft Delete
    is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
    deleted_at TIMESTAMP NULL DEFAULT NULL,
@@ -142,6 +150,43 @@ CREATE TABLE IF NOT EXISTS distrit (
 );
 
 -- -----------------------------------------------------
+-- Table service_type
+-- -----------------------------------------------------
+CREATE TABLE service_type (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- -----------------------------------------------------
+-- Table service
+-- -----------------------------------------------------
+CREATE TABLE service (
+    id SERIAL PRIMARY KEY,
+    service_type_id INT NOT NULL,
+    description TEXT NOT NULL,
+    duration VARCHAR(20), -- o TIME si manejas tiempos exactos
+    passengers_min INT,
+    passengers_max INT, -- Este campo debe permitir NULL
+    price_usd DECIMAL(8,2),
+    tax_igv_usd DECIMAL(8,2),
+    rate_usd DECIMAL(8,2),
+    price_pen DECIMAL(8,2),
+   tax_igv_pen DECIMAL(8,2),
+    rate_pen DECIMAL(8,2),
+    distrit_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT fk_service_service_type FOREIGN KEY (service_type_id) REFERENCES service_type(id),
+    CONSTRAINT fk_service_distrit FOREIGN KEY (distrit_id)
+    REFERENCES distrit (id_distrit)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+
+-- -----------------------------------------------------
 -- Table hotel
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS hotel (
@@ -218,7 +263,7 @@ CREATE INDEX idx_email ON "client" ("email");
 CREATE TABLE IF NOT EXISTS quotation (
   id_quotation SERIAL PRIMARY KEY,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
   );
 
 -- -----------------------------------------------------
@@ -233,6 +278,7 @@ CREATE TABLE IF NOT EXISTS partner (
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     delete_reason TEXT
 );
+  
   
 -- -----------------------------------------------------
 -- Table version_quotation
@@ -268,14 +314,6 @@ CREATE TYPE  version_quotation_status AS ENUM ('DRAFT', 'COMPLETED', 'CANCELATED
     CONSTRAINT fk_version_quotation_partner FOREIGN KEY (partner_id) REFERENCES partner(id) ON DELETE CASCADE,
     CONSTRAINT version_quotation_commission_check CHECK (commission = 0 OR commission BETWEEN 3 AND 20)
 );
-
-SELECT * FROM pg_sequences WHERE schemaname = 'public';
-
-SELECT setval('"distrit_id_distrit_seq"', (SELECT MAX(id_distrit) FROM distrit));
-SELECT setval('"country_id_country_seq"', (SELECT MAX(id_city) FROM city));
-SELECT setval('"distrit_id_distrit_seq"', (SELECT MAX(id_country) FROM country));
-SELECT setval('"hotel_room_id_hotel_room_seq"', (SELECT MAX(id_hotel_room) FROM hotel_room));
-SELECT setval('"hotel_id_hotel_seq"', (SELECT MAX(id_hotel) FROM hotel));
 
 
 -- INDEXS
@@ -354,13 +392,28 @@ CREATE TABLE IF NOT EXISTS trip_details_has_city (
 );
 
 -- -----------------------------------------------------
--- Table hotel_room_quotation
+-- Table service_trip_details
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS service_trip_details (
+  id SERIAL PRIMARY KEY,
+    trip_details_id INT NOT NULL,
+    service_id INT NOT NULL,
+    date DATE NOT NULL,
+  cost_person DECIMAL(8,2) NOT NULL,
+    FOREIGN KEY (trip_details_id) REFERENCES trip_details(id) ON DELETE CASCADE,
+    FOREIGN KEY (service_id) REFERENCES service(id) ON DELETE CASCADE
+);
+
+
+-- -----------------------------------------------------
+-- Table hotel_room__trip_details
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS hotel_room_trip_details (
   id SERIAL PRIMARY KEY,
   hotel_room_id INT NOT NULL,
   date DATE NOT NULL,
   trip_details_id INT NOT NULL,  
+  
   cost_person DECIMAL(8,2) NOT NULL,
   CONSTRAINT fk_hotel_room_quotation_hotel_room FOREIGN KEY (hotel_room_id) REFERENCES hotel_room(id_hotel_room) ON DELETE CASCADE,
   CONSTRAINT fk_hotel_room_quotation_trip_details FOREIGN KEY (trip_details_id) REFERENCES trip_details(id) ON DELETE CASCADE
@@ -417,3 +470,35 @@ FROM reservation r
 JOIN quotation q ON r.quotation_id = q.id_quotation
 JOIN version_quotation v ON q.id_quotation = v.quotation_id
 WHERE v.status = 'APPROVED' AND v.official = TRUE;
+
+-- -----------------------------------------------------
+-- Table settings
+-- -----------------------------------------------------
+CREATE TYPE setting_key_enum AS ENUM (
+  'MAX_ACTIVE_SESSIONS',
+  'DATA_CLEANUP_PERIOD',
+  'LAST_CLEANUP_RUN'
+);
+
+CREATE TABLE settings (
+    id SERIAL PRIMARY KEY,
+    key setting_key_enum NOT NULL,
+    value TEXT NULL,
+  user_id INT NULL,
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_by_id INTEGER NULL,
+    CONSTRAINT fk_updated_by FOREIGN KEY (updated_by_id) REFERENCES "user"(id_user),
+  CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES "user"(id_user)
+);
+
+
+-- Enforce uniqueness:
+-- Each user can only have one row per key
+CREATE UNIQUE INDEX unique_user_setting_key
+ON settings(user_id, key)
+WHERE user_id IS NOT NULL;
+
+-- Only one global setting per key
+CREATE UNIQUE INDEX unique_global_setting_key
+ON settings(key)
+WHERE user_id IS NULL;
