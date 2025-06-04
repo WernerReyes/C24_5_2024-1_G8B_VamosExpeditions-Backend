@@ -88,6 +88,12 @@ export class SettingModel
   ): Promise<Prisma.settingsGetPayload<T>> {
     return await this.setting.update(args);
   }
+
+  public static async upsert<T extends Prisma.settingsUpsertArgs>(
+    args: Prisma.SelectSubset<T, Prisma.settingsUpsertArgs>
+  ): Promise<Prisma.settingsGetPayload<T>> {
+    return await this.setting.upsert(args);
+  }
 }
 
 export { setting_key_enum as SettingKeyEnum };

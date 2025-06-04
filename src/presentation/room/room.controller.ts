@@ -36,7 +36,6 @@ export class RoomController extends AppController {
   };
 
   public restoreRoom = (req: Request, res: Response) => {
-    console.log(req.params);
     this.handleError(this.roomService.restoreRoom(+req.params.id))
       .then((response) => res.status(200).json(response))
       .catch((error) => this.handleResponseError(res, error));

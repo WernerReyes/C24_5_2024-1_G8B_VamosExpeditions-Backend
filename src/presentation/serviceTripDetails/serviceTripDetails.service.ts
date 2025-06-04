@@ -48,7 +48,6 @@ export class ServiceTripDetailsService {
     tripDetailsId,
     startDate,
   }: UpdateManyDetailsTripDetailsByDateDto) {
-    console.log(tripDetailsId, startDate);
     const serviceTripDetails = await ServiceTripDetailsModel.findMany({
       where: {
         trip_details_id: tripDetailsId,

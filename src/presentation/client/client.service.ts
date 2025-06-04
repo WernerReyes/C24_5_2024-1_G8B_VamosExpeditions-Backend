@@ -12,12 +12,9 @@ export class ClientService {
   public async upsertClient(clientDto: ClientDto) {
     this.clientMapper.setDto = clientDto;
     if (!clientDto.id || clientDto.id === 0) {
-      console.log("clientDto", clientDto);
       const clientExists = await ClientModel.findFirst({
         where: { email: clientDto.email },
       });
-      console.log("clientExists", clientExists);
-      console.log("clientExists", clientExists);
       if (clientExists) {
         throw CustomError.badRequest("El cliente ya existe con ese email");
       }

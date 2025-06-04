@@ -17,8 +17,6 @@ export class GetServiceTypesDto extends PaginationDto {
   }): [string?, GetServiceTypesDto?] {
     const { page, limit, select } = props;
 
-    console.log(props);
-   
     const [pagError, pagDto] = PaginationDto.create({ page, limit });
     if (pagError) return [pagError, undefined];
 

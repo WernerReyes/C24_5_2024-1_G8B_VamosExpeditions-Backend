@@ -1,5 +1,5 @@
 import { CronAdapter } from "@/core/adapters";
-import { prisma, SettingKeyEnum, SettingModel } from "@/infrastructure/models";
+import { SettingKeyEnum, SettingModel } from "@/infrastructure/models";
 import { VersionQuotationCron } from "./versionQuotation/versionQuotation.cron";
 
 export interface CronJob {
@@ -37,7 +37,7 @@ export class AppCron {
       select: { value: true, updated_at: true },
     });
 
-    const lastCleanup = await prisma.settings.findFirst({
+    const lastCleanup = await SettingModel.findFirst({
       where: { key: SettingKeyEnum.LAST_CLEANUP_RUN },
       select: { value: true, id: true },
     });
@@ -53,24 +53,22 @@ export class AppCron {
     const diffDays = Math.floor(
       (now.getTime() - lastRunDate.getTime()) / (1000 * 3600 * 24)
     );
-
     if (diffDays >= days) {
       console.log(`🧹 Running data cleanup after ${diffDays} days`);
 
       const versionQuotationCron = new VersionQuotationCron();
       await versionQuotationCron.execute();
-
-      await prisma.settings.upsert({
+     
+      await SettingModel.upsert({
         where: {
-          id: lastCleanup?.id,
-          key: SettingKeyEnum.LAST_CLEANUP_RUN,
+          id: lastCleanup?.id ?? 0,
         },
         update: { value: now.toISOString() },
         create: {
           key: SettingKeyEnum.LAST_CLEANUP_RUN,
           value: now.toISOString(),
         },
-      });
+      })
     } else {
       console.log(`⏳ Only ${diffDays}/${days} days passed since last cleanup`);
     }

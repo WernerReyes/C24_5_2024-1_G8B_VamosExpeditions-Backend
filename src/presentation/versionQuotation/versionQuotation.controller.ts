@@ -151,7 +151,6 @@ export class VersionQuotationController extends AppController {
     const [error, idDto] = VersionQuotationIDDto.create(req.params);
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
-    console.log("idDto pdf", idDto);
     this.handleError(this.versionQuotationService.generatePdf(idDto!))
       .then((pdf) => {
         res.setHeader("Content-Type", "application/pdf");
@@ -168,7 +167,6 @@ export class VersionQuotationController extends AppController {
   public generateExcel = async (req: Request, res: Response) => {
 
     const [error, idDto] = VersionQuotationIDDto.create(req.params);
-    console.log("idDto excel", idDto);
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
 

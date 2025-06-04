@@ -79,7 +79,6 @@ export class InsertManyHotelAndRoomExcelDto {
   }
 
   static validateDataExcel(workbook: XLSX.WorkBook): string | undefined  {
-    console.log(workbook);
     
     
 

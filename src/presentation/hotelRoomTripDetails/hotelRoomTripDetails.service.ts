@@ -137,7 +137,7 @@ export class HotelRoomTripDetailsService {
         date: true,
       },
     });
-    console.log(hotelRoomTripDetails.length)
+   
     if (hotelRoomTripDetails.length === 0) return;
 
     const updatedManyHotelRoomTripDetails: IHotelRoomTripDetailsModel[] = [];
