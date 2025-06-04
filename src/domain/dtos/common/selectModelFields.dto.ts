@@ -1,6 +1,8 @@
 import {
+  ClientModel,
   type IRoleModel,
   type IUserModel,
+  PartnerModel,
   ReservationModel,
   RoleModel,
   ServiceModel,
@@ -52,6 +54,14 @@ export class SelectModelFieldsDto {
             case "reservation":
               return !ReservationModel.getString.includes(
                 field.trim() as keyof ReservationModel
+              );
+            case "client":
+              return !ClientModel.getString().includes(
+                field.trim() as keyof ClientModel
+              );
+            case "partner":
+              return !PartnerModel.getString.includes(
+                field.trim() as keyof PartnerModel
               );
 
             default:

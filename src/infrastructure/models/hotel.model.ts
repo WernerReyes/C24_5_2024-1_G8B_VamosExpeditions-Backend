@@ -24,6 +24,10 @@ export class HotelModel extends Model<IHotelModel> implements IHotelModel {
     public readonly address: string | null,
     public readonly created_at: Date,
     public readonly updated_at: Date,
+    public readonly deleted_at: Date | null = null,
+    public readonly  is_deleted: boolean = false,
+    public readonly delete_reason: string | null = null,
+
     public hotel_room: IHotelRoomModel[] = [],
     public distrit?: IDistrictModel
   ) {

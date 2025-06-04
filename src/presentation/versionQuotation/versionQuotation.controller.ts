@@ -151,7 +151,7 @@ export class VersionQuotationController extends AppController {
     const [error, idDto] = VersionQuotationIDDto.create(req.params);
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
-
+    console.log("idDto pdf", idDto);
     this.handleError(this.versionQuotationService.generatePdf(idDto!))
       .then((pdf) => {
         res.setHeader("Content-Type", "application/pdf");
@@ -166,7 +166,9 @@ export class VersionQuotationController extends AppController {
   };
 
   public generateExcel = async (req: Request, res: Response) => {
+
     const [error, idDto] = VersionQuotationIDDto.create(req.params);
+    console.log("idDto excel", idDto);
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
 
@@ -201,9 +203,9 @@ export class VersionQuotationController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  getExcelQuotationById = async (req: Request, res: Response) => {
+  /* getExcelQuotationById = async (req: Request, res: Response) => {
     this.handleError(this.versionQuotationService.getExcelQuotationById())
       .then((excel) => res.status(200).json(excel))
       .catch((error) => this.handleResponseError(res, error));
-  };
+  }; */
 }

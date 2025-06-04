@@ -1,3 +1,5 @@
+import * as XLSX from "xlsx";
+
 const headers = {
   HOTELS: ["id_hotel", "name", "category", "address", "distrit_id"],
   ROOMS: [
@@ -12,6 +14,7 @@ const headers = {
 };
 
 export class InsertManyHotelAndRoomExcelDto {
+  public SHEETS = Object.keys(headers);
   constructor(
     public readonly HOTELS: string[],
     public readonly ROOMS: string[]
@@ -74,4 +77,13 @@ export class InsertManyHotelAndRoomExcelDto {
       ),
     ];
   }
+
+  static validateDataExcel(workbook: XLSX.WorkBook): string | undefined  {
+    console.log(workbook);
+    
+    
+
+    return undefined;
+  }
+  
 }

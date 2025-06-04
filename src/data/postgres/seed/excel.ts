@@ -294,6 +294,9 @@ const getFormattedHotelFromExcel = (book: XLSX.WorkBook): hotel[] => {
       distrit_id: hotel.__EMPTY_3,
       created_at: new Date(),
       updated_at: new Date(),
+      deleted_at: null,
+      is_deleted: false,
+      delete_reason: null,
     }));
 };
 
@@ -317,6 +320,9 @@ const getFormattedHotelRoomFromExcel = (book: XLSX.WorkBook): hotel_room[] => {
       capacity: Math.floor(Math.random() * 10) + 1,
       created_at: new Date(),
       updated_at: new Date(),
+      deleted_at: null,
+      is_deleted: false,
+      delete_reason: null,
     }));
 };
 

@@ -7,7 +7,8 @@ export class GetHotelsPageDto extends PaginationDto {
     public readonly limit: number,
     public readonly name?: string,
     public readonly distrit?: string,
-    public readonly category?: string
+    public readonly category?: string,
+    public readonly isDeleted?: boolean,
   ) {
     super(page, limit);
   }
@@ -15,7 +16,7 @@ export class GetHotelsPageDto extends PaginationDto {
   public static create(props: {
     [key: string]: any;
   }): [string?, GetHotelsPageDto?] {
-    const { page, limit, name, distrit, category } = props;
+    const { page, limit, name, distrit, category,isDeleted } = props;
 
     const [error, paginationDto] = PaginationDto.create({ page, limit });
     if (error) return [error];
@@ -34,7 +35,10 @@ export class GetHotelsPageDto extends PaginationDto {
       const numberError = Validations.validateStringFields({ category });
       if (numberError) return [numberError];
     }
-
+    if (isDeleted) {
+      const errorIsDeleted = Validations.validateBooleanFields({ isDeleted });
+      if (errorIsDeleted) return [errorIsDeleted, undefined];
+    }
     return [
       undefined,
       new GetHotelsPageDto(
@@ -42,8 +46,10 @@ export class GetHotelsPageDto extends PaginationDto {
         paginationDto!.limit!,
         name,
         distrit,
-        category
+        category,
+        isDeleted ? isDeleted === "true" : undefined
       ),
     ];
   }
 }
+

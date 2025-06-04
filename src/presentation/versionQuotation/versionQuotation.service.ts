@@ -856,7 +856,7 @@ export class VersionQuotationService {
     );
   }
 
-  public async getExcelQuotationById() {
+  /* public async getExcelQuotationById() {
     const versionQuotation = await VersionQuotationModel.findUnique({
       where: {
         version_number_quotation_id: {
@@ -908,7 +908,7 @@ export class VersionQuotationService {
     });
 
     return versionQuotation;
-  }
+  } */
 
   public async generateExcel({ versionQuotationId }: VersionQuotationIDDto) {
     const versionQuotation = await VersionQuotationModel.findUnique({

@@ -11,14 +11,15 @@ export class HotelRoomEntity {
     public readonly rateUsd?: number,
     public readonly pricePen?: number,
     public readonly priceUsd?: number,
+    public readonly isDeleted?: boolean,
+    public readonly deletedAt?: Date,
+    public readonly deleteReason?: string,
     public readonly hotel?: HotelEntity
   ) {}
 
-  public static async fromObject(
-    hotelRoom: {
-      [key: string]: any;
-    }
-  ): Promise<HotelRoomEntity> {
+  public static async fromObject(hotelRoom: {
+    [key: string]: any;
+  }): Promise<HotelRoomEntity> {
     const {
       id_hotel_room,
       room_type,
@@ -28,6 +29,9 @@ export class HotelRoomEntity {
       rate_usd,
       price_pen,
       capacity,
+      is_deleted,
+      deleted_at,
+      delete_reason,
 
       hotel,
     } = hotelRoom as IHotelRoomModel;
@@ -41,6 +45,9 @@ export class HotelRoomEntity {
       Number(rate_usd) ?? undefined,
       Number(price_pen),
       Number(price_usd),
+      is_deleted ?? undefined,
+      deleted_at ?? undefined,
+      delete_reason ?? undefined,
       hotel ? await HotelEntity.fromObject(hotel) : undefined
     );
   }

@@ -1,16 +1,14 @@
+import { BcryptAdapter } from "@/core/adapters";
 import {
-  type city,
-  type country,
-  type distrit,
   type partner,
   type role,
   role_type,
+
   setting_key_enum,
-  settings,
-  type user,
+  type settings,
+
+  type user
 } from "@prisma/client";
-import { BcryptAdapter } from "@/core/adapters";
-import { HotelCategory, type IHotelModel } from "@/infrastructure/models";
 
 export const ROLES: Omit<role, "id_role">[] = [
   {
@@ -117,10 +115,17 @@ export const USERS: Omit<user, "id_user" | "id_role">[] = [
 
 export const PARNERTS: Omit<partner, "id">[] = [
   {
+  
+
     name: "Travel Local",
     created_at: new Date(),
+    updated_at: new Date(),
+    deleted_at: null,
+    is_deleted: false,
+    delete_reason: null,
   },
 ];
+
 
 export const DEFAULT_SETTINGS: Omit<settings, "id">[] = [
   {

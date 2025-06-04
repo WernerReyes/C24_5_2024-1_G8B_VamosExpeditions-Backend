@@ -15,3 +15,6 @@ postgres
 Dockerfile  
 LICENSE  
 docker-compose.yml
+Dockerfile.prod
+docker-compose.prod.ym
+

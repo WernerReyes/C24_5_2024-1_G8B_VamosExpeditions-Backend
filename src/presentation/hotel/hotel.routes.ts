@@ -6,6 +6,7 @@ import { Middleware } from "../middleware";
 import { HotelController } from "./hotel.controller";
 import { HotelService } from "./hotel.service";
 import { HotelMapper } from "./hotel.mapper";
+import { ImportHotelRoomExcel } from "./importHotelRoom.excel";
 
 
 // Configuración de Multer
@@ -18,7 +19,8 @@ export class HotelRoutes {
     const router = Router();
 
     const hotelMapper = new HotelMapper();
-    const hotelService = new HotelService(hotelMapper);
+    const importHotelRoomExcel = new ImportHotelRoomExcel();
+    const hotelService = new HotelService(hotelMapper, importHotelRoomExcel);
     const hotelController = new HotelController(hotelService);
 
     router.use(Middleware.validateToken);
@@ -30,11 +32,12 @@ export class HotelRoutes {
     router.post("/upload-excel-hotel-room",upload.single("file"), hotelController.uploadExcelHotelRoom);
 
 
-    // start create, update, delete hotel
+    //! start create, update, delete hotel
     router.post("/", hotelController.upsertHotel);
     router.put("/:id", hotelController.upsertHotel);
-    router.delete("/:id", hotelController.deleteHotel);
-    // end create, update, delete hotel
+    router.put("/:id/trash", hotelController.restoreHotel);
+    router.put("/:id/restore", hotelController.trashHotel);
+    //! end create, update, delete hotel
 
     return router;
   }

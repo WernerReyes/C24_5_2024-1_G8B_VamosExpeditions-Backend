@@ -22,9 +22,9 @@ export class EnvsConst {
   )
     .required()
     .asString();
-  public static readonly COOKIE_EXPIRATION = get("COOKIE_EXPIRATION")
+  public static readonly COOKIE_EXPIRATION = get("COOKIE_EXPIRATION") 
     .required()
-    .asIntPositive();
+    .asIntPositive() ?? 86400; 
   public static readonly CLIENT_URL = get("CLIENT_URL").required().asString();
   public static readonly JWT_SEED = get("JWT_SEED").required().asString();
   public static readonly JWT_DURATION = get("JWT_DURATION")

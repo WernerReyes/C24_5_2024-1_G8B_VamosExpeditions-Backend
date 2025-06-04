@@ -63,7 +63,6 @@ phone_number VARCHAR(20) NULL,
 id_role INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-
   -- Soft Delete
    is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
    deleted_at TIMESTAMP NULL DEFAULT NULL,
@@ -151,6 +150,9 @@ CREATE TABLE IF NOT EXISTS hotel (
   category VARCHAR(50) NOT NULL CHECK (category IN ('2','3', '4', '5', 'BOUTIQUE', 'VILLA', 'LODGE')),
   address VARCHAR(100) NULL,
   distrit_id INT NOT NULL,
+  is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+  delete_reason TEXT,
   CONSTRAINT fk_hotel_distrit FOREIGN KEY (distrit_id)
     REFERENCES distrit (id_distrit)
     ON DELETE NO ACTION
@@ -171,6 +173,9 @@ CREATE TABLE IF NOT EXISTS hotel_room (
   service_tax NUMERIC(6,2) NULL,
   rate_usd NUMERIC(10,2) NULL,
   price_pen NUMERIC(10,2) NULL,
+  is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+  delete_reason TEXT,
   capacity INT NOT NULL,
   hotel_id INT NOT NULL,
   CONSTRAINT fk_hotel_room_hotel FOREIGN KEY (hotel_id)
@@ -194,7 +199,10 @@ CREATE TABLE  IF NOT EXISTS  client (
     "phone" VARCHAR(30) NULL,
 	"subregion" VARCHAR(150) NOT NULL,
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Fecha de última actualización
+    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Fecha de última actualización
+       is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+   deleted_at TIMESTAMP NULL DEFAULT NULL,
+   delete_reason TEXT
 );
 
 
@@ -210,7 +218,7 @@ CREATE INDEX idx_email ON "client" ("email");
 CREATE TABLE IF NOT EXISTS quotation (
   id_quotation SERIAL PRIMARY KEY,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
   );
 
 -- -----------------------------------------------------
@@ -219,7 +227,11 @@ CREATE TABLE IF NOT EXISTS quotation (
 CREATE TABLE IF NOT EXISTS partner (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    delete_reason TEXT
 );
   
 -- -----------------------------------------------------

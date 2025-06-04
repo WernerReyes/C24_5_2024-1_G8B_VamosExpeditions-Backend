@@ -15,9 +15,11 @@ export class UserController extends AppController {
   }
 
   public getUsers = async (req: Request, res: Response) => {
+    
     const [error, getUsersDto] = GetUsersDto.create({
       ...req.query,
     });
+    
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
     this.handleError(this.userService.getUsers(getUsersDto!))
@@ -52,8 +54,8 @@ export class UserController extends AppController {
 
   public restoreUser = async (req: Request, res: Response) => {
     this.handleError(this.userService.restoreUser(+req.params.id))
-     .then((user) => res.status(200).json(user))
-     .catch((error) => this.handleResponseError(res, error));
+      .then((user) => res.status(200).json(user))
+      .catch((error) => this.handleResponseError(res, error));
   };
 
   public changePassword = async (req: Request, res: Response) => {

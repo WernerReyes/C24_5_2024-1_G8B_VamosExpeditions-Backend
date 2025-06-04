@@ -5,6 +5,8 @@ export * from "./auth/disconnectDevice.dto";
 
 //* CLIENT
 export * from "./client/client.dto";
+export * from './client/getClient'
+
 
 //* COMMON
 export * from "./common/pagination.dto";
@@ -62,3 +64,9 @@ export * from "./role/getRoles.dto";
 
 //* SETTINGS
 export * from "./setting/updateSetting.dto";
+export * from './role/getRoles.dto';
+
+
+//! pantner
+export * from './partner/getPartner.dto';
+export * from './partner/partner.dto';

@@ -5,14 +5,11 @@ import {
   GetHotelsDto,
   GetHotelsPageDto,
   HotelDto,
-  PaginationDto,
-  RoomDto,
+  TrashDto,
 } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
-import path from "path";
 import * as XLSX from "xlsx";
 import { InsertManyHotelExcelDto } from "../../domain/dtos/hotel/insertManyHotelExcel.dto";
-import { HotelRoomType } from "@/domain/enum";
 import { InsertManyHotelAndRoomExcelDto } from "@/domain/dtos/hotel/insertManyHotelAndRoomExcel.dto";
 
 export class HotelController extends AppController {
@@ -83,7 +80,7 @@ export class HotelController extends AppController {
         );
         res.setHeader(
           "Content-Disposition",
-          "attachment; filename=hotels.xlsx"
+          "attachment; filename=hotels.xlsx" 
         );
 
         res.end(response);
@@ -97,7 +94,7 @@ export class HotelController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  // start getAllHotelsRoomsAndDistricts
+  //! start getAllHotelsRoomsAndDistricts
   public getAllHotelsRoomsAndDistricts = async (
     req: Request,
     res: Response
@@ -112,7 +109,7 @@ export class HotelController extends AppController {
       .then((response) => res.status(200).json(response))
       .catch((error) => this.handleResponseError(res, error));
   };
-  // end getAllHotelsRoomsAndDistricts
+  //! end getAllHotelsRoomsAndDistricts
 
   //
   public uploadExcelHotelRoom = async (req: Request, res: Response) => {
@@ -148,6 +145,7 @@ export class HotelController extends AppController {
       this.handleResponseError(res, CustomError.badRequest(error));
       return;
     }
+    //this.validateDataExcel(workbook);
 
     return this.handleError(
       this.HotelService.uploadExcelHotelRoom(
@@ -156,17 +154,19 @@ export class HotelController extends AppController {
       )
     )
       .then((response) => {
-        if (response.success) {
+        if (response && response.success) {
+          res.setHeader(
+            "Content-Disposition",
+            `attachment; filename="${response.fileName}"`
+          );
           res.setHeader(
             "Content-Type",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           );
-          res.setHeader(
-            "Content-Disposition",
-            "attachment; filename=hotels.xlsx"
-          );
+
           res.end(response.buffer);
         } else {
+        
           res.setHeader("Content-Type", "application/json");
           res.status(response.status).json({ error: response.message });
         }
@@ -174,6 +174,7 @@ export class HotelController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
+  //! start create ,update,delete,restore
   public upsertHotel = (req: Request, res: Response) => {
     const [error, hotelDto] = HotelDto.create({
       ...req.body,
@@ -186,5 +187,24 @@ export class HotelController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public deleteHotel = (req: Request, res: Response) => {};
+  //! delete logic
+  public trashHotel = (req: Request, res: Response) => {
+    const [error, trashDto] = TrashDto.create({
+      ...req.body,
+      id: req.params.id,
+    });
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+    this.handleError(this.HotelService.trashHotel(trashDto!))
+      .then((response) => res.status(200).json(response))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public restoreHotel = (req: Request, res: Response) => {
+    this.handleError(this.HotelService.restoreHotel(+req.params.id))
+      .then((response) => res.status(200).json(response))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  //! end create,update,delete,restore
 }

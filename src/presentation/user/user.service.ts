@@ -18,6 +18,7 @@ import {
 import type { UserMailer } from "./user.mailer";
 
 export class UserService {
+
   constructor(
     private readonly userMapper: UserMapper,
     private readonly userMailer: UserMailer
@@ -96,7 +97,6 @@ export class UserService {
           return user;
         })
         .catch((error) => {
-          console.log(error)
           if (error.code === "P2002") {
             throw CustomError.badRequest("El correo ya está en uso");
           }
