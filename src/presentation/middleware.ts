@@ -31,7 +31,7 @@ export class Middleware {
         id: string;
         deviceId: string;
       }>(token);
-
+     
       if (!payload) {
         return res.status(401).json({
           ok: false,
@@ -122,10 +122,10 @@ export class Middleware {
       const token = cookie.parse(cookies)[EnvsConst.TOKEN_COOKIE_NAME];
       if (!token) return next(new Error("Token is required"));
 
-      const payload = await JwtAdapter.verifyToken<{ id: string }>(token);
+      const payload = await JwtAdapter.verifyToken<{ id: string, deviceId: string }>(token);
       if (!payload) return next(new Error("Invalid token"));
 
-      socket.data = { id: payload.id };
+      socket.data = { id: payload.id, deviceId: payload.deviceId };
       next();
     } catch (error) {
       next(new Error("Invalid token"));

@@ -1,4 +1,6 @@
-import { IBrowser, IDevice, IOS, UAParser } from "ua-parser-js";
+import { AuthUser } from "@/presentation/auth/auth.context";
+import { type IBrowser, type IOS, type IResult, UAParser } from "ua-parser-js";
+import { v4 as uuidv4 } from "uuid";
 
 export class UAParserAdapter {
   static getBrowser(userAgent: string): IBrowser {
@@ -13,12 +15,23 @@ export class UAParserAdapter {
     return os;
   }
 
-  static generateDeviceId(userAgent: string, browserName: string): string {
-    const browserVersion = this.getBrowser(userAgent).version ?? "0";
+  static getInfo(userAgent: string): IResult {
+    const parser = new UAParser(userAgent);
+    const result = parser.getResult();
+    return result;
+  }
 
-
-    const os = this.getOSName(userAgent);
-
-    return `${browserName}_${parseInt(browserVersion)}_${os.name}`;
+  static generateDevice(
+    userAgent: string,
+    browserName: string
+  ): AuthUser["device"] {
+    const info = this.getInfo(userAgent);
+    return {
+      id: uuidv4(),
+      name: browserName,
+      version: info.browser.version?? "0",
+      model: info.os.name ?? "Unknown",
+      createdAt: new Date(),
+    };
   }
 }

@@ -1,35 +1,22 @@
+import { CacheAdapter } from "@/core/adapters";
 import { SocketService } from "@/infrastructure";
 import { Socket } from "socket.io";
 import { UserContext } from "../user/user.context";
-import { UAParserAdapter } from "@/core/adapters";
-
+import type { AuthUser } from "./auth.context";
 
 export class AuthSocket {
   private _socketService = SocketService.instance;
 
-  private getDeviceId(socket: Socket) {
-    const userAgent = socket.request.headers["user-agent"];
-    const browserName = socket.handshake.auth.browserName;
-
-    const deviceId = UAParserAdapter.generateDeviceId(
-      userAgent as string,
-      browserName as string
-    );
-
-    return deviceId;
-  }
-
   async loginSocket(socket: Socket) {
     socket.join(String(socket.data.id));
 
-    const deviceId = this.getDeviceId(socket);
-
+ 
     //* Save user connection
-    await UserContext.addConnection(socket.data.id, deviceId);
+    await UserContext.addConnection(socket.data.id, socket.data.deviceId);
 
     this._socketService.io.emit("userConnected", {
       userId: socket.data.id,
-      devices: this.devices,
+      devices: await this.devices(),
     });
   }
 
@@ -37,14 +24,13 @@ export class AuthSocket {
     const connections = UserContext.getConnectionsByUser(socket.data.id);
     if (!connections) return;
 
-    const deviceId = this.getDeviceId(socket);
 
     //* Remove user connection from cache
-    connections.delete(deviceId);
+    connections.delete(socket.data.deviceId);
 
     this._socketService.io.emit("deviceDisconnected", {
       userId: socket.data.id,
-      devices: this.devices,
+      devices: await this.devices(),
     });
 
     if (connections.size === 0) {
@@ -53,12 +39,39 @@ export class AuthSocket {
     }
   }
 
-  private get devices() {
-    const devices = UserContext.getConnections();
+  private async devices() {
+    const data = await CacheAdapter.getInstance().scan("userInfo:*");
 
-    return Array.from(devices).map(([userId, devices]) => ({
-      ids: devices ? Array.from(devices) : [],
-      userId: userId,
-    }));
+    if (data.length === 0) return [];
+    const values = await CacheAdapter.getInstance().mGet<AuthUser>(data);
+    
+    const connections = Array.from(UserContext.getConnections());
+    const flattened = connections.flatMap(([_, set]) => Array.from(set));
+
+    const groupedDevices: {
+      [userId: string]: AuthUser["device"][];
+      
+    } = {};
+
+    for (const value of values) {
+      if (!value) continue;
+
+      const userId = value.id;
+      const device = {
+        ...value.device,
+        isOnline: flattened.includes(value.device.id),
+      
+            // Laste connection
+      };
+
+      if (!groupedDevices[userId]) {
+        groupedDevices[userId] = [device]
+        
+      } else {
+        groupedDevices[userId].push(device);
+      }
+    }
+
+    return groupedDevices;
   }
 }

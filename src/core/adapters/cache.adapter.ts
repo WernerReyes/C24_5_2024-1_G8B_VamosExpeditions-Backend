@@ -43,7 +43,7 @@ export class CacheAdapter {
     return CacheAdapter.instance;
   }
 
-  public  clearAll(): void {
+  public clearAll(): void {
     this.cache.flushAll();
   }
 
@@ -86,6 +86,11 @@ export class CacheAdapter {
     return Object.entries(data).map(([key, value]) => JSON.parse(value));
   }
 
+  public async mGet<T>(keys: string[]): Promise<T[]> {
+    const data = await this.cache.mGet(keys);
+    return data.map((item) => JSON.parse(item!));
+  }
+
   public async sRem(key: string, value: any): Promise<void> {
     await this.cache.sRem(key, JSON.stringify(value));
   }
@@ -116,4 +121,20 @@ export class CacheAdapter {
   public async zRem(key: string, value: any): Promise<void> {
     await this.cache.zRem(key, value);
   }
+
+  public async scan(match: string, count?: number) {
+    let cursor = 0;
+    let keys: string[] = [];
+    do {
+      const { cursor: nextCursor, keys: k } = await this.cache.scan(cursor, {
+        MATCH: match,
+        COUNT: count,
+      });
+      cursor = +nextCursor;
+      keys = [...k];
+    } while (cursor !== 0);
+
+    return keys;
+  }
+
 }

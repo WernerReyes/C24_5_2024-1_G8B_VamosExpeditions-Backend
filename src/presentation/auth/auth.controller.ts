@@ -1,18 +1,17 @@
-import type { Request, Response } from "express";
-import { AppController } from "../controller";
 import { EnvsConst } from "@/core/constants";
+import { Validations } from "@/core/utils";
 import { DisconnectDeviceDto, LoginDto, ResetPasswordDto } from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
-import { AuthService } from "./auth.service";
+import type { Request, Response } from "express";
+import { AppController } from "../controller";
 import type { RequestAuth } from "../middleware";
-import { Validations } from "@/core/utils";
-import { UAParserAdapter } from "@/core/adapters";
+import { AuthService } from "./auth.service";
 
 export class AuthController extends AppController {
   constructor(private readonly authService: AuthService) {
     super();
   }
-  private setCookie = (res: Response, token: string) => {
+  private setCookie = (res: Response, token: string, deviceId: string) => {
     const expires = EnvsConst.COOKIE_EXPIRATION; //* 24 hours
     const expiresAt = new Date(Date.now() + expires); //* 24 hours
 
@@ -49,27 +48,36 @@ export class AuthController extends AppController {
       path: "/",
     });
 
+    //* Set an additional non-HTTP-only cookie for deviceId
+    res.cookie(EnvsConst.DEVICE_COOKIE_NAME, deviceId, {
+      httpOnly: false, // Allow client-side access
+      secure: EnvsConst.NODE_ENV === "production", // Change from false
+      expires: expiresAt,
+      sameSite: EnvsConst.NODE_ENV === "production"? "none" : undefined,
+      path: "/",
+    })
+
     return {
       expiresAt: expiresAt.toISOString(),
     };
   };
 
   public login = async (req: Request, res: Response) => {
-    const [error, loginDto] = LoginDto.create(req.body);
+    const [error, loginDto] = LoginDto.create({
+      ...req.body,
+      userAgent: req.headers["user-agent"],
+      browserName: req.headers["browser-name"],
+    });
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
 
-    const userAgent = req.headers["user-agent"];
-    const browserName = req.headers["browser-name"];
-
-    const deviceId = UAParserAdapter.generateDeviceId(
-      userAgent as string,
-      browserName as string
-    );
-
-    this.handleError(this.authService.login(loginDto!, deviceId))
+    this.handleError(this.authService.login(loginDto!))
       .then((response) => {
-        const { expiresAt } = this.setCookie(res, response.data.token);
+        const { expiresAt } = this.setCookie(
+          res,
+          response.data.token,
+          response.data.deviceId
+        );
 
         return res.status(200).json({
           message: response.message,
@@ -118,7 +126,7 @@ export class AuthController extends AppController {
   public reLogin = async (req: RequestAuth, res: Response) => {
     this.handleError(this.authService.reLogin(req.user.id))
       .then((response) => {
-        const { expiresAt } = this.setCookie(res, response.data.token);
+        const { expiresAt } = this.setCookie(res, response.data.token, ""); //  TODO: Missing deviceId
 
         return res.status(200).json({
           message: response.message,
@@ -149,6 +157,7 @@ export class AuthController extends AppController {
     res.clearCookie(EnvsConst.TOKEN_COOKIE_NAME);
     res.clearCookie(EnvsConst.EXPIRATION_TOKEN_COOKIE_NAME);
     res.clearCookie(EnvsConst.REFRESH_TOKEN_COOKIE_NAME);
+    res.clearCookie(EnvsConst.DEVICE_COOKIE_NAME);
     this.authService
       .logout(req.user)
       .then((response) => res.status(200).json(response))

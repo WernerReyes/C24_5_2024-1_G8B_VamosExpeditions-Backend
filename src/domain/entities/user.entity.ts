@@ -17,10 +17,7 @@ export class UserEntity {
     public readonly isDeleted?: boolean,
     public readonly deletedAt?: Date,
     public readonly deleteReason?: string,
-    public readonly activeDevices?: {
-      deviceId: string;
-      isOnline?: boolean;
-    }[]
+    
   ) {}
 
   public static async fromObject(user: {
@@ -38,11 +35,8 @@ export class UserEntity {
       is_deleted,
       deleted_at,
       delete_reason,
-      showDevices = false,
-    } = user as IUserModel & {
-      showDevices?: boolean;
-    };
-
+     
+    } = user as IUserModel
     return new UserEntity(
       id_user,
       fullname,
@@ -56,12 +50,7 @@ export class UserEntity {
       is_deleted ?? undefined,
       deleted_at ?? undefined,
       delete_reason ?? undefined,
-      showDevices
-        ? (await AuthContext.getActiveDevices(id_user)).map((device) => ({
-            deviceId: device,
-            isOnline: true,
-          }))
-        : undefined
+      
     );
   }
 }

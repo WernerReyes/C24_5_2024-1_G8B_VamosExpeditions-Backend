@@ -48,10 +48,7 @@ export class UserService {
       new PaginatedResponse(
         await Promise.all(
           users.map((user) =>
-            UserEntity.fromObject({
-              ...user,
-              showDevices: getUsersDto.showDevices,
-            })
+            UserEntity.fromObject(user)
           )
         ),
         page,

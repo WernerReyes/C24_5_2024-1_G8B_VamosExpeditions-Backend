@@ -9,7 +9,6 @@ export class GetUsersDto extends PaginationDto {
   private constructor(
     public readonly page: number,
     public readonly limit: number,
-    public readonly showDevices: boolean = false,
     public readonly fullname?: string,
     public readonly email?: string,
     public readonly phoneNumber?: string,
@@ -33,7 +32,6 @@ export class GetUsersDto extends PaginationDto {
       role,
       createdAt,
       updatedAt,
-      showDevices,
       isDeleted
     } = props;
 
@@ -90,19 +88,13 @@ export class GetUsersDto extends PaginationDto {
       if (errorIsDeleted) return [errorIsDeleted, undefined];
     }
 
-    if (showDevices) {
-      const errorShowDevices = Validations.validateBooleanFields({
-        showDevices,
-      });
-      if (errorShowDevices) return [errorShowDevices, undefined];
-    }
+   
 
     return [
       undefined,
       new GetUsersDto(
         dtoPag!.page!,
         dtoPag!.limit!,
-        showDevices,
         fullname,
         email,
         phoneNumber,

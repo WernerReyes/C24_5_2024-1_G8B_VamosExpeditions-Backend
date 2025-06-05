@@ -42,12 +42,12 @@ export class SocketService {
     const userAgent = socket.request.headers["user-agent"];
     const browserName = socket.handshake.auth.browserName;
 
-    const deviceId = UAParserAdapter.generateDeviceId(
-      userAgent as string,
-      browserName as string
-    );
+    // const deviceId = UAParserAdapter.generateDeviceId(
+    //   userAgent as string,
+    //   browserName as string
+    // );
 
-    return deviceId;
+    return "deviceId";
   }
 
   initEvents() {
@@ -55,9 +55,13 @@ export class SocketService {
       try {
         const userId = socket.data.id;
 
-        const deviceId = this.getDeviceId(socket);
+        console.log(socket.data.deviceId)
+
+        const deviceId = socket.data.deviceId
         if (!UserContext.isOnline(userId)) {
-          UserContext.addConnection(userId, deviceId);
+          UserContext.addConnection(userId, 
+            deviceId, // TODO: CHECK THIS
+          );
         }
 
         const [authSocket, notificationSocket] = this.appSocket.sockets;

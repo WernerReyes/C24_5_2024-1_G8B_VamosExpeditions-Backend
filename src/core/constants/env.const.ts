@@ -22,6 +22,11 @@ export class EnvsConst {
   )
     .required()
     .asString();
+
+  public static readonly DEVICE_COOKIE_NAME = get("DEVICE_COOKIE_NAME")
+   .required()
+   .asString();
+
   public static readonly COOKIE_EXPIRATION = get("COOKIE_EXPIRATION") 
     .required()
     .asIntPositive() ?? 86400; 

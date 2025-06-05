@@ -2,16 +2,16 @@ import { EnvsConst } from "@/core/constants";
 import { DisconnectDeviceDto, LoginDto, ResetPasswordDto } from "@/domain/dtos";
 import { UserEntity } from "@/domain/entities";
 import { CustomError } from "@/domain/error";
+import { UserModel } from "@/infrastructure/models";
 import { BcryptAdapter, JwtAdapter } from "../../core/adapters";
 import { ApiResponse } from "../response";
 import { AuthContext, AuthUser } from "./auth.context";
 import type { AuthMailer } from "./auth.mailer";
-import { UserModel } from "@/infrastructure/models";
 
 export class AuthService {
   constructor(private readonly authMailer: AuthMailer) {}
 
-  public async login(loginDto: LoginDto, deviceId: string) {
+  public async login(loginDto: LoginDto) {
     const user = await UserModel.findUnique({
       where: {
         email: loginDto.email,
@@ -33,7 +33,7 @@ export class AuthService {
     //* Generate token
     const token = (await JwtAdapter.generateToken({
       id: user.id_user,
-      deviceId,
+      deviceId: loginDto.device.id,
     })) as string;
     if (!token) throw CustomError.internalServer("Error generating token");
 
@@ -41,18 +41,20 @@ export class AuthService {
     await AuthContext.authenticateUser({
       id: user.id_user,
       role: user.role.name,
-      deviceId,
+      device: loginDto.device,
     });
 
     return new ApiResponse<{
       user: UserEntity;
       token: string;
+      deviceId: string;
     }>(200, "Usuario autenticado", {
       user: await UserEntity.fromObject({
-       ...user,
+        ...user,
         showDevices: true,
       }),
       token,
+      deviceId: loginDto.device.id,
     });
   }
 
@@ -151,8 +153,8 @@ export class AuthService {
     }>(200, "Usuario autenticado", {
       user: await UserEntity.fromObject({
         ...user,
-         showDevices: true,
-       }),
+        showDevices: true,
+      }),
       token,
     });
   }
@@ -175,10 +177,7 @@ export class AuthService {
     return new ApiResponse<{
       user: UserEntity;
     }>(200, "Usuario autenticado", {
-      user: await UserEntity.fromObject({
-        ...user,
-        showDevices: true,
-      }),
+      user: await UserEntity.fromObject(user),
     });
   }
 

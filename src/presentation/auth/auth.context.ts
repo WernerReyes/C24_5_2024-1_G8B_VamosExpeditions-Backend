@@ -11,7 +11,13 @@ import { SocketService } from "@/infrastructure";
 export type AuthUser = {
   id: UserEntity["id"];
   role: RoleEnum;
-  deviceId: string;
+  device: {
+    id: string;
+    model?: string;
+    version?: string;
+    name: string;
+    createdAt: Date;
+  };
 };
 
 export class AuthContext {
@@ -31,11 +37,15 @@ export class AuthContext {
     return !!this.cache;
   }
 
+  private static getKey(userId: UserEntity["id"], deviceId: string) {
+    return `userInfo:${userId}:${deviceId}`;
+  }
+
   public static async getAuthenticatedUser(
     userId: AuthUser["id"],
-    deviceId: AuthUser["deviceId"]
+    deviceId: AuthUser["device"]["id"]
   ): Promise<AuthUser | undefined | null> {
-    const key = `user:${userId}:${deviceId}`;
+    const key = this.getKey(userId, deviceId);
     await new Promise((resolve) => {
       setTimeout(() => {
         resolve(true);
@@ -45,11 +55,9 @@ export class AuthContext {
   }
 
   public static async authenticateUser(user: AuthUser) {
-    const { id: userId, deviceId } = user;
+    const { id: userId, device } = user;
 
-    const key = `user:${userId}:${deviceId}`;
-    const devicesKey = `user:${userId}:devices`;
-    const zsetKey = `user:${userId}:device_timestamps`;
+    const key = this.getKey(userId, device.id);
 
     // Obtener dispositivos activos ordenados por tiempo
     const devices = await this.getActiveDevicesSorted(userId);
@@ -66,20 +74,17 @@ export class AuthContext {
 
     // Eliminar el dispositivo más antiguo si se supera el límite
     if (devices.length >= Number(maxDevices!.value)) {
-      const [oldestDeviceId] =
-        (await this.cache?.zRange<string>(zsetKey, 0, 0)) ?? [];
+      const oldestDeviceId = devices[devices.length - 1].split(":")[2];
+      console.log({
+        oldestDeviceId,
+      });
       if (oldestDeviceId) {
-        await Promise.all([
-          this.cache?.del(`user:${userId}:${oldestDeviceId}`),
-          this.cache?.sRem(devicesKey, oldestDeviceId),
-          this.cache?.zRem(zsetKey, oldestDeviceId),
-        ]);
-
-        // Emitir evento a través de SocketService
-        this._socketService?.io.to(userId.toString()).emit("force-logout", {
-          newDeviceId: deviceId,
-          oldDeviceId: oldestDeviceId,
-        });
+        await this.cache?.del(this.getKey(userId, oldestDeviceId)),
+          // Emitir evento a través de SocketService
+          this._socketService?.io.to(userId.toString()).emit("force-logout", {
+            newDeviceId: device.id,
+            oldDeviceId: oldestDeviceId,
+          });
       }
     }
 
@@ -90,75 +95,46 @@ export class AuthContext {
         EX: this._expirationTime,
       }
     );
-
-    // Registrar dispositivo en SET y ZSET
-    await this.cache?.sAdd(devicesKey, deviceId);
-
-    const now = Math.floor(Date.now() / 1000);
-    await this.cache?.zAdd(zsetKey, {
-      score: now,
-      value: deviceId,
-    });
   }
 
   private static async getActiveDevicesSorted(
     userId: number
   ): Promise<string[]> {
-    const devicesKey = `user:${userId}:devices`;
-    const zsetKey = `user:${userId}:device_timestamps`;
+    const deviceIds =
+      (await this.cache?.scan(`userInfo:${userId}:*`)) ?? [];
 
-    const deviceIds = (await this.cache?.sMembers<string>(devicesKey)) ?? [];
+    if (deviceIds.length === 0) return [];
 
-    const existenceChecks = await Promise.all(
-      deviceIds.map((id) => this.cache?.exists(`user:${userId}:${id}`))
-    );
+    const values = await this.cache?.mGet<AuthUser>(deviceIds);
 
-    const activeDeviceIds: string[] = [];
+    //* Sort devices by timestamp from newest to oldest
+    const sortedDeviceIds = values
+      ?.map((value, index) => ({
+        id: deviceIds[index],
+        timestamp: new Date(value?.device.createdAt).getTime(),
+      }))
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .map((item) => item.id);
 
-    for (let i = 0; i < deviceIds.length; i++) {
-      const deviceId = deviceIds[i];
-      if (existenceChecks[i]) {
-        activeDeviceIds.push(deviceId);
-      } else {
-        // Limpiar entradas expiradas
-        await Promise.all([
-          this.cache?.sRem(devicesKey, deviceId),
-          this.cache?.zRem(zsetKey, deviceId),
-        ]);
-      }
-    }
-
-    return activeDeviceIds;
-  }
-
-  public static async getActiveDevices(
-    userId: UserEntity["id"]
-  ): Promise<string[]> {
-    const devicesKey = `user:${userId}:devices`;
-    const devices = (await this.cache?.sMembers<string>(devicesKey)) ?? [];
-    return devices;
+    return sortedDeviceIds ?? [];
   }
 
   public static async disconnectDevice(
     userId: UserEntity["id"],
     deviceId: string
   ) {
-    const key = `user:${userId}:${deviceId}`;
-    await this.cache?.del(key)
-    await this.cache?.sRem(`user:${userId}:devices`, deviceId);
-    await this.cache?.zRem(`user:${userId}:device_timestamps`, deviceId);
+    const key = this.getKey(userId, deviceId);
+    await this.cache?.del(key);
 
-     // Emitir evento a través de SocketService
-     this._socketService?.io.to(userId.toString()).emit("disconnect-device", deviceId);
+    // Emitir evento a través de SocketService
+    this._socketService?.io
+      .to(userId.toString())
+      .emit("disconnect-device", deviceId);
   }
 
   public static async deauthenticateUser(user: AuthUser) {
-    const { id, deviceId } = user;
-    const key = `user:${id}:${deviceId}`;
+    const { id, device } = user;
+    const key = this.getKey(id, device.id);
     await this.cache?.del(key);
-    // this._authUsers.delete(id);
-
-    await this.cache?.sRem(`user:${id}:devices`, deviceId);
-    await this.cache?.zRem(`user:${id}:device_timestamps`, deviceId);
   }
 }
