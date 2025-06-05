@@ -10,6 +10,7 @@ import { ModelInitializer } from "./infrastructure/models";
 
 const ORIGINS = [
   EnvsConst.CLIENT_URL,
+  "https://vamos-expeditions-wernerreyes-projects.vercel.app",
   "https://c24-5-2024-1-g8b-vamosexpeditions-backend.onrender.com",
   "http://localhost:8000",
   "http://192.168.100.130:5173",

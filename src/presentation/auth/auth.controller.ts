@@ -11,7 +11,7 @@ export class AuthController extends AppController {
   constructor(private readonly authService: AuthService) {
     super();
   }
-  private setCookie = (res: Response, token: string, deviceId: string) => {
+  private setCookie = (res: Response, token: string) => {
     const expires = EnvsConst.COOKIE_EXPIRATION; //* 24 hours
     const expiresAt = new Date(Date.now() + expires); //* 24 hours
 
@@ -37,7 +37,7 @@ export class AuthController extends AppController {
         expires: expiresAt,
         sameSite: EnvsConst.NODE_ENV === "production" ? "none" : undefined,
         path: "/",
-        domain: "vamosexpeditions.netlify.app",
+      
        
       }
     );
@@ -50,15 +50,6 @@ export class AuthController extends AppController {
       path: "/",
     });
 
-    //* Set an additional non-HTTP-only cookie for deviceId
-    res.cookie(EnvsConst.DEVICE_COOKIE_NAME, deviceId, {
-      httpOnly: false, // Allow client-side access
-      secure: EnvsConst.NODE_ENV === "production", // Change from false
-      expires: expiresAt,
-      sameSite: EnvsConst.NODE_ENV === "production"? "none" : undefined,
-      path: "/",
-      domain: "vamosexpeditions.netlify.app",
-    })
 
     return {
       expiresAt: expiresAt.toISOString(),
@@ -79,7 +70,7 @@ export class AuthController extends AppController {
         const { expiresAt } = this.setCookie(
           res,
           response.data.token,
-          response.data.deviceId
+          
         );
 
         return res.status(200).json({
@@ -88,6 +79,7 @@ export class AuthController extends AppController {
           data: {
             user: response.data.user,
             expiresAt,
+            deviceId: response.data.deviceId
           },
         });
       })
@@ -129,7 +121,7 @@ export class AuthController extends AppController {
   public reLogin = async (req: RequestAuth, res: Response) => {
     this.handleError(this.authService.reLogin(req.user.id))
       .then((response) => {
-        const { expiresAt } = this.setCookie(res, response.data.token, ""); //  TODO: Missing deviceId
+        const { expiresAt } = this.setCookie(res, response.data.token);
 
         return res.status(200).json({
           message: response.message,
@@ -160,7 +152,6 @@ export class AuthController extends AppController {
     res.clearCookie(EnvsConst.TOKEN_COOKIE_NAME);
     res.clearCookie(EnvsConst.EXPIRATION_TOKEN_COOKIE_NAME);
     res.clearCookie(EnvsConst.REFRESH_TOKEN_COOKIE_NAME);
-    res.clearCookie(EnvsConst.DEVICE_COOKIE_NAME);
     this.authService
       .logout(req.user)
       .then((response) => res.status(200).json(response))
@@ -177,6 +168,7 @@ export class AuthController extends AppController {
           data: {
             user: response.data.user,
             expiresAt,
+            deviceId: req.user.device.id
           },
         });
       })
