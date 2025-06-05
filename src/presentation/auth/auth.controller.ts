@@ -36,7 +36,8 @@ export class AuthController extends AppController {
         secure: EnvsConst.NODE_ENV === "production", // Change from false
         expires: expiresAt,
         sameSite: EnvsConst.NODE_ENV === "production" ? "none" : undefined,
-        path: "/",
+        path: "vamosexpeditions.netlify.app",
+       
       }
     );
 
@@ -54,7 +55,7 @@ export class AuthController extends AppController {
       secure: EnvsConst.NODE_ENV === "production", // Change from false
       expires: expiresAt,
       sameSite: EnvsConst.NODE_ENV === "production"? "none" : undefined,
-      path: "/",
+      path: "vamosexpeditions.netlify.app",
     })
 
     return {
