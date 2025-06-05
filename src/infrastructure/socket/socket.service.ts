@@ -38,17 +38,6 @@ export class SocketService {
     return SocketService._instance;
   }
 
-  private getDeviceId(socket: Socket) {
-    const userAgent = socket.request.headers["user-agent"];
-    const browserName = socket.handshake.auth.browserName;
-
-    // const deviceId = UAParserAdapter.generateDeviceId(
-    //   userAgent as string,
-    //   browserName as string
-    // );
-
-    return "deviceId";
-  }
 
   initEvents() {
     this.io.on("connection", async (socket: Socket) => {

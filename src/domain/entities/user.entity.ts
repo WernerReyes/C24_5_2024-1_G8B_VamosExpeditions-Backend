@@ -1,5 +1,5 @@
 import type { IUserModel } from "@/infrastructure/models";
-import { AuthContext } from "@/presentation/auth/auth.context";
+import { AuthContext, AuthUser } from "@/presentation/auth/auth.context";
 import { UserContext } from "@/presentation/user/user.context";
 import { RoleEntity } from "./role.entity";
 
@@ -17,7 +17,6 @@ export class UserEntity {
     public readonly isDeleted?: boolean,
     public readonly deletedAt?: Date,
     public readonly deleteReason?: string,
-    
   ) {}
 
   public static async fromObject(user: {
@@ -35,7 +34,6 @@ export class UserEntity {
       is_deleted,
       deleted_at,
       delete_reason,
-     
     } = user as IUserModel
     return new UserEntity(
       id_user,
@@ -50,7 +48,6 @@ export class UserEntity {
       is_deleted ?? undefined,
       deleted_at ?? undefined,
       delete_reason ?? undefined,
-      
-    );
+        );
   }
 }
