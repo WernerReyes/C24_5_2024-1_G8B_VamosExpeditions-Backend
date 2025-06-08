@@ -75,6 +75,7 @@ id_role INT NOT NULL,
    is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
    deleted_at TIMESTAMP NULL DEFAULT NULL,
    delete_reason TEXT,
+   twofasecret TEXT NULL,
   
 CONSTRAINT fk_user_role FOREIGN KEY (id_role)
 REFERENCES role (id_role)
@@ -477,8 +478,10 @@ WHERE v.status = 'APPROVED' AND v.official = TRUE;
 CREATE TYPE setting_key_enum AS ENUM (
   'MAX_ACTIVE_SESSIONS',
   'DATA_CLEANUP_PERIOD',
-  'LAST_CLEANUP_RUN'
+  'LAST_CLEANUP_RUN',
+  'TWO_FACTOR_AUTH'
 );
+
 
 CREATE TABLE settings (
     id SERIAL PRIMARY KEY,
