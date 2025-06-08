@@ -1,10 +1,16 @@
 import { EnvsConst } from "@/core/constants";
 import { Validations } from "@/core/utils";
-import { DisconnectDeviceDto, LoginDto, ResetPasswordDto } from "@/domain/dtos";
+import {
+  DisconnectDeviceDto,
+  LoginDto,
+  ResetPasswordDto,
+  Verify2FAAndAuthenticateUserDto,
+  Verify2FAEmailAndAuthenticateUserDto,
+} from "@/domain/dtos";
 import { CustomError } from "@/domain/error";
 import type { Request, Response } from "express";
 import { AppController } from "../controller";
-import type { RequestAuth } from "../middleware";
+import type { RequestAuth, RequestAuth2FA } from "../middleware";
 import { AuthService } from "./auth.service";
 
 export class AuthController extends AppController {
@@ -37,8 +43,6 @@ export class AuthController extends AppController {
         expires: expiresAt,
         sameSite: EnvsConst.NODE_ENV === "production" ? "none" : undefined,
         path: "/",
-      
-       
       }
     );
 
@@ -50,13 +54,12 @@ export class AuthController extends AppController {
       path: "/",
     });
 
-
     return {
       expiresAt: expiresAt.toISOString(),
     };
   };
 
-  public login = async (req: Request, res: Response) => {
+  public login = (req: Request, res: Response) => {
     const [error, loginDto] = LoginDto.create({
       ...req.body,
       userAgent: req.headers["user-agent"],
@@ -67,11 +70,11 @@ export class AuthController extends AppController {
 
     this.handleError(this.authService.login(loginDto!))
       .then((response) => {
-        const { expiresAt } = this.setCookie(
-          res,
-          response.data.token,
-          
-        );
+        if ("require2FA" in response.data) {
+          return res.status(200).json(response);
+        }
+
+        const { expiresAt } = this.setCookie(res, response.data.token);
 
         return res.status(200).json({
           message: response.message,
@@ -79,14 +82,14 @@ export class AuthController extends AppController {
           data: {
             user: response.data.user,
             expiresAt,
-            deviceId: response.data.deviceId
+            deviceId: response.data.deviceId,
           },
         });
       })
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public sendResetPasswordEmail = async (req: Request, res: Response) => {
+  public sendResetPasswordEmail = (req: Request, res: Response) => {
     const { email } = req.body;
     const emailError = Validations.validateEmail(email);
     if (emailError)
@@ -108,7 +111,7 @@ export class AuthController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public resetPassword = async (req: Request, res: Response) => {
+  public resetPassword = (req: Request, res: Response) => {
     const [error, resetPasswordDto] = ResetPasswordDto.create(req.body);
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
@@ -118,7 +121,7 @@ export class AuthController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public reLogin = async (req: RequestAuth, res: Response) => {
+  public reLogin = (req: RequestAuth, res: Response) => {
     this.handleError(this.authService.reLogin(req.user.id))
       .then((response) => {
         const { expiresAt } = this.setCookie(res, response.data.token);
@@ -135,7 +138,97 @@ export class AuthController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public disconnectDevice = async (req: RequestAuth, res: Response) => {
+  public generateTwoFactorAuthenticationSecret = (
+    req: RequestAuth2FA,
+    res: Response
+  ) => {
+    this.handleError(
+      this.authService.generateTwoFactorAuthenticationSecret(req.data.userId)
+    )
+      .then((response) => res.status(200).json(response))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public verifyTwoFactorAuthentication = (req: Request, res: Response) => {
+    const [error, verify2FAAndAuthenticateUserDto] =
+      Verify2FAAndAuthenticateUserDto.create({
+        ...req.body,
+        browserName: req.headers["browser-name"],
+        userAgent: req.headers["user-agent"],
+      });
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+
+    this.handleError(
+      this.authService.verify2FAAndAuthenticateUser(
+        verify2FAAndAuthenticateUserDto!
+      )
+    )
+      .then((response) => {
+        const { expiresAt } = this.setCookie(res, response.data.token);
+
+        return res.status(200).json({
+          message: response.message,
+          status: response.status,
+          data: {
+            user: response.data.user,
+            expiresAt,
+            deviceId: response.data.deviceId,
+          },
+        });
+      })
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public sendEmailToVerify2FA = (req: RequestAuth2FA, res: Response) => {
+    const token = req.params.token;
+    this.handleError(
+      this.authService.sendEmailToVerify2FA(token, req.data.userId)
+    )
+      .then((response) => res.status(200).json(response))
+      .catch((error) => this.handleResponseError(res, error));
+  };
+
+  public verify2FAEmail = (req: RequestAuth2FA, res: Response) => {
+    this.handleError(
+      this.authService
+        .verify2FAEmail(req.data.deviceId)
+        .then((response) => res.status(200).json(response))
+        .catch((error) => this.handleResponseError(res, error))
+    );
+  };
+
+  public setCookieFrom2FAEmail = (req: RequestAuth2FA, res: Response) => {
+    const [error, verify2FAEmailAndAuthenticateUserDto] =
+      Verify2FAEmailAndAuthenticateUserDto.create({
+        userId: req.data.userId,
+        deviceId: req.data.deviceId,
+        userAgent: req.headers["user-agent"],
+        browserName: req.headers["browser-name"],
+      });
+
+    if (error)
+      return this.handleResponseError(res, CustomError.badRequest(error));
+    this.handleError(
+      this.authService
+        .setTokenFrom2FAEmail(verify2FAEmailAndAuthenticateUserDto!)
+        .then((response) => {
+          const { expiresAt } = this.setCookie(res, response.data.token);
+          return res.status(200).json({
+            message: response.message,
+            status: response.status,
+            data: {
+              user: response.data.user,
+              expiresAt,
+              deviceId: response.data.deviceId,
+            },
+          });
+        })
+        .catch((error) => this.handleResponseError(res, error))
+    );
+  };
+
+  public disconnectDevice = (req: RequestAuth, res: Response) => {
     const [error, disconnectDeviceDto] = DisconnectDeviceDto.create({
       ...req.body,
       userId: req.user.id,
@@ -148,7 +241,7 @@ export class AuthController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public logout = async (req: RequestAuth, res: Response) => {
+  public logout = (req: RequestAuth, res: Response) => {
     res.clearCookie(EnvsConst.TOKEN_COOKIE_NAME);
     res.clearCookie(EnvsConst.EXPIRATION_TOKEN_COOKIE_NAME);
     res.clearCookie(EnvsConst.REFRESH_TOKEN_COOKIE_NAME);
@@ -158,7 +251,7 @@ export class AuthController extends AppController {
       .catch((error) => this.handleResponseError(res, error));
   };
 
-  public userAuthenticated = async (req: RequestAuth, res: Response) => {
+  public userAuthenticated = (req: RequestAuth, res: Response) => {
     const expiresAt = req.cookies[EnvsConst.EXPIRATION_TOKEN_COOKIE_NAME];
     this.handleError(this.authService.userAuthenticated(req.user.id))
       .then((response) => {
@@ -168,7 +261,7 @@ export class AuthController extends AppController {
           data: {
             user: response.data.user,
             expiresAt,
-            deviceId: req.user.device.id
+            deviceId: req.user.device.id,
           },
         });
       })

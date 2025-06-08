@@ -5,7 +5,6 @@ import { UserContext } from "../../presentation/user/user.context";
 
 import { Server } from "http";
 import { Socket, Server as SocketServer } from "socket.io";
-import { UAParserAdapter } from "@/core/adapters";
 
 export class SocketService {
   private static _instance: SocketService;
@@ -43,15 +42,15 @@ export class SocketService {
     this.io.on("connection", async (socket: Socket) => {
       try {
         const userId = socket.data.id;
-
-        console.log(socket.data.deviceId)
-
         const deviceId = socket.data.deviceId
         if (!UserContext.isOnline(userId)) {
           UserContext.addConnection(userId, 
             deviceId, // TODO: CHECK THIS
           );
         }
+
+        if (userId) socket.join(userId);
+  if (deviceId) socket.join(deviceId);
 
         const [authSocket, notificationSocket] = this.appSocket.sockets;
         authSocket.loginSocket(socket);

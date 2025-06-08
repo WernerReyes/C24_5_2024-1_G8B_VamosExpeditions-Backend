@@ -18,6 +18,8 @@ export class TrashDto<T = number> {
     let idValidated: number | { versionNumber: number; quotationId: number } =
       id;
 
+      
+
     if (typeof id === "object") {
       const [error, idDto] = VersionQuotationIDDto.create(id);
       if (error) return [error];

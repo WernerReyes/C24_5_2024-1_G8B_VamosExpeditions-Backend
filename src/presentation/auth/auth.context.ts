@@ -75,9 +75,6 @@ export class AuthContext {
     // Eliminar el dispositivo más antiguo si se supera el límite
     if (devices.length >= Number(maxDevices!.value)) {
       const oldestDeviceId = devices[devices.length - 1].split(":")[2];
-      console.log({
-        oldestDeviceId,
-      });
       if (oldestDeviceId) {
         await this.cache?.del(this.getKey(userId, oldestDeviceId)),
           // Emitir evento a través de SocketService

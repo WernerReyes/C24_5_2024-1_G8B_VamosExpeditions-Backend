@@ -211,6 +211,17 @@ async function cargarDatosDesdeExcel(rutaArchivo: string) {
               user_id: user.id_user,
             });
           }
+         
+          for (const user of users) {
+            settings.push({
+              key: setting_key_enum.TWO_FACTOR_AUTH,
+              value: "false",
+              updated_at: null,
+              updated_by_id: null,
+              user_id: user.id_user,
+            });
+          }
+
           return settings;
         })(),
       ],

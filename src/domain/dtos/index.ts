@@ -2,6 +2,8 @@
 export * from "./auth/login.dto";
 export * from "./auth/resetPassword.dto";
 export * from "./auth/disconnectDevice.dto";
+export * from "./auth/verify2FAAndAuthenticateUser.dto";
+export * from "./auth/verify2FAEmailAndAuthenticateUser.dto";
 
 //* CLIENT
 export * from "./client/client.dto";

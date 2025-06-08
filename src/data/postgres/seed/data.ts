@@ -3,11 +3,9 @@ import {
   type partner,
   type role,
   role_type,
-
   setting_key_enum,
   type settings,
-
-  type user
+  type user,
 } from "@prisma/client";
 
 export const ROLES: Omit<role, "id_role">[] = [
@@ -34,7 +32,7 @@ export const USERS: Omit<user, "id_user" | "id_role">[] = [
     email: "test1@google.com",
     password: BcryptAdapter.hash("aLTEC1234@"),
     fullname: "Test 1",
-    
+
     description: "description 1",
     phone_number: "+51123456789",
     created_at: new Date(),
@@ -42,6 +40,7 @@ export const USERS: Omit<user, "id_user" | "id_role">[] = [
     is_deleted: false,
     deleted_at: null,
     delete_reason: null,
+    twofasecret: null,
   },
   {
     email: "test2@google.com",
@@ -55,6 +54,7 @@ export const USERS: Omit<user, "id_user" | "id_role">[] = [
     is_deleted: false,
     deleted_at: null,
     delete_reason: null,
+    twofasecret: null,
   },
   {
     email: "test3@google.com",
@@ -68,12 +68,13 @@ export const USERS: Omit<user, "id_user" | "id_role">[] = [
     is_deleted: false,
     deleted_at: null,
     delete_reason: null,
+    twofasecret: null,
   },
   {
     email: "test4@google.com",
     password: BcryptAdapter.hash("aLTEC1234@"),
     fullname: "Test 4",
-   
+
     description: "description 4",
     phone_number: "+51123456789",
     created_at: new Date(),
@@ -81,12 +82,13 @@ export const USERS: Omit<user, "id_user" | "id_role">[] = [
     is_deleted: false,
     deleted_at: null,
     delete_reason: null,
+    twofasecret: null,
   },
   {
     email: "test5@google.com",
     password: BcryptAdapter.hash("aLTEC1234@"),
     fullname: "Test 5",
-  
+
     description: "description 5",
     phone_number: "+51123456789",
     created_at: new Date(),
@@ -94,12 +96,13 @@ export const USERS: Omit<user, "id_user" | "id_role">[] = [
     is_deleted: false,
     deleted_at: null,
     delete_reason: null,
+    twofasecret: null,
   },
   {
     email: "test6@google.com",
     password: BcryptAdapter.hash("aLTEC1234@"),
     fullname: "Test 6",
-   
+
     description: "description 6",
     phone_number: "+51123456789",
     created_at: new Date(),
@@ -107,16 +110,12 @@ export const USERS: Omit<user, "id_user" | "id_role">[] = [
     is_deleted: false,
     deleted_at: null,
     delete_reason: null,
+    twofasecret: null,
   },
 ];
 
-
-
-
 export const PARNERTS: Omit<partner, "id">[] = [
   {
-  
-
     name: "Travel Local",
     created_at: new Date(),
     updated_at: new Date(),
@@ -126,7 +125,6 @@ export const PARNERTS: Omit<partner, "id">[] = [
   },
 ];
 
-
 export const DEFAULT_SETTINGS: Omit<settings, "id">[] = [
   {
     key: setting_key_enum.DATA_CLEANUP_PERIOD,
@@ -135,4 +133,5 @@ export const DEFAULT_SETTINGS: Omit<settings, "id">[] = [
     updated_by_id: null,
     user_id: null,
   },
+  
 ];

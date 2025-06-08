@@ -13,6 +13,13 @@ export interface RequestAuth extends Request {
   user: AuthUser;
 }
 
+export interface RequestAuth2FA extends Request {
+  data: {
+    userId: number;
+    deviceId: string;
+  };
+}
+
 export class Middleware {
   static async validateToken(req: Request, res: Response, next: NextFunction) {
     const token = req.url.includes("re-login")
@@ -31,7 +38,7 @@ export class Middleware {
         id: string;
         deviceId: string;
       }>(token);
-     
+
       if (!payload) {
         return res.status(401).json({
           ok: false,
@@ -81,6 +88,47 @@ export class Middleware {
     }
   }
 
+  static async validateToken2FA(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    const token = req.params.token;
+    if (!token)
+      return res.status(401).json({
+        ok: false,
+        message: "Token is required",
+        code: ErrorCodeConst.ERR_USER_INVALID_TOKEN,
+      });
+    try {
+      const payload = await JwtAdapter.verifyToken<{
+        id: string;
+        deviceId: string;
+      }>(token);
+
+      if (!payload) {
+        return res.status(401).json({
+          ok: false,
+          message: "Invalid token",
+          code: ErrorCodeConst.ERR_USER_INVALID_TOKEN,
+        });
+      }
+
+      (req as RequestAuth2FA).data = {
+        userId: +payload.id,
+        deviceId: payload.deviceId,
+      };
+
+      next();
+    } catch (error) {
+      return res.status(401).json({
+        ok: false,
+        message: "Invalid token",
+        code: ErrorCodeConst.ERR_USER_INVALID_TOKEN,
+      });
+    }
+  }
+
   static validateActionPermission(roles: RoleEnum[]) {
     return (req: RequestAuth, res: Response, next: NextFunction) => {
       if (!roles.includes(req.user.role as RoleEnum)) {
@@ -116,13 +164,17 @@ export class Middleware {
     next: (err?: any) => void
   ) {
     try {
+      // TODO: Check the bevehaior of the socket handshake
       const cookies = socket.handshake.headers.cookie;
-      if (!cookies) return next(new Error("Token no proporcionado"));
-
-      const token = cookie.parse(cookies)[EnvsConst.TOKEN_COOKIE_NAME];
+      const token = 
+         socket.handshake.auth.token ?? cookie.parse(cookies!)[EnvsConst.TOKEN_COOKIE_NAME]
+        
       if (!token) return next(new Error("Token is required"));
 
-      const payload = await JwtAdapter.verifyToken<{ id: string, deviceId: string }>(token);
+      const payload = await JwtAdapter.verifyToken<{
+        id: string;
+        deviceId: string;
+      }>(token);
       if (!payload) return next(new Error("Invalid token"));
 
       socket.data = { id: payload.id, deviceId: payload.deviceId };

@@ -22,6 +22,19 @@ export class SettingRoutes {
       settingController.getAll(req as RequestAuth, res)
     );
 
+    router.get(
+      "/:key",
+      Middleware.validateActionPermission([
+        RoleEnum.MANAGER_ROLE,
+      ]) as RequestHandler,
+      (req: Request, res: Response) =>
+        settingController.getByKey(req as RequestAuth, res)
+    );
+
+    router.put("/two-factor-auth", (req: Request, res: Response) =>
+      settingController.updateTwoFactorAuth(req as RequestAuth, res)
+    );
+
     router.put(
       "/dynamic-cleanup",
       Middleware.validateActionPermission([

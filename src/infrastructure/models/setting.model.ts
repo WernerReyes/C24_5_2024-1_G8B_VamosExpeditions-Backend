@@ -83,6 +83,12 @@ export class SettingModel
     return await this.setting.create(args);
   }
 
+  public static async createMany<T extends Prisma.settingsCreateManyArgs>(
+    args: Prisma.SelectSubset<T, Prisma.settingsCreateManyArgs>
+  ): Promise<Prisma.BatchPayload> {
+    return await this.setting.createMany(args);
+  }
+
   public static async update<T extends Prisma.settingsUpdateArgs>(
     args: Prisma.SelectSubset<T, Prisma.settingsUpdateArgs>
   ): Promise<Prisma.settingsGetPayload<T>> {

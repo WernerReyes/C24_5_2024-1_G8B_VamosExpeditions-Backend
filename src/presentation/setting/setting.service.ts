@@ -50,6 +50,51 @@ export class SettingService {
     );
   }
 
+  async getByKey(key: SettingKeyEnum) {
+    const setting = await SettingModel.findFirst({
+      where: {
+        key: key,
+      },
+      select: {
+        id: true,
+        key: true,
+        value: true,
+        updated_at: true,
+        user: {
+          select: {
+            id_user: true,
+            fullname: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return new ApiResponse<SettingEntity>(
+      200,
+      "Setting found",
+      await SettingEntity.fromObject(setting!)
+    );
+  }
+
+  async updateTwoFactorAuth(updateSettingDto: UpdateSettingDto) {
+    const updatedSetting = await SettingModel.update({
+      where: {
+        id: updateSettingDto.id,
+        key: SettingKeyEnum.TWO_FACTOR_AUTH,
+      },
+      data: {
+        value: updateSettingDto.value,
+        updated_at: new Date(),
+      },
+    });
+
+    return new ApiResponse<SettingEntity>(
+      200,
+      "Setting updated",
+      await SettingEntity.fromObject(updatedSetting)
+    );
+  }
   async updateDynamicCleanup(updateSettingDto: UpdateSettingDto) {
     const updatedSetting = await SettingModel.update({
       where: {
@@ -78,7 +123,8 @@ export class SettingService {
         user_id: updateSettingDto.userId,
       },
       data: {
-        value: updateSettingDto.value,
+        value:
+          updateSettingDto.value === "Infinite" ? null : updateSettingDto.value,
         updated_at: new Date(),
         user_id: updateSettingDto.userId,
       },

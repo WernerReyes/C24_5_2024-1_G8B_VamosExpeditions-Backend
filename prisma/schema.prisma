@@ -85,6 +85,7 @@ model user {
   is_deleted                                Boolean             @default(false)
   deleted_at                                DateTime?           @db.Timestamp(6)
   delete_reason                             String?
+  twofasecret                               String?
   notification_notification_from_userTouser notification[]      @relation("notification_from_userTouser")
   notification_notification_to_userTouser   notification[]      @relation("notification_to_userTouser")
   settings                                  settings[]
@@ -342,4 +343,5 @@ enum setting_key_enum {
   MAX_ACTIVE_SESSIONS
   DATA_CLEANUP_PERIOD
   LAST_CLEANUP_RUN
+  TWO_FACTOR_AUTH
 }

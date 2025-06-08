@@ -1,9 +1,12 @@
 import { Prisma, PrismaClient, type user } from "@prisma/client";
 import { Model } from "./model";
 import { type IRoleModel, RoleModel } from "./role.model";
+import { ISettingModel } from "./setting.model";
 
 export interface IUserModel extends user {
   role?: IRoleModel;
+  settings?: ISettingModel[];
+  settings_settings_user_idTouser?: ISettingModel[];
 }
 
 export class UserModel extends Model<IUserModel> implements IUserModel {
@@ -30,7 +33,10 @@ export class UserModel extends Model<IUserModel> implements IUserModel {
     public readonly id_role: number,
     public readonly deleted_at: Date | null,
     public readonly delete_reason: string | null,
-    public role?: RoleModel
+    public readonly twofasecret: string | null,
+    public role?: RoleModel,
+    public settings?: ISettingModel[],
+    public settings_settings_user_idTouser?: ISettingModel[]
   ) {
     super();
   }
@@ -47,6 +53,7 @@ export class UserModel extends Model<IUserModel> implements IUserModel {
       null,
       null,
       0,
+      null,
       null,
       null
     );
@@ -69,7 +76,8 @@ export class UserModel extends Model<IUserModel> implements IUserModel {
       this._instance.phone_number,
       this._instance.id_role,
       this._instance.deleted_at,
-      this._instance.delete_reason
+      this._instance.delete_reason,
+      this._instance.twofasecret
     );
   }
 
@@ -77,7 +85,7 @@ export class UserModel extends Model<IUserModel> implements IUserModel {
     this._instance.role = role;
   }
 
-  public static set setRelationship(relationship: Pick<IUserModel, "role">) {
+  public static set setRelationship(relationship: Pick<IUserModel, "role"| "settings" | "settings_settings_user_idTouser">) {
     Object.assign(this._instance, relationship);
   }
 

@@ -51,11 +51,6 @@ export class VersionQuotationRoutes {
       versionQuotationController.cancelAndReplaceApprovedOfficialVersionQuotation
     );
 
-    router.put(
-      "/:userId",
-      [Middleware.validateOwnership as RequestHandler],
-      versionQuotationController.updateVersionQuotation
-    );
     
     router.post("/duplicate-multiple", (req, res) =>
       versionQuotationController.duplicateMultipleVersionQuotation(
@@ -63,11 +58,17 @@ export class VersionQuotationRoutes {
         res
       )
     );
-
+    
     router.put("/trash", versionQuotationController.trashVersionQuotation);
-
+    
     router.put("/restore", versionQuotationController.restoreVersionQuotation);
-
+    
+    router.put(
+      "/:userId",
+      [Middleware.validateOwnership as RequestHandler],
+      versionQuotationController.updateVersionQuotation
+    );
+    
     router.get(
       "/:quotationId/:versionNumber",
       versionQuotationController.getVersionsQuotationById

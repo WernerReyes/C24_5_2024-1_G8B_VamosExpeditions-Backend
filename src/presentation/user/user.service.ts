@@ -18,7 +18,6 @@ import {
 import type { UserMailer } from "./user.mailer";
 
 export class UserService {
-
   constructor(
     private readonly userMapper: UserMapper,
     private readonly userMailer: UserMailer
@@ -46,11 +45,7 @@ export class UserService {
       200,
       "Usuarios encontrados",
       new PaginatedResponse(
-        await Promise.all(
-          users.map((user) =>
-            UserEntity.fromObject(user)
-          )
-        ),
+        await Promise.all(users.map((user) => UserEntity.fromObject(user))),
         page,
         Math.ceil(totalUsers / limit),
         totalUsers,
@@ -84,12 +79,19 @@ export class UserService {
         include: this.userMapper.toInclude,
       })
         .then((user) => {
-          SettingModel.create({
-            data: {
-              key: SettingKeyEnum.MAX_ACTIVE_SESSIONS,
-              value: "3",
-              user_id: user.id_user,
-            },
+          SettingModel.createMany({
+            data: [
+              {
+                key: SettingKeyEnum.MAX_ACTIVE_SESSIONS,
+                value: "3",
+                user_id: user.id_user,
+              },
+              {
+                key: SettingKeyEnum.TWO_FACTOR_AUTH,
+                value: "true",
+                user_id: user.id_user,
+              },
+            ],
           });
           return user;
         })
