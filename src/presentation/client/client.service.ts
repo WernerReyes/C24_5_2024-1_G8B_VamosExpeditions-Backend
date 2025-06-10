@@ -11,14 +11,14 @@ export class ClientService {
 
   public async upsertClient(clientDto: ClientDto) {
     this.clientMapper.setDto = clientDto;
-    if (!clientDto.id || clientDto.id === 0) {
-      const clientExists = await ClientModel.findFirst({
-        where: { email: clientDto.email },
-      });
-      if (clientExists) {
-        throw CustomError.badRequest("El cliente ya existe con ese email");
-      }
-    }
+    // if (!clientDto.id || clientDto.id === 0) {
+    //   const clientExists = await ClientModel.findFirst({
+    //     where: { email: clientDto.email },
+    //   });
+    //   if (clientExists) {
+    //     throw CustomError.badRequest("El cliente ya existe con ese email");
+    //   }
+    // }
 
     const newClient = await ClientModel.upsert({
       where: { id: clientDto.id },

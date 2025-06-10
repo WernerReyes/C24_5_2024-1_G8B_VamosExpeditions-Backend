@@ -25,7 +25,7 @@ model client {
   id            Int            @id @default(autoincrement())
   fullName      String         @db.VarChar(255)
   country       String         @db.VarChar(255)
-  email         String?        @db.VarChar(255)
+  email         String?        @unique(map: "unique_email") @db.VarChar(255)
   phone         String?        @db.VarChar(30)
   subregion     String         @db.VarChar(150)
   createdAt     DateTime?      @default(now()) @db.Timestamp(6)
