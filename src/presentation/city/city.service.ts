@@ -24,6 +24,31 @@ export class CityService {
    
   }
   //end all cities
+  
+  public async getCityAndDistritAll(){
+      const cityAndDistritAll = await CityModel.findMany({
+          select:{
+             id_city:true,
+              name:true,
+              distrit:{
+                 select:{
+                    id_distrit:true,
+                    name:true
+                 }
+              }
+          }
+      })
+
+      return new ApiResponse<CityEntity[]>(
+        200,
+        "Lista de Ciudad y distritos",
+        await Promise.all(cityAndDistritAll.map((city)=>CityEntity.fromObject(city)))
+      )
+  }
+
+
+
+
 
   // start create  update and delete
   public async upsertCity(cityDto: CityDto) {

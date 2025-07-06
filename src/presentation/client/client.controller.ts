@@ -11,10 +11,12 @@ export class ClientController extends AppController {
   }
 
   public upsertClient = async (req: Request, res: Response) => {
+    console.log("req.body", req.body);
     const [error, clientDto] = ClientDto.create({
       ...req.body,
       id: req.params.id,
     });
+    console.log("ClientDto", clientDto);
     if (error)
       return this.handleResponseError(res, CustomError.badRequest(error));
 

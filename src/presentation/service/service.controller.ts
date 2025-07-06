@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { GetServicesDto } from "@/domain/dtos";
+import { GetServicesDto, ServiceDto } from "@/domain/dtos";
 import { AppController } from "../controller";
 import type { ServiceService } from "./service.service";
 import { CustomError } from "@/domain/error";
@@ -19,4 +19,18 @@ export class ServiceController extends AppController {
       .then((services) => res.status(200).json(services))
       .catch((error) => this.handleResponseError(res, error));
   };
+
+
+  public upsertService = async (req: Request, res: Response) => {
+      const [error, clientDto] = ServiceDto.create({
+        ...req.body,
+        id: req.params.id,
+      });
+      if (error)
+        return this.handleResponseError(res, CustomError.badRequest(error));
+  
+      this.handleError(this.serviceService.upsertService(clientDto!))
+        .then((client) => res.status(200).json(client))
+        .catch((error) => this.handleResponseError(res, error));
+    };
 }

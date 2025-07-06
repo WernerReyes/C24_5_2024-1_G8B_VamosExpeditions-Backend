@@ -130,4 +130,28 @@ export class ServiceModel
     const result = await this.service.count(args);
     return typeof result === "number" ? result : 0;
   }
+
+  public static async findUnique<T extends Prisma.serviceFindUniqueArgs>(
+    args: Prisma.SelectSubset<T, Prisma.serviceFindUniqueArgs>
+  ): Promise<Prisma.serviceGetPayload<T> | null> {
+    return await this.service.findUnique(args);
+  }
+
+  public static async create<T extends Prisma.serviceCreateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.serviceCreateArgs>
+  ): Promise<Prisma.serviceGetPayload<T>> {
+    return await this.service.create(args);
+  }
+
+  public static async createMany<T extends Prisma.serviceCreateManyArgs>(
+    args: Prisma.SelectSubset<T, Prisma.serviceCreateManyArgs>
+  ): Promise<Prisma.BatchPayload> {
+    return await this.service.createMany(args);
+  }
+
+  public static async update<T extends Prisma.serviceUpdateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.serviceUpdateArgs>
+  ): Promise<Prisma.serviceGetPayload<T>> {
+    return await this.service.update(args);
+  }
 }

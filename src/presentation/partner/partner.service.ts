@@ -24,6 +24,7 @@ export class PartnerService {
     const totalPartners = await PartnerModel.count({
       where: this.partnerMapper.filters,
     });
+    
 
     return new ApiResponse<PaginatedResponse<PartnerEntity>>(
       200,

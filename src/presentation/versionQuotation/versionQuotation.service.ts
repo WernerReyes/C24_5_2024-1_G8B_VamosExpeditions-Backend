@@ -713,6 +713,8 @@ export class VersionQuotationService {
         user: true,
       },
     });
+
+    console.log("versionQuotation", JSON.stringify(versionQuotation, null, 2));
     if (!versionQuotation)
       throw CustomError.badRequest(
         "Versión de cotización no encontrada o no completado"
@@ -911,7 +913,8 @@ export class VersionQuotationService {
   } */
 
   public async generateExcel({ versionQuotationId }: VersionQuotationIDDto) {
-    const versionQuotation = await VersionQuotationModel.findUnique({
+    
+     const versionQuotation = await VersionQuotationModel.findUnique({
       where: {
         version_number_quotation_id: {
           version_number: versionQuotationId!.versionNumber,
@@ -925,6 +928,19 @@ export class VersionQuotationService {
       include: {
         trip_details: {
           include: {
+            service_trip_details: {
+              include: {
+                service: {
+                  include:{
+                    distrit:{
+                      include:{
+                        city:true
+                      }
+                    }
+                  }
+                },
+              },
+            },
             hotel_room_trip_details: {
               orderBy: {
                 date: "asc",
@@ -932,7 +948,15 @@ export class VersionQuotationService {
               include: {
                 hotel_room: {
                   include: {
-                    hotel: true,
+                    hotel:{
+                      include:{
+                        distrit:{
+                          include:{
+                            city:true
+                          }
+                        }
+                      }
+                    },
                   },
                 },
               },
@@ -943,12 +967,15 @@ export class VersionQuotationService {
         user: true,
       },
     });
-    if (!versionQuotation)
-      throw CustomError.badRequest(
-        "Versión de cotización no encontrada o no completado"
-      );
+
+    if (!versionQuotation){
+      throw CustomError.badRequest("Versión de cotización no encontrada o no completado");
+     }
+
     return this.versionQuotationExcel.generateExcel({
       dataQuey: versionQuotation as IVersionQuotationModel,
     });
+
+
   }
 }

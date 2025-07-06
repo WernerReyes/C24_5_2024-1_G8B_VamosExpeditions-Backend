@@ -11,9 +11,12 @@ export class ServiceRoutes {
 
     const serviceMapper = new ServiceMapper();
     const serviceService = new ServiceService(serviceMapper);
-    const serviceControler = new ServiceController(serviceService);
+    const serviceController = new ServiceController(serviceService);
 
-    router.get("/", serviceControler.getAll);
+    router.get("/", serviceController.getAll);
+
+    router.post("", serviceController.upsertService);
+    router.put("/:id", serviceController.upsertService);
 
     return router;
   }
