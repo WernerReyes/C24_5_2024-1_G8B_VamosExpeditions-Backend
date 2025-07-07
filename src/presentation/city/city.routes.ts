@@ -15,6 +15,8 @@ export class CityRoutes {
     const cityService = new CityService(cityMapper);
     const cityController = new CityController(cityService);
     router.get("/all-city", cityController.getCitiesAlls);
+
+    router.get("/all-city-and-distrit",cityController.getCityAndDistrit)
     
    // start create, update and delete
       router.post("", cityController.upsertCity);

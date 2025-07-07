@@ -39,7 +39,7 @@ export class ClientDto {
       undefined,
       new ClientDto(
         fullName.trim().charAt(0).toUpperCase() + fullName.slice(1),
-        email? email.trim() : null,
+        email ? email.trim() : null,
         phone ? phone.trim() : null,
         country,
         subregion,

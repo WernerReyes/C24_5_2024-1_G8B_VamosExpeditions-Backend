@@ -1,8 +1,8 @@
 import { ParamsUtils, Validations } from "@/core/utils";
-import { type GetServicesDto } from "@/domain/dtos";
+import { ServiceDto, type GetServicesDto } from "@/domain/dtos";
 import { Prisma } from "@prisma/client";
 
-type Dto = GetServicesDto;
+type Dto = GetServicesDto | ServiceDto;
 
 const FROM = "ServiceMapper";
 export class ServiceMapper {
@@ -51,6 +51,60 @@ export class ServiceMapper {
         city_id: this.dto.cityId,
       },
       service_type_id: this.dto.serviceTypeId,
+      description: this.dto.description
+        ? {
+            contains: this.dto.description.trim(),
+            mode: "insensitive",
+          }
+        : undefined,
+    };
+  }
+
+  public get createService(): Prisma.serviceCreateInput {
+    this.dto = this.dto as ServiceDto;
+
+    return {
+      description: this.dto.description,
+      duration: this.dto.duration,
+      passengers_min: this.dto.passengersMin,
+      passengers_max: this.dto.passengersMax,
+      price_usd: this.dto.priceUsd,
+      tax_igv_usd: this.dto.taxIgvUsd,
+      rate_usd: this.dto.rateUsd,
+      price_pen: this.dto.pricePen,
+      tax_igv_pen: this.dto.taxIgvPen,
+      rate_pen: this.dto.ratePen,
+      created_at: new Date(),
+      distrit: {
+        connect: { id_distrit: this.dto.districtId },
+      },
+      service_type: {
+        connect: { id: this.dto.serviceTypeId },
+      },
+    };
+  }
+
+  public get updateService(): Prisma.serviceUpdateInput {
+    this.dto = this.dto as ServiceDto;
+
+    return {
+      description: this.dto.description,
+      duration: this.dto.duration,
+      passengers_min: this.dto.passengersMin,
+      passengers_max: this.dto.passengersMax,
+      price_usd: this.dto.priceUsd,
+      tax_igv_usd: this.dto.taxIgvUsd,
+      rate_usd: this.dto.rateUsd,
+      price_pen: this.dto.pricePen,
+      tax_igv_pen: this.dto.taxIgvPen,
+      rate_pen: this.dto.ratePen,
+      updated_at: new Date(),
+      distrit: {
+        connect: { id_distrit: this.dto.districtId },
+      },
+      service_type: {
+        connect: { id: this.dto.serviceTypeId },
+      },
     };
   }
 

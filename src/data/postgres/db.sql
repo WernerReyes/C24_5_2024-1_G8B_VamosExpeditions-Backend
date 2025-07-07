@@ -177,7 +177,11 @@ CREATE TABLE service (
    tax_igv_pen DECIMAL(8,2),
     rate_pen DECIMAL(8,2),
     distrit_id INT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    -- TODO: Agregar campos adicionales según sea necesario
+   is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+   deleted_at TIMESTAMP NULL DEFAULT NULL,
+   delete_reason TEXT,
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT fk_service_service_type FOREIGN KEY (service_type_id) REFERENCES service_type(id),
     CONSTRAINT fk_service_distrit FOREIGN KEY (distrit_id)

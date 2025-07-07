@@ -7,10 +7,9 @@ export class GetServicesDto extends PaginationDto {
   private constructor(
     public readonly page: number,
     public readonly limit: number,
-
     public readonly cityId?: number,
     public readonly serviceTypeId?: number,
-
+    public readonly description?: string,
     public readonly select?: string[]
   ) {
     super(page, limit);
@@ -22,7 +21,7 @@ export class GetServicesDto extends PaginationDto {
     const {
       page,
       limit,
-
+      description,
       cityId,
       serviceTypeId,
 
@@ -72,9 +71,9 @@ export class GetServicesDto extends PaginationDto {
       new GetServicesDto(
         dtoPag!.page!,
         dtoPag!.limit!,
-
         cityId ? +cityId : undefined,
         serviceTypeId ? +serviceTypeId : undefined,
+        description ? description.trim() : undefined,
         dto?.select
       ),
     ];

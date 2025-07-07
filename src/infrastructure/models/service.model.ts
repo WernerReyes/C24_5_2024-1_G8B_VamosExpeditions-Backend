@@ -39,6 +39,9 @@ export class ServiceModel
     public readonly tax_igv_pen: Decimal | null,
     public readonly rate_pen: Decimal | null,
     public readonly distrit_id: number,
+     public readonly deleted_at: Date | null = null,
+    public readonly  is_deleted: boolean = false,
+    public readonly delete_reason: string | null = null,
     public readonly created_at: Date,
     public readonly updated_at: Date,
     public distrit?: IDistrictModel,
@@ -62,7 +65,11 @@ export class ServiceModel
       null,
       null,
       null,
+
       0,
+      null,
+      false,  
+      null,
       new Date(),
       new Date()
     );
@@ -87,8 +94,12 @@ export class ServiceModel
       this._instance.tax_igv_pen,
       this._instance.rate_pen,
       this._instance.distrit_id,
+      this._instance.deleted_at,
+      this._instance.is_deleted,
+      this._instance.delete_reason,
       this._instance.created_at,
       this._instance.updated_at
+
     );
   }
 
@@ -129,5 +140,29 @@ export class ServiceModel
   ): Promise<number> {
     const result = await this.service.count(args);
     return typeof result === "number" ? result : 0;
+  }
+
+  public static async findUnique<T extends Prisma.serviceFindUniqueArgs>(
+    args: Prisma.SelectSubset<T, Prisma.serviceFindUniqueArgs>
+  ): Promise<Prisma.serviceGetPayload<T> | null> {
+    return await this.service.findUnique(args);
+  }
+
+  public static async create<T extends Prisma.serviceCreateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.serviceCreateArgs>
+  ): Promise<Prisma.serviceGetPayload<T>> {
+    return await this.service.create(args);
+  }
+
+  public static async createMany<T extends Prisma.serviceCreateManyArgs>(
+    args: Prisma.SelectSubset<T, Prisma.serviceCreateManyArgs>
+  ): Promise<Prisma.BatchPayload> {
+    return await this.service.createMany(args);
+  }
+
+  public static async update<T extends Prisma.serviceUpdateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.serviceUpdateArgs>
+  ): Promise<Prisma.serviceGetPayload<T>> {
+    return await this.service.update(args);
   }
 }

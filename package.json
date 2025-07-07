@@ -13,9 +13,6 @@
     "seed": "tsnd --respawn --clear -r tsconfig-paths/register src/data/postgres/seed/seed.ts",
     "seed:excel": "tsnd --respawn --clear -r tsconfig-paths/register src/data/postgres/seed/excel.ts"
   },
-  "_moduleAliases": {
-    "@": "dist"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",

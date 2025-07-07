@@ -384,6 +384,9 @@ const getServicesFromExcel = (
         districts[Math.floor(Math.random() * districts.length)].id_distrit,
       created_at: new Date(),
       updated_at: new Date(),
+      deleted_at: null,
+      is_deleted: false,
+      delete_reason: null,
     }));
 };
 

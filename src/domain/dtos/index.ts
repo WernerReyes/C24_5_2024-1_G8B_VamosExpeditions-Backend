@@ -37,9 +37,10 @@ export * from "./room/registerRoom.dto";
 
 //* SERVICES
 export * from "./service/getServices.dto";
-
+export * from "./service/services.dto";
 //* SERVICE TYPE
 export * from "./serviceType/getServiceTypes.dto";
+
 
 
 //* VERSION QUOTATION
