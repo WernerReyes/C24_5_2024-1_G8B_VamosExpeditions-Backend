@@ -416,7 +416,7 @@ export class HotelService {
       where: this.hotelMapper.getHotelWhere,
       include: this.hotelMapper.toSelectInclude,
     });
-    console.log("getHotelsPageDto", hotels);
+  
     
 
     const totalCount = await HotelModel.count({

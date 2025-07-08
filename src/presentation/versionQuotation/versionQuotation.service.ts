@@ -714,7 +714,6 @@ export class VersionQuotationService {
       },
     });
 
-    console.log("versionQuotation", JSON.stringify(versionQuotation, null, 2));
     if (!versionQuotation)
       throw CustomError.badRequest(
         "Versión de cotización no encontrada o no completado"

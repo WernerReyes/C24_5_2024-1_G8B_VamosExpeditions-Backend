@@ -106,8 +106,6 @@ export class VersionQuotationExcel {
 
     trip_details?.hotel_room_trip_details?.forEach(
       (db: IHotelRoomTripDetailsModel) => {
-    
-        console.log(db.hotel_room?.hotel?.distrit?.city?.name)
 
         const dayLabel = this.formatDateWithoutDay(db.date);
         groupedData[dayLabel]?.Alojamientos.push({
