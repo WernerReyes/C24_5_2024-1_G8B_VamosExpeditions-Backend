@@ -206,7 +206,7 @@ export class VersionQuotationExcel {
     const tableBody = this.generateTableContent(dataQuey);
     //?console.log(utils.inspect(tableBody, { depth: null, colors: true }));
     
-    console.log(utils.inspect(tableBody,{depth:null,colors:true}));
+  
 
     const PrecioTotal = dataQuey.final_price;
     //! Generate the table rows based on the data
